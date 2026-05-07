@@ -1,0 +1,73 @@
+komandat mu bo run:
+
+nohup php artisan queue:work &
+
+
+
+komandat run me crontab -e:
+
+php /var/www/ds-api/artisan check:agent-status
+
+
+
+
+
+per me check backend features fillimisht a eshte allowed user X me perdor nje feature specifik me blloku ne backend nese jo
+
+Route::get('/ai-logs', [AIController::class, 'index'])
+     ->middleware('check.feature:AI_logs');
+
+
+
+
+
+// fetch features once from backend
+const res = await fetch('/api/user/features', { headers: { 'Authorization': `Bearer ${token}` } });
+const { features } = await res.json();
+
+if (features.AI_logs) {
+  // show button
+} else {
+  // show upgrade message
+}
+
+
+
+/// client should have ability to upgrade downgrade packages
+
+
+// subscriptions check for recurring payments (auto renewals command created)
+* * * * * cd /var/www/your-project && php artisan schedule:run >> /dev/null 2>&1
+
+
+// krijuar CheckSubscription me kqyre a osht aktive trial ose normal
+
+auth:api ensures the user is logged in via API token (or sanctum if you’re using it).
+
+check.subscription prevents users without an active subscription from accessing any routes in this group.
+
+Any Vue SPA page that calls these endpoints will automatically be blocked if the user doesn’t have a subscription.
+
+You can return a JSON 403 in the middleware so the SPA knows to redirect the user to /plans.
+
+
+
+
+
+//subscribe method 
+
+Validates the incoming request.
+
+Checks if the user has a trial → upgrades it to active if found.
+
+Checks if the user has an existing active subscription → extends it.
+
+Otherwise, creates a new subscription.
+
+Stores the payment token in the correct column depending on the payment method.
+
+Enables auto-renew.
+
+Creates an invoice for the subscription.
+
+Returns subscription details as JSON.

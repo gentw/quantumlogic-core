@@ -1,0 +1,90 @@
+  2024-10-28 20:00:26 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 20:00:27 App\Jobs\AssignAgentToClient ............. 752.11ms DONE
+  2024-10-28 20:15:06 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 20:15:07 App\Jobs\AssignAgentToClient ............. 702.58ms DONE
+  2024-10-28 20:19:31 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 20:19:32 App\Jobs\AssignAgentToClient ............. 417.50ms DONE
+  2024-10-28 21:00:28 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 21:00:28 App\Jobs\AssignAgentToClient ............. 532.53ms DONE
+  2024-10-28 21:04:59 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 21:04:59 App\Jobs\AssignAgentToClient ............. 525.28ms DONE
+  2024-10-28 21:16:33 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 21:16:33 App\Jobs\AssignAgentToClient ............. 420.68ms DONE
+  2024-10-28 21:20:27 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 21:20:28 App\Jobs\AssignAgentToClient ............. 416.25ms DONE
+  2024-10-28 21:28:56 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-28 21:28:56 App\Jobs\AssignAgentToClient ............. 641.25ms DONE
+  2024-10-29 01:23:12 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:23:12 App\Events\MessageSent ................... 281.01ms FAIL
+  2024-10-29 01:24:01 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:24:01 App\Events\MessageSent ................... 150.61ms FAIL
+  2024-10-29 01:26:26 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:26:26 App\Events\MessageSent ................... 272.49ms FAIL
+  2024-10-29 01:26:29 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:26:29 App\Events\MessageSent ................... 195.20ms FAIL
+  2024-10-29 01:26:30 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:26:30 App\Events\MessageSent ................... 199.29ms FAIL
+  2024-10-29 01:26:33 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:26:33 App\Events\MessageSent ................... 130.39ms FAIL
+  2024-10-29 01:27:43 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:27:43 App\Events\MessageSent ................... 160.23ms FAIL
+  2024-10-29 01:27:46 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:27:46 App\Events\MessageSent ................... 145.92ms FAIL
+  2024-10-29 01:29:14 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:29:14 App\Events\MessageSent ................... 203.54ms FAIL
+  2024-10-29 01:29:18 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:29:18 App\Events\MessageSent ................... 197.04ms FAIL
+  2024-10-29 01:29:21 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:29:21 App\Events\MessageSent ................... 131.88ms FAIL
+  2024-10-29 01:29:25 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:29:25 App\Events\MessageSent ................... 144.83ms FAIL
+  2024-10-29 01:29:28 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:29:28 App\Events\MessageSent ................... 145.86ms FAIL
+  2024-10-29 01:30:50 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:30:50 App\Events\MessageSent ................... 143.05ms FAIL
+  2024-10-29 01:30:53 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:30:53 App\Events\MessageSent ................... 130.40ms FAIL
+  2024-10-29 01:31:45 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:31:45 App\Events\MessageSent ................... 109.14ms FAIL
+  2024-10-29 01:35:21 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:35:21 App\Events\MessageSent ................... 129.02ms FAIL
+  2024-10-29 01:36:58 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:36:58 App\Events\MessageSent ................... 157.11ms FAIL
+  2024-10-29 01:37:34 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:37:34 App\Events\MessageSent .................... 95.45ms FAIL
+  2024-10-29 01:39:05 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:39:05 App\Events\MessageSent ................... 143.45ms FAIL
+  2024-10-29 01:39:35 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:39:35 App\Events\MessageSent ................... 127.04ms FAIL
+  2024-10-29 01:41:12 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:41:12 App\Events\MessageSent ................... 106.35ms FAIL
+  2024-10-29 01:41:51 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:41:52 App\Events\MessageSent ................... 287.26ms FAIL
+  2024-10-29 01:42:17 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:42:17 App\Events\MessageSent ................... 204.05ms FAIL
+  2024-10-29 01:44:41 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:44:42 App\Events\MessageSent ................... 204.84ms FAIL
+  2024-10-29 01:45:36 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:45:36 App\Events\MessageSent ................... 203.21ms FAIL
+  2024-10-29 01:46:03 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:46:04 App\Events\MessageSent ................... 136.84ms FAIL
+  2024-10-29 01:46:43 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:46:43 App\Events\MessageSent ................... 155.35ms FAIL
+  2024-10-29 01:47:46 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:47:47 App\Events\MessageSent ................... 253.96ms FAIL
+  2024-10-29 01:52:53 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:52:53 App\Events\MessageSent ................... 170.96ms FAIL
+  2024-10-29 01:55:48 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:55:48 App\Events\MessageSent ................... 161.89ms FAIL
+  2024-10-29 01:56:06 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 01:56:06 App\Events\MessageSent ................... 234.47ms FAIL
+  2024-10-29 02:27:23 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 02:27:23 App\Events\MessageSent ................... 198.12ms FAIL
+  2024-10-29 02:28:18 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 02:28:18 App\Events\MessageSent ................... 143.76ms FAIL
+  2024-10-29 02:36:45 App\Events\MessageSent ......................... RUNNING
+  2024-10-29 02:36:46 App\Events\MessageSent ................... 154.29ms FAIL
+  2024-10-29 23:56:19 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-29 23:56:19 App\Jobs\AssignAgentToClient ............. 736.85ms DONE
+  2024-10-30 01:11:22 App\Jobs\AssignAgentToClient ................... RUNNING
+  2024-10-30 01:11:23 App\Jobs\AssignAgentToClient ............. 704.92ms DONE
