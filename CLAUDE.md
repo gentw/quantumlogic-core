@@ -6,6 +6,19 @@ Intelligent web & server security platform — AI-driven threat detection, WAF/t
 
 ---
 
+## Context Files
+
+Read the following to get the full context of the project:
+
+- @context/project-overview.md
+- @context/coding-standards.md
+- @context/ai-interaction.md
+- @context/current-feature.md
+
+For historical *why* behind a feature, see also: [`context/backend-history.md`](context/backend-history.md), [`context/frontend-history.md`](context/frontend-history.md).
+
+---
+
 ## Repo layout
 
 This is a monorepo with two independent apps:
@@ -187,13 +200,5 @@ Docker: `web/dev.Dockerfile` + `web/docker-compose.dev.yml` for the SPA dev serv
 - **No `Services/` layer yet** — controllers tend to hold business logic directly. New non-trivial logic should go into `app/Services/`.
 
 ---
-
-## Companion docs
-
-- [`context/project-overview.md`](context/project-overview.md) — product summary, audience, plans, integrations, stack at a glance.
-- [`context/backend-history.md`](context/backend-history.md) — topic-organized backend evolution distilled from the pre-monorepo `api/` git history (≈104 commits, 2024-10 → 2026-01). Read this for the *why* behind a backend feature.
-- [`context/frontend-history.md`](context/frontend-history.md) — same, for the SPA (`web/`, ≈86 commits).
-- [`context/current-feature.md`](context/current-feature.md) — **in-flight feature only** (status + per-feature notes). Cumulative project history lives in the two history docs above; don't duplicate it here. Keep CLAUDE.md focused on stable architecture & conventions.
-- [`context/coding-standards.md`](context/coding-standards.md) — PHP/Laravel + Vue/Vuetify/Vuexy conventions for this repo (file layout, naming, styling, error handling, data fetching).
 
 **IMPORTANT:** Do not add Claude to any commit messages
