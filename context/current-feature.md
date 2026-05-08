@@ -18,10 +18,4 @@ Not Started
 
 ## History
 
-<!--
-Keep this updated for the IN-FLIGHT feature only (earliest → latest).
-The cumulative project history lives in:
-  - ./backend-history.md  (api/)
-  - ./frontend-history.md (web/)
-Don't duplicate that here.
--->
+<!-- Keep this updated. Earliest to latest. The /feature complete action appends here automatically; deeper, topic-organized history lives in ./backend-history.md and ./frontend-history.md. -->
