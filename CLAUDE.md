@@ -194,3 +194,5 @@ Docker: `web/dev.Dockerfile` + `web/docker-compose.dev.yml` for the SPA dev serv
 - [`context/backend-history.md`](context/backend-history.md) — topic-organized backend evolution distilled from the pre-monorepo `api/` git history (≈104 commits, 2024-10 → 2026-01). Read this for the *why* behind a backend feature.
 - [`context/frontend-history.md`](context/frontend-history.md) — same, for the SPA (`web/`, ≈86 commits).
 - [`context/current-feature.md`](context/current-feature.md) — **in-flight feature only** (status + per-feature notes). Cumulative project history lives in the two history docs above; don't duplicate it here. Keep CLAUDE.md focused on stable architecture & conventions.
+
+**IMPORTANT:** Do not add Claude to any commit messages
