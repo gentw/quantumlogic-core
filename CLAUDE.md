@@ -17,6 +17,8 @@ Read the following to get the full context of the project:
 
 For historical *why* behind a feature, see also: [`context/backend-history.md`](context/backend-history.md), [`context/frontend-history.md`](context/frontend-history.md).
 
+For deeper product / architecture detail (Edge, Agent, Core, integrations, components), see [`context/product/`](context/product/) — read on demand, not auto-loaded.
+
 ---
 
 ## Repo layout
