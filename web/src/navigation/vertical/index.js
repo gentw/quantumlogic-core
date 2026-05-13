@@ -16,7 +16,7 @@ export default [
 
   {
     title: 'My Websites',
-    to: { name: 'second-page' },
+    to: { name: 'client-domains' },
     icon: 'credit-card',
     role: 'client',
     class: '',

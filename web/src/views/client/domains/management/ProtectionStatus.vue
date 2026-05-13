@@ -1,20 +1,17 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
-import LatestLogs from '@/views/client/domains/management/protection_status/LatestLogs.vue';
+import LatestLogs from '@/views/client/domains/management/protection_status/LatestLogs.vue'
 
-const domainData = {
-  name: ''
+const route = useRoute('client-domains-management-tab')
+const router = useRouter()
+
+const domainName = computed(() => (route.query?.domain ? String(route.query.domain) : 'www.example.com'))
+
+const goToList = () => {
+  router.push({ name: 'client-domains' })
 }
 
-
-const refInputEl = ref()
-const isConfirmDialogOpen = ref(false)
-const domainDataLocal = ref(structuredClone(domainData))
-const isAccountDeactivated = ref(false)
-const validateAccountDeactivation = [v => !!v || 'Please confirm account deactivation']
-
-const resetForm = () => {
-  domainData.value = structuredClone(domainData)
+const goToAlarms = () => {
+  router.push({ name: 'client-alarm-alerts' })
 }
 
 const statistics = [
@@ -178,7 +175,7 @@ const canAddOrigin = computed(() => {
                   class="me-2"
                 />
                 <h5 class="text-h5 text-no-wrap mb-0">
-                  Domain: <span class="font-weight-medium">www.bitemybytes.com</span>
+                  Domain: <span class="font-weight-medium">{{ domainName }}</span>
                 </h5>
               </div>
               <!-- Status -->
@@ -561,13 +558,25 @@ const canAddOrigin = computed(() => {
 
       <div>
         <VBtn
-                  size="small"
-                >
-                  Show All
-                </VBtn>
+          size="small"
+          @click="goToAlarms"
+        >
+          Show All
+        </VBtn>
       </div>
       </VCardText>
     </VCard>
+    </VCol>
+
+    <VCol cols="12" class="d-flex flex-wrap gap-4 justify-end">
+      <VBtn
+        color="secondary"
+        variant="tonal"
+        @click="goToList"
+      >
+        <VIcon start icon="tabler-arrow-left" />
+        Back to websites
+      </VBtn>
     </VCol>
   </VRow>
   

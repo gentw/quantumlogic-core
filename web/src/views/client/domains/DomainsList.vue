@@ -183,7 +183,7 @@ console.log("from gent", domains);
       title="Domain Management"
 
     >
-      <RouterLink :to="{ name: 'client-domains-add-domain'}">
+      <RouterLink :to="{ name: 'client-domains-management-tab', params: { tab: 'add-domain' } }">
         <VBtn type="button" class="add-user-btn">Add new Website</VBtn>
       </RouterLink>
       <VCardText class="pb-0">
@@ -369,7 +369,7 @@ console.log("from gent", domains);
 
         <!-- Actions -->
         <template #item.actions="{ item }">
-          <RouterLink :to="{ name: 'admin-clients-id', params: { id: item.id } }">
+          <RouterLink :to="{ name: 'client-domains-management-tab', params: { tab: 'verify-domain' }, query: { domain: item.domain, id: item.id } }">
             <IconBtn>
               <VIcon icon="tabler-edit" />
             </IconBtn>
@@ -377,10 +377,9 @@ console.log("from gent", domains);
 
           <IconBtn>
             <VIcon @click="deleteDomain(item.id)" icon="tabler-trash" />
-          </IconBtn>          
+          </IconBtn>
 
-          <!-- <IconBtn :to="{ name: 'apps-invoice-preview-id', params: { id: item.id } }"> -->
-          <RouterLink :to="{ name: 'admin-clients-id', params: { id: item.id } }">
+          <RouterLink :to="{ name: 'client-domains-management-tab', params: { tab: 'protection-status' }, query: { domain: item.domain, id: item.id } }">
             <IconBtn>
               <VIcon icon="tabler-eye" />
             </IconBtn>
