@@ -2,205 +2,262 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Subscription;
-use App\Models\Package;
+use App\Mail\PaymentConfirmationMail;
 use App\Models\Invoice;
+use App\Models\Package;
 use App\Models\SubscriptionPayment;
-
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PayPalController extends Controller
 {
-   public function createPayment(Request $request)
-   {
-       $provider = new PayPalClient;
-       $provider->setApiCredentials(config('paypal'));
-       $paypalToken = $provider->getAccessToken();
+    public function createPayment(Request $request)
+    {
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'invoice_id' => ['required', 'integer', 'exists:invoices,id'],
+        ]);
 
-       $response = $provider->createOrder([
-           "intent" => "CAPTURE",
-           "purchase_units" => [
-               [
-                   "amount" => [
-                       "currency_code" => "EUR",
-                       "value" => $request->amount
-                   ],
-                   "invoice_id" => $request->invoice_id,
-               ]
-           ],
-           "application_context" => [
-               "cancel_url" => route('paypal.cancel'),
-               "return_url" => route('paypal.success'),
-           ]
-       ]);
-
-       if (isset($response['id']) && $response['id'] != null) {
-           foreach ($response['links'] as $link) {
-               if ($link['rel'] === 'approve') {
-                   //return redirect()->away($link['href']);
-                   return response()->json([
-                        'approval_url' => $link['href']
-                    ]);
-               }
-           }
-       }
-
-
-       return response()->json("Cancelled", 400);
-   }
-
-   public function success(Request $request)
-   {
-        $token = $request->query('token');
         $user = $request->user();
-        if (!$token) {
-            return response()->json('Missing PayPal token', 400);
+
+        $invoice = Invoice::where('id', $validated['invoice_id'])
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+        $provider->getAccessToken();
+
+        $response = $provider->createOrder([
+            'intent' => 'CAPTURE',
+            'purchase_units' => [
+                [
+                    'amount' => [
+                        'currency_code' => 'EUR',
+                        'value' => number_format((float) $validated['amount'], 2, '.', ''),
+                    ],
+                    // Unique per attempt — PayPal rejects reused invoice IDs (DUPLICATE_INVOICE_ID)
+                    'invoice_id' => $invoice->id . '_' . uniqid(),
+                    // custom_id is echoed back in the capture response; use it to look up the invoice
+                    'custom_id' => (string) $invoice->id,
+                ],
+            ],
+            'application_context' => [
+                'cancel_url' => route('paypal.cancel'),
+                'return_url' => route('paypal.success'),
+            ],
+        ]);
+
+        if (isset($response['id']) && $response['id'] !== null) {
+            foreach ($response['links'] as $link) {
+                if ($link['rel'] === 'approve') {
+                    return response()->json(['approval_url' => $link['href']]);
+                }
+            }
+        }
+
+        Log::error('PayPal createOrder failed', ['response' => $response]);
+
+        return response()->json(['error' => 'Failed to create PayPal order'], 400);
+    }
+
+    public function success(Request $request)
+    {
+        $frontendUrl = rtrim(config('app.frontend_url'), '/');
+
+        $token = $request->query('token');
+        if (! $token) {
+            return redirect($frontendUrl . '/client?payment=failed');
         }
 
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $provider->getAccessToken();
 
+        // showOrderDetails includes custom_id/invoice_id; capturePaymentOrder does not
         $order = $provider->showOrderDetails($token);
+        $status = $order['status'] ?? null;
 
-        if (!isset($order['status']) || $order['status'] !== 'APPROVED') {
-            return response()->json([
-                'error' => 'Order not approved',
-                'order' => $order
-            ], 400);
+        if (! isset($order['purchase_units'])) {
+            Log::error('PayPal order not in expected state', ['token' => $token, 'status' => $status]);
+
+            return redirect($frontendUrl . '/client?payment=failed');
         }
 
-        $response = $provider->capturePaymentOrder($token);
+        // Read metadata from showOrderDetails — it's stripped from the capture response
+        $orderUnit = $order['purchase_units'][0] ?? null;
+        if (! $orderUnit) {
+            return redirect($frontendUrl . '/client?payment=failed');
+        }
 
-        $purchaseUnit = $response['purchase_units'][0];
-        $invoiceId = $purchaseUnit['invoice_id'];
+        $invoiceId = $orderUnit['custom_id'] ?? null;
+        $captureId = $token; // fallback; overwritten below if capture succeeds
 
-        if (isset($response['status']) && $response['status'] === 'COMPLETED') {
-            
-            $invoice = Invoice::where('id', $invoiceId)->where('user_id', $user->id)->first();
-            
-            $package = Package::where('id', $invoice->package_id)
+        if ($status === 'APPROVED') {
+            $capture = $provider->capturePaymentOrder($token);
+            if (($capture['status'] ?? null) !== 'COMPLETED' || ! isset($capture['purchase_units'])) {
+                Log::error('PayPal capture failed', ['token' => $token, 'response' => $capture]);
+
+                return redirect($frontendUrl . '/client?payment=failed');
+            }
+            $captureId = $capture['purchase_units'][0]['payments']['captures'][0]['id'] ?? $token;
+        } elseif ($status === 'COMPLETED') {
+            $captureId = $orderUnit['payments']['captures'][0]['id'] ?? $token;
+        } else {
+            Log::error('PayPal order not in expected state', ['token' => $token, 'status' => $status]);
+
+            return redirect($frontendUrl . '/client?payment=failed');
+        }
+
+        $invoice = Invoice::find($invoiceId);
+        if (! $invoice) {
+            Log::error('PayPal success: invoice not found', ['invoice_id' => $invoiceId]);
+
+            return redirect($frontendUrl . '/client?payment=failed');
+        }
+
+        // Idempotency — same callback hit twice (refresh, retry, etc.)
+        if ($invoice->status === 'paid' && $invoice->subscription_id) {
+            return redirect($frontendUrl . '/client?payment=success');
+        }
+
+        $user = User::find($invoice->user_id);
+        if (! $user) {
+            return redirect($frontendUrl . '/client?payment=failed');
+        }
+
+        if (! $invoice->package_id) {
+            return redirect($frontendUrl . '/client?payment=failed');
+        }
+
+        $package = Package::where('id', $invoice->package_id)
             ->where('active', true)
             ->firstOrFail();
 
-            // Check for existing subscription
-            
-            // Check if a trial exists
+        $billingCycle = $this->resolveBillingCycle($invoice, $package);
+        $amount = $billingCycle === 'yearly' ? $package->price_yearly : $package->price_monthly;
+
+        $result = DB::transaction(function () use ($user, $invoice, $package, $billingCycle, $amount, $captureId) {
             $trial = $user->subscriptions()
                 ->where('status', 'trial')
-                ->where('package_id', 1) // Starter package
+                ->where('package_id', 1)
                 ->first();
-
-            $amount = $validated['billing_cycle'] === 'yearly' ? $package->price_yearly : $package->price_monthly;
 
             if ($trial) {
                 $payment = SubscriptionPayment::create([
                     'subscription_id' => $trial->id,
-                    'payment_method' => $validated['payment_method'],
-                    'payment_token' => $validated['payment_token'],
+                    'payment_method' => 'paypal',
+                    'payment_token' => $captureId,
                     'amount' => $amount,
                 ]);
 
-                // Upgrade trial to paid subscription
                 $trial->update([
+                    'package_id' => $package->id,
                     'status' => 'active',
                     'start_date' => now(),
-                    'end_date' => now()->addMonth(), // or addYear if yearly
-                    'billing_cycle' => $validated['billing_cycle'],
-                    'recurring_payment_method' => $validated['payment_method'],
-                    'cc_payment_id' => $validated['payment_method'] === 'cc' ? $payment->id : null,
-                    'paypal_payment_id' => $validated['payment_method'] === 'paypal' ? $payment->id : null,
-                    'bank_transfer_payment_id' => $validated['payment_method'] === 'bank_transfer' ? $payment->id : null,
-                    'auto_renew' => true
+                    'end_date' => $billingCycle === 'yearly' ? now()->addYear() : now()->addMonth(),
+                    'billing_cycle' => $billingCycle,
+                    'recurring_payment_method' => 'paypal',
+                    'paypal_payment_id' => $payment->id,
+                    'auto_renew' => true,
                 ]);
 
                 $subscription = $trial;
             } else {
-                // Check for existing active subscription
                 $existingSub = $user->subscriptions()->where('status', 'active')->first();
 
                 if ($existingSub) {
-
                     $payment = SubscriptionPayment::create([
                         'subscription_id' => $existingSub->id,
-                        'payment_method' => $validated['payment_method'],
-                        'payment_token' => $validated['payment_token'],
+                        'payment_method' => 'paypal',
+                        'payment_token' => $captureId,
                         'amount' => $amount,
                     ]);
 
-                    // Extend existing subscription
-                    $newEndDate = $validated['billing_cycle'] === 'yearly'
+                    $newEndDate = $billingCycle === 'yearly'
                         ? $existingSub->end_date->addYear()
                         : $existingSub->end_date->addMonth();
 
                     $existingSub->update([
-                        'package_id' => $package->id, // optional: update package if different
+                        'package_id' => $package->id,
                         'end_date' => $newEndDate,
-                        'billing_cycle' => $validated['billing_cycle'],
-                        'recurring_payment_method' => $validated['payment_method'],
-                        'cc_payment_id' => $validated['payment_method'] === 'cc' ? $payment->id : null,
-                        'paypal_payment_id' => $validated['payment_method'] === 'paypal' ? $payment->id : null,
-                        'bank_transfer_payment_id' => $validated['payment_method'] === 'bank_transfer' ? $payment->id : null,
-                        'auto_renew' => true
+                        'billing_cycle' => $billingCycle,
+                        'recurring_payment_method' => 'paypal',
+                        'paypal_payment_id' => $payment->id,
+                        'auto_renew' => true,
                     ]);
 
                     $subscription = $existingSub;
                 } else {
-                    // No trial or subscription exists → create new subscription
-                    $startDate = now();
-                    $endDate = $validated['billing_cycle'] === 'yearly' ? now()->addYear() : now()->addMonth();
-
-                    $payment = SubscriptionPayment::create([
-                        //'subscription_id' => $existingSub->id,
-                        'payment_method' => $validated['payment_method'],
-                        'payment_token' => $validated['payment_token'],
-                        'amount' => $amount,
-                    ]);
-
                     $subscription = $user->subscriptions()->create([
                         'package_id' => $package->id,
                         'status' => 'active',
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                        'billing_cycle' => $validated['billing_cycle'],
-                        'recurring_payment_method' => $validated['payment_method'],
-                        'cc_payment_id' => $validated['payment_method'] === 'cc' ? $payment->id : null,
-                        'paypal_payment_id' => $validated['payment_method'] === 'paypal' ? $payment->id : null,
-                        'bank_transfer_payment_id' => $validated['payment_method'] === 'bank_transfer' ? $payment->id: null,
-                        'auto_renew' => true
+                        'start_date' => now(),
+                        'end_date' => $billingCycle === 'yearly' ? now()->addYear() : now()->addMonth(),
+                        'billing_cycle' => $billingCycle,
+                        'recurring_payment_method' => 'paypal',
+                        'auto_renew' => true,
                     ]);
 
-                    $payment = SubscriptionPayment::where('id', $payment->id)->update(
-                        [
-                        'subscription_id' => $subscription->id
-                        ]
-                    );
+                    $payment = SubscriptionPayment::create([
+                        'subscription_id' => $subscription->id,
+                        'payment_method' => 'paypal',
+                        'payment_token' => $captureId,
+                        'amount' => $amount,
+                    ]);
+
+                    $subscription->update(['paypal_payment_id' => $payment->id]);
                 }
             }
 
-            // Create invoice
-            Invoice::create([
-                'user_id' => $user->id,
+            $invoice->update([
                 'subscription_id' => $subscription->id,
                 'subscribe_payment_id' => $payment->id,
-                'amount' => $amount,
                 'status' => 'paid',
-                'description' => "Subscription ({$validated['billing_cycle']}) – {$package->name}",
+                'paid_at' => now(),
             ]);
 
+            return ['subscription' => $subscription, 'payment' => $payment];
+        });
+
+        try {
+            Mail::to($user->email)->send(new PaymentConfirmationMail(
+                userName: $user->name,
+                packageName: $package->name,
+                amount: (float) $amount,
+                captureId: $captureId,
+                billingCycle: $billingCycle,
+            ));
+        } catch (\Throwable $e) {
+            Log::error('PayPal payment email failed', ['user_id' => $user->id, 'error' => $e->getMessage()]);
         }
 
-        return response()->json([
-            'error' => 'Capture failed',
-            'response' => $response
-        ], 400);
+        return redirect($frontendUrl . '/client?payment=success');
     }
 
+    public function cancel()
+    {
+        $frontendUrl = rtrim(config('app.frontend_url'), '/');
 
-   public function cancel()
-   {
-       return "Payment cancelled!";
-   }
+        return redirect($frontendUrl . '/client/plans-billing?payment=cancelled');
+    }
+
+    private function resolveBillingCycle(Invoice $invoice, Package $package): string
+    {
+        if ($invoice->subscription_id && $invoice->subscription && $invoice->subscription->billing_cycle) {
+            return $invoice->subscription->billing_cycle;
+        }
+
+        $amount = (float) $invoice->amount;
+        if ((float) $package->price_yearly > 0 && abs($amount - (float) $package->price_yearly) < 0.01) {
+            return 'yearly';
+        }
+
+        return 'monthly';
+    }
 }

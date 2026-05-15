@@ -10,7 +10,15 @@ export default {
   },
   setup() {
     const chatStore = useChatStore();
+    const route = useRoute();
+    const router = useRouter();
+    const showPaymentSnackbar = ref(false);
+
 onMounted(()=>{
+  if (route.query.payment === 'success') {
+    showPaymentSnackbar.value = true;
+    router.replace({ query: {} });
+  }
 });
 
 const participants = ref([]);
@@ -426,7 +434,8 @@ const participants = ref([]);
       chatStore,
       widgetData,
       renderFeatherIcon,
-      accessState
+      accessState,
+      showPaymentSnackbar,
 
     };
   },
@@ -514,6 +523,18 @@ const participants = ref([]);
 
       <TicketsStatisticsWidget/>
     </div>
+
+    <VSnackbar
+      v-model="showPaymentSnackbar"
+      color="success"
+      location="top"
+      :timeout="6000"
+    >
+      Payment processed successfully! Your subscription is now active.
+      <template #actions>
+        <VBtn variant="text" @click="showPaymentSnackbar = false">Close</VBtn>
+      </template>
+    </VSnackbar>
     
 
 

@@ -16,7 +16,7 @@
     <VCol cols="12">
       <VCard
         class="mb-6 alarm_alerts__heading"
-        title="Alertet e alarmit"
+        title="Attack Alerts"
       >
         <!-- <VCardText>Client</VCardText> -->
         

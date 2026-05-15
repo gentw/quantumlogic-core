@@ -90,7 +90,7 @@ All API routes are under `v1/`. High-level groups:
 ### Config & ops
 - `.env.example` covers app, DB (mysql), mail (smtp/Mailpit dev), Pusher, Redis, AWS placeholders. PayPal/Firebase/Google keys are populated only in real `.env`.
 - Queue worker (per `notes.txt`): `nohup php artisan queue:work &`
-- Auto-renew via cron: `* * * * * cd /var/www/sentrigate/api && php artisan schedule:run >> /dev/null 2>&1` (path in `notes.txt` references `/var/www/ds-api` — that's stale; update if used).
+- Auto-renew via cron: `* * * * * cd /var/www/sentrigate/api && php artisan schedule:run >> /dev/null 2>&1`.
 - `storage/logs/laravel.log` is large (≈17MB) — already in active use.
 
 ### Common commands
@@ -196,7 +196,6 @@ Docker: `web/dev.Dockerfile` + `web/docker-compose.dev.yml` for the SPA dev serv
 - **Three signup endpoints** exist. They are not duplicates by design; consolidate before public launch.
 - **Hard-coded API URL in router guards** (`web/src/plugins/1.router/guards.js`) — replace with `VITE_API_BASE_URL` if you change environments.
 - **Vuexy is Vue 3 / Vuetify 3 here** — ignore Vue 2 Vuexy docs; component APIs differ.
-- **`api/notes.txt` references `/var/www/ds-api`** — this is the prior project name. The current repo path is `/var/www/sentrigate/api`. Update any cron/systemd you copy from there.
 - **No `Services/` layer yet** — controllers tend to hold business logic directly. New non-trivial logic should go into `app/Services/`.
 
 ---

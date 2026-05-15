@@ -11,23 +11,23 @@ export default function useAlarmAlertsList() {
     // Table Handlers per alarm alert list
     const tableColumns = reactive([
         {
-        title: 'PAISJA',
+        title: 'ATTACK TYPE',
         key: 'alarm_description',
         },
         {
-        title: 'PREZENCA',
+        title: 'RESPONSE',
         key: 'is_me',
         },
         {
-          title: 'STATUSI',
+          title: 'STATUS',
           key: 'status',
         },
         {
-        title: 'DATA',
+        title: 'DATE',
         key: 'date',
         },
         {
-        title: 'KOHA',
+        title: 'TIME',
         key: 'time',
         },
         {

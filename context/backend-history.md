@@ -113,6 +113,5 @@ Built up in layers — read in this order if you're tracing the design:
 
 ## Operational notes
 
-- `notes.txt` references `/var/www/ds-api` — that's the prior path. Current path is `/var/www/sentrigate/api`. Update any cron/systemd you copy from there.
 - Queue worker: `nohup php artisan queue:work &`.
 - Renewal cron: `* * * * * cd /var/www/sentrigate/api && php artisan schedule:run >> /dev/null 2>&1`.

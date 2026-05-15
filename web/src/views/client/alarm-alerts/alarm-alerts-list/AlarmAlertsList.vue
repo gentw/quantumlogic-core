@@ -20,49 +20,49 @@ export default {
 
       const _statusOptions = ref([
         {
-          title: 'E pa evidentuar',
+          title: 'Unacknowledged',
           value: '0'
         },
         {
-          title: 'Jam unë',
+          title: 'Authorized by me',
           value: '1',
         },
         {
-          title: 'Nuk jam unë',
+          title: 'Not authorized by me',
           value: '2',
         }
       ])
 
       const _resolveStatus = status => {
         if (status === 'resolved')
-          return { text: 'E zgjidhur', color: 'success' }
+          return { text: 'Resolved', color: 'success' }
         if (status === 'no_response')
-          return { text: 'Pa përgjigje', color: 'primary' }
+          return { text: 'No Response', color: 'primary' }
         if (status === 'patrol_dispatched')
-          return { text: 'Patrula nisur', color: 'info' }
+          return { text: 'Agent Dispatched', color: 'info' }
         if (status === 'pending')
-          return { text: 'Në pritje', color: 'warning' }
+          return { text: 'Pending', color: 'warning' }
       }
 
       const resolveIsMeVariant = (is_me) => {
         if (is_me === 1)
           return {
             color: 'success',
-            text: 'Jam une',
+            text: 'Authorized by me',
             icon: 'unlock'
           }
         else if (is_me === 2)
           return {
             color: 'primary',
-            text: 'Nuk jam une',
+            text: 'Not me',
             icon: 'lock'
           }
         else
         return {
             color: 'warning',
-            text: 'E pa-evidentuar',
+            text: 'Unacknowledged',
             icon: 'help-circle'
-          }        
+          }
       }
 
       const renderFeatherIcon = (iconName, size) => {

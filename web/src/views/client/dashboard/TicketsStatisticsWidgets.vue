@@ -63,6 +63,7 @@ const renderFeatherIcon = (iconName) => {
       sm="6"
     >
       <div>
+        <RouterLink to="/client/alarm-alerts" style="text-decoration: none; color: inherit;">
         <VCard
           class="logistics-card-statistics cursor-pointer"
           :style="data.isHover ? `border-block-end-color: rgb(var(--v-theme-${data.color}))` : `border-block-end-color: rgba(var(--v-theme-${data.color}),0.38)`"
@@ -96,13 +97,12 @@ const renderFeatherIcon = (iconName) => {
                 Show All
                </div>
               <div>
-                <RouterLink to="#" class="text-default">
                 <i v-html="renderFeatherIcon('chevron-right')" />
-                </RouterLink>
               </div>
             </div>
           </VCardText>
         </VCard>
+        </RouterLink>
       </div>
     </VCol>
   </VRow>

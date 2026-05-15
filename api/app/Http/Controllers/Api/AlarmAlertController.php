@@ -261,7 +261,7 @@ class AlarmAlertController extends Controller
             }            
         }
 
-        $alarms = IncomingAlarm::where('user_id', 23)->where(function ($query) use ($q, $status) {
+        $alarms = IncomingAlarm::where('user_id', $request->user()->id)->where(function ($query) use ($q, $status) {
             $query->whereRaw('alarm_description like ?', ['%' . $q . '%']);
         });
         if($status != ''){
