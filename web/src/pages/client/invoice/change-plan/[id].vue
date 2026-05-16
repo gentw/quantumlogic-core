@@ -3,8 +3,10 @@ import safeBoxWithGoldenCoin from '@images/misc/3d-safe-box-with-golden-dollar-c
 import spaceRocket from '@images/misc/3d-space-rocket-with-smoke.png'
 import dollarCoinPiggyBank from '@images/misc/dollar-coins-flying-pink-piggy-bank.png'
 import { useToast } from 'vue-toast-notification';
+import { useTrialFingerprint } from '@/composables/useTrialFingerprint'
 const router = useRouter()
 const route = useRoute()
+const { get: getTrialFingerprint } = useTrialFingerprint()
 const props = defineProps({
   title: {
     type: String,
@@ -21,7 +23,7 @@ const $toast = useToast();
 
 onMounted(async () => {
   try {
-    const data = await $api(`https://api-ds.bitemybytes.com/api/v1/client/invoice/${route.params.id}`, {
+    const data = await $api(`/v1/client/invoice/${route.params.id}`, {
         method: 'GET',
     })
 
@@ -38,10 +40,10 @@ onMounted(async () => {
 
 const changePlanInvoice = async (package_id) => {
   try {
-    const res = await $api(`https://api-ds.bitemybytes.com/api/v1/client/sub/changePlanInvoice/${package_id}`, {
+    const res = await $api(`/v1/client/sub/changePlanInvoice/${package_id}`, {
       method: 'POST',
       headers: {
-        'X-Trial-Fingerprint': localStorage.getItem('trial_fp'),
+        'X-Trial-Fingerprint': getTrialFingerprint(),
       },
       body: {
         invoice_id: route.params.id,

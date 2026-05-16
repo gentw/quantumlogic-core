@@ -1,9 +1,10 @@
 <script setup>
-import safeBoxWithGoldenCoin from '@images/misc/3d-safe-box-with-golden-dollar-coins.png'
-import spaceRocket from '@images/misc/3d-space-rocket-with-smoke.png'
-import dollarCoinPiggyBank from '@images/misc/dollar-coins-flying-pink-piggy-bank.png'
-import { useToast } from 'vue-toast-notification';
+import { useToast } from 'vue-toast-notification'
+import { useTrialFingerprint } from '@/composables/useTrialFingerprint'
+
 const router = useRouter()
+const $toast = useToast()
+const { get: getTrialFingerprint } = useTrialFingerprint()
 
 const props = defineProps({
   title: {
@@ -16,73 +17,58 @@ const props = defineProps({
   lg: [String, Number],
   xl: [String, Number],
 })
-const $toast = useToast();
 
 const generateTrialInvoice = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/client/sub/generateTrialInvoice', {
+    const res = await $api('/v1/client/sub/generateTrialInvoice', {
       method: 'POST',
       headers: {
-        'X-Trial-Fingerprint': localStorage.getItem('trial_fp'),
-      },
-      onResponseError({ response }) {
-        $toast.error('An error occurred while generating the invoice.');
+        'X-Trial-Fingerprint': getTrialFingerprint(),
       },
     })
-    console.log("GENT", res);
-    // Access invoice ID correctly
-    const invoiceId = res.invoice;
 
+    const invoiceId = res.invoice
     if (!invoiceId) {
       $toast.error('Invoice ID not returned from API.')
       return
     }
 
     $toast.success('Invoice was created successfully!')
-
-    // Redirect to pay-now page
     router.push(`/client/invoice/pay-now/${invoiceId}`)
-    
   } catch (err) {
-    console.error('Error generating trial invoice:', err)
+    if (err?.response?._data?.trial_blocked) {
+      $toast.error(err.response._data.message ?? 'Trial already used.')
+      return
+    }
     $toast.error('Failed to create trial invoice.')
   }
 }
 
-const generateInvoice = async (planId) => {
+const generateInvoice = async planId => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/client/sub/generateInvoice', {
+    const res = await $api('/v1/client/sub/generateInvoice', {
       method: 'POST',
       headers: {
-        'X-Trial-Fingerprint': localStorage.getItem('trial_fp'),
+        'X-Trial-Fingerprint': getTrialFingerprint(),
       },
       body: {
         is_annual: annualMonthlyPlanPriceToggler.value,
-        plan_id: planId 
-      },
-      onResponseError({ response }) {
-        $toast.error('An error occurred while generating the invoice.');
+        plan_id: planId,
       },
     })
-    // Access invoice ID correctly
-    const invoiceId = res.invoice;
 
+    const invoiceId = res.invoice
     if (!invoiceId) {
       $toast.error('Invoice ID not returned from API.')
       return
     }
 
     $toast.success('Invoice was created successfully!')
-
-    // Redirect to pay-now page
     router.push(`/client/invoice/pay-now/${invoiceId}`)
-    
   } catch (err) {
-    console.error('Error generating trial invoice:', err)
-    $toast.error('Failed to create trial invoice.')
+    $toast.error('Failed to create invoice.')
   }
 }
-
 
 const annualMonthlyPlanPriceToggler = ref(true)
 
@@ -91,7 +77,6 @@ const pricingPlans = [
     id: 1,
     name: 'Starter',
     tagLine: 'Essential protection & performance for small sites',
-   
     monthlyPrice: 14,
     yearlyPrice: 149,
     isPopular: true,
@@ -112,7 +97,6 @@ const pricingPlans = [
     id: 2,
     name: 'Professional',
     tagLine: 'Security & performance for growing businesses',
-    
     monthlyPrice: 34,
     yearlyPrice: 349,
     isPopular: true,
@@ -132,7 +116,6 @@ const pricingPlans = [
     id: 3,
     name: 'Growth',
     tagLine: 'Advanced protection & multi-framework support',
- 
     monthlyPrice: 69,
     yearlyPrice: 699,
     isPopular: false,
@@ -194,7 +177,6 @@ const pricingPlans = [
         </VCardText>
 
         <VCardText>
-         <!-- <VImg :height="120" :width="120" :src="plan.logo" class="mx-auto mb-5" /> -->
           <h4 class="text-h4 mb-1 text-center">{{ plan.name }}</h4>
           <p class="mb-0 text-body-1 text-center">{{ plan.tagLine }}</p>
 
@@ -225,21 +207,21 @@ const pricingPlans = [
           </VList>
 
           <VBtn
+            v-if="plan.id === 1"
             block
             :color="plan.current ? 'success' : 'primary'"
-            :variant="'tonal'"
+            variant="tonal"
             @click="generateTrialInvoice"
-            v-if="plan.id == 1"
           >
-            {{ plan.name === 'Starter' ? 'Start 7-Day Free Trial' : 'Upgrade' }}
+            Start 7-Day Free Trial
           </VBtn>
 
           <VBtn
             block
             :color="plan.current ? 'success' : 'primary'"
             :variant="plan.isPopular ? 'elevated' : 'tonal'"
-            @click="generateInvoice(plan.id)"
             class="mt-2"
+            @click="generateInvoice(plan.id)"
           >
             Upgrade
           </VBtn>

@@ -1,23 +1,19 @@
 <script setup>
-import { ref } from 'vue'
-
-import paypalDark from '@images/icons/payments/img/paypal-dark.png'
-import paypalLight from '@images/icons/payments/img/paypal-light.png'
-import visaDark from '@images/icons/payments/img/visa-dark.png'
-import visaLight from '@images/icons/payments/img/visa-light.png'
-
-import WiseCardDialog from '@/views/client/pay-now/WiseCardDialog.vue';
+import { computed, onMounted, ref } from 'vue'
+import { useToast } from 'vue-toast-notification'
+import { useTrialFingerprint } from '@/composables/useTrialFingerprint'
+import WiseCardDialog from '@/views/client/pay-now/WiseCardDialog.vue'
 
 const isDialogVisible = ref(false)
 const route = useRoute()
-const visa = useGenerateImageVariant(visaLight, visaDark)
-const paypal = useGenerateImageVariant(paypalLight, paypalDark)
 const router = useRouter()
+const $toast = useToast()
+const { get: getTrialFingerprint } = useTrialFingerprint()
 
 const radioContent = computed(() => {
   if (isTrial.value) {
     return [
-      { title: 'Credit Card (Verification Only)', value: 'credit card', images: 'tabler-credit-card' }
+      { title: 'Credit Card (Verification Only)', value: 'credit card', images: 'tabler-credit-card' },
     ]
   }
 
@@ -32,24 +28,19 @@ const selectedRadio = ref('credit card')
 const selectedCountry = ref('USA')
 const isPricingPlanDialogVisible = ref(false)
 
-// Billing info (front-end only)
 const email = ref('')
 const password = ref('')
 const zipCode = ref('')
 
-// Modal controls
 const isCreditCardModalVisible = ref(false)
 const isPaypalModalVisible = ref(false)
-const servicePrice = ref(0.00);
-// Dummy order summary
-const subscriptionPrice = computed(() => {
-  return isTrial.value ? 0 : servicePrice.value
-})
+const isSubmitting = ref(false)
+const servicePrice = ref(0.0)
 
-const tax = computed(() => isTrial.value ? 0 : 4.99)
+const subscriptionPrice = computed(() => (isTrial.value ? 0 : servicePrice.value))
+const tax = computed(() => (isTrial.value ? 0 : 4.99))
 const total = computed(() => subscriptionPrice.value + tax.value)
 
-// Credit card modal fields (simulated)
 const cardNumber = ref('')
 const cardHolder = ref('')
 const expDate = ref('')
@@ -58,7 +49,6 @@ const cvv = ref('')
 const invoice = ref(null)
 const isTrial = ref(false)
 
-// Front-end payment simulation
 const proceedWithPayment = () => {
   if (selectedRadio.value === 'paypal') {
     isPaypalModalVisible.value = true
@@ -67,57 +57,89 @@ const proceedWithPayment = () => {
   }
 }
 
-const submitCreditCardPayment = () => {
-  alert(`Payment successful!\nAmount: $${total.toFixed(2)}\nMethod: Credit Card (Simulated)\nWe do NOT store your credit card info.`)
+const buildCardToken = () => {
+  // SIMULATED tokenization. Replace with real gateway tokenization (Stripe/Adyen/etc.)
+  // before going live; this stub exists so trial-start has SOMETHING to store
+  // instead of inventing a value server-side.
+  const last4 = (cardNumber.value || '').replace(/\s+/g, '').slice(-4)
+  return `tok_sim_${Date.now()}_${last4 || 'xxxx'}`
+}
+
+const startTrialFlow = async () => {
+  isSubmitting.value = true
+  try {
+    await $api('/v1/client/sub/startTrial', {
+      method: 'POST',
+      headers: {
+        'X-Trial-Fingerprint': getTrialFingerprint(),
+      },
+      body: {
+        package_id: invoice.value?.package_id ?? 1,
+        payment_method: 'cc',
+        payment_token: buildCardToken(),
+        payment_brand: 'visa',
+      },
+    })
+
+    $toast.success('Trial started. Welcome aboard!')
+    isCreditCardModalVisible.value = false
+    router.push('/client')
+  } catch (err) {
+    const data = err?.response?._data
+    if (data?.trial_blocked) {
+      $toast.error(data.message ?? 'Trial already used.')
+    } else if (data?.errors) {
+      $toast.error(Object.values(data.errors).flat().join(' '))
+    } else {
+      $toast.error(data?.message ?? 'Failed to start trial.')
+    }
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const submitCreditCardPayment = async () => {
+  if (isTrial.value) {
+    await startTrialFlow()
+    return
+  }
+
+  $toast.info('Credit-card auto-charge integration is pending. Use PayPal for now.')
   isCreditCardModalVisible.value = false
 }
 
 const submitPaypalPayment = () => {
-  alert(`Payment successful!\nAmount: $${total.toFixed(2)}\nMethod: PayPal (Simulated)\nAutomatic payments enabled if you keep PayPal saved.`)
   isPaypalModalVisible.value = false
+  payNow()
 }
 
-const amount = ref(0);
-const currency = ref("EUR");
-
-
-const payNow = async (planId) => {
+const payNow = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/paypal/payment', {
+    const res = await $api('/v1/paypal/payment', {
       method: 'POST',
       body: {
         amount: subscriptionPrice.value,
         currency: 'EUR',
-        invoice_id: route.params.id
-      },
-      onResponseError({ response }) {
-        //$toast.error('An error occurred while processing the payment.');
+        invoice_id: route.params.id,
       },
     })
-    // Access invoice ID correctly
+
     if (res.approval_url) {
-      window.location.href = res.approval_url;
+      window.location.href = res.approval_url
     } else {
-      console.error(res);
+      $toast.error('Failed to create PayPal payment.')
     }
-    
   } catch (err) {
-    console.error('Error procing the payment:', err)
-    //$toast.error('The payment has not been processed.')
+    $toast.error('The payment could not be processed.')
   }
 }
 
-
 onMounted(async () => {
   try {
-    const data = await $api(`https://api-ds.bitemybytes.com/api/v1/client/invoice/${route.params.id}`, {
-        method: 'GET',
-    })
+    const data = await $api(`/v1/client/invoice/${route.params.id}`, { method: 'GET' })
 
     invoice.value = data
-    isTrial.value = data.is_trial
-
-    //console.log("GENT", data.amount)
+    isTrial.value = !!data.is_trial
     servicePrice.value = parseFloat(data.amount)
 
     if (isTrial.value) {
@@ -125,10 +147,7 @@ onMounted(async () => {
     }
   } catch (err) {
     if (err.response?.status === 404) {
-      // Redirect if invoice not found
       router.replace('/client/plans-billing')
-    } else {
-      console.error(err)
     }
   }
 })
@@ -140,7 +159,6 @@ onMounted(async () => {
       <div class="d-flex justify-center align-center payment-card">
         <VCard width="100%">
           <VRow>
-            <!-- Billing Form -->
             <VCol cols="12" md="8" :class="$vuetify.display.mdAndUp ? 'border-e' : 'border-b'">
               <VCardText class="pa-8 pe-5">
                 <div>
@@ -148,9 +166,18 @@ onMounted(async () => {
                   <div class="text-body-1">
                     All plans include 40+ advanced tools and features. Choose the best plan.
                   </div>
+                  <VAlert
+                    v-if="isTrial"
+                    type="info"
+                    variant="tonal"
+                    density="comfortable"
+                    class="mt-4"
+                  >
+                    Your card is required to start the trial. <strong>You will not be charged</strong>
+                    during the 7-day trial period — the card is stored only as a payment method.
+                  </VAlert>
                 </div>
 
-                <!-- Payment Method -->
                 <CustomRadios
                   v-model:selected-radio="selectedRadio"
                   :radio-content="radioContent"
@@ -160,11 +187,7 @@ onMounted(async () => {
                 >
                   <template #default="{ item }">
                     <div class="d-flex align-center gap-x-4 ms-3">
-                      <VIcon
-                        size="24"
-                        :icon='item.images'
-                        
-                      />
+                      <VIcon size="24" :icon="item.images" />
                       <h6 class="text-h6">{{ item.title }}</h6>
                     </div>
                   </template>
@@ -173,7 +196,6 @@ onMounted(async () => {
                 <div v-if="selectedRadio == 'wise'">
                   <VCard>
                     <VCardText style="padding:0!important">
-
                       <p class="text-body-1 mb-4">
                         <strong>Please note</strong> that invoices cannot be considered paid until the transaction
                         is successfully processed and reflected in our banking system.
@@ -196,16 +218,15 @@ onMounted(async () => {
                   </VCard>
                 </div>
 
-
                 <VDivider class="my-4" />
 
                 <div class="mt-4 text-sm text-gray-600">
-                  Note: We do <strong>NOT</strong> store your credit card information. You will be asked to enter it for each payment. Automatic payments only apply if you use PayPal and keep it linked.
+                  Note: We do <strong>NOT</strong> store your credit card information. You will be asked to
+                  enter it for each payment. Automatic payments only apply if you use PayPal and keep it linked.
                 </div>
               </VCardText>
             </VCol>
 
-            <!-- Order Summary -->
             <VCol cols="12" md="4">
               <VCardText class="pa-8 ps-5">
                 <div class="mb-8">
@@ -216,13 +237,11 @@ onMounted(async () => {
                 <VCard flat color="rgba(var(--v-theme-on-surface), var(--v-hover-opacity))">
                   <VCardText>
                     <div class="text-body-1">A simple start for everyone</div>
-                    <h1 class="text-h1 my-4">${{ subscriptionPrice }}
-                    <!--<span class="text-body-1 font-weight-medium">/month</span>-->
-                    </h1>
-                    <RouterLink :to='"/client/invoice/change-plan/"+route.params.id'>
-                    <VBtn variant="tonal" block @click="isPricingPlanDialogVisible = !isPricingPlanDialogVisible">
-                      Change Plan
-                    </VBtn>
+                    <h1 class="text-h1 my-4">${{ subscriptionPrice }}</h1>
+                    <RouterLink :to='"/client/invoice/change-plan/" + route.params.id'>
+                      <VBtn variant="tonal" block @click="isPricingPlanDialogVisible = !isPricingPlanDialogVisible">
+                        Change Plan
+                      </VBtn>
                     </RouterLink>
                   </VCardText>
                 </VCard>
@@ -243,17 +262,14 @@ onMounted(async () => {
                   </div>
                 </div>
 
-                <WiseCardDialog
-                  v-model="isDialogVisible"
-                 />
+                <WiseCardDialog v-model="isDialogVisible" />
 
-                <VBtn block color="success" class="mb-8" @click="payNow">
+                <VBtn block color="success" class="mb-8" :loading="isSubmitting" @click="proceedWithPayment">
                   <template #append>
                     <VIcon icon="tabler-arrow-right" class="flip-in-rtl" />
                   </template>
-                  Proceed With Payment
+                  {{ isTrial ? 'Activate Trial' : 'Proceed With Payment' }}
                 </VBtn>
-
               </VCardText>
             </VCol>
           </VRow>
@@ -261,15 +277,50 @@ onMounted(async () => {
       </div>
     </VContainer>
 
+    <!-- Credit-card capture modal -->
+    <VDialog v-model="isCreditCardModalVisible" max-width="480">
+      <VCard>
+        <VCardTitle>{{ isTrial ? 'Save Card to Start Trial' : 'Card Details' }}</VCardTitle>
+        <VCardText>
+          <p v-if="isTrial" class="mb-4 text-body-2">
+            Your card is verified and saved as a payment method. You will not be charged during the trial.
+          </p>
+          <VTextField v-model="cardNumber" label="Card Number" class="mb-2" />
+          <VTextField v-model="cardHolder" label="Cardholder Name" class="mb-2" />
+          <div class="d-flex gap-3">
+            <VTextField v-model="expDate" label="MM/YY" />
+            <VTextField v-model="cvv" label="CVV" />
+          </div>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn variant="text" @click="isCreditCardModalVisible = false">Cancel</VBtn>
+          <VBtn color="primary" :loading="isSubmitting" @click="submitCreditCardPayment">
+            {{ isTrial ? 'Activate Trial' : 'Pay Now' }}
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
+    <!-- PayPal redirect confirmation -->
+    <VDialog v-model="isPaypalModalVisible" max-width="420">
+      <VCard>
+        <VCardTitle>Continue with PayPal</VCardTitle>
+        <VCardText>
+          You will be redirected to PayPal to authorize the ${{ total.toFixed(2) }} payment.
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn variant="text" @click="isPaypalModalVisible = false">Cancel</VBtn>
+          <VBtn color="primary" @click="submitPaypalPayment">Continue</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.payment-card { margin-block: 10.5rem 5.25rem; }
+.payment-card { margin-block: 0 !important; }
 .payment-page { @media (min-width: 600px) and (max-width: 960px) { .v-container { padding-inline: 2rem !important; } } }
 .payment-card .custom-radio .v-radio { margin-block-start: 0 !important; }
-.payment-card {
-  margin-block: 0!important;
-}
 </style>

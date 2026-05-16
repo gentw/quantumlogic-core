@@ -136,10 +136,10 @@ Route::group([
 
 
     // client
-    Route::post('/client/sub/upgradeDowngrade', [UserController::class, 'upgradeDowngrade']);
-    Route::post('/client/sub/startTrial', [SubscriptionController::class, 'startTrial']);
+    Route::post('/client/sub/upgradeDowngrade', [SubscriptionController::class, 'upgradeDowngrade']);
+    Route::post('/client/sub/startTrial', [SubscriptionController::class, 'startTrial'])->middleware('trial-guard');
     Route::post('/client/sub/subscribe', [SubscriptionController::class, 'subscribe']);
-    
+
     Route::post('/client/sub/generateTrialInvoice', [SubscriptionController::class, 'generateTrialInvoice'])->middleware('trial-guard');
     Route::post('/client/sub/generateInvoice', [SubscriptionController::class, 'generateInvoice']);
     Route::post('/client/sub/changePlanInvoice/{id}', [SubscriptionController::class, 'changePlanInvoice']);

@@ -1,28 +1,39 @@
 import { accessState } from '@/@core/stores/access';
 const router = useRouter();
-// Helper to fetch client profile and handle 403
+const ENTITLED_STATES = ['active', 'trial_active'];
+
+const isEntitled = subscription => {
+  if (!subscription) return false;
+  if (subscription.state) {
+    if (!ENTITLED_STATES.includes(subscription.state)) return false;
+  } else if (!['active', 'trial'].includes(subscription.status)) {
+    return false;
+  }
+  if (subscription.end_date && new Date(subscription.end_date) <= new Date()) {
+    return false;
+  }
+  return true;
+};
+
 const fetchClientProfile = async () => {
-    try {
-      const res = await $api('https://api-ds.bitemybytes.com/api/v1/client/profile', { method: 'POST' });
-      const { user, subscription } = res.data;
-  
-      // Store locally for reactivity
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('subscription', JSON.stringify(subscription));
-  
-      return subscription;
-    } catch (err) {
-      if (err.response && err.response.status === 403) {
-      
-        // No active subscription → redirect to pricing
-        window.location = '/client/pricing';
-        return null;
-      }
-  
-      console.error('Error fetching client profile:', err);
+  try {
+    const res = await $api('/v1/client/profile', { method: 'POST' });
+    const { user, subscription } = res;
+
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('subscription', JSON.stringify(subscription));
+
+    return subscription;
+  } catch (err) {
+    if (err.response && err.response.status === 403) {
+      window.location = '/client/pricing';
       return null;
     }
-  };
+
+    console.error('Error fetching client profile:', err);
+    return null;
+  }
+};
 
 export const setupGuards = router => {
 
@@ -47,90 +58,70 @@ export const setupGuards = router => {
         console.log(`Navigating to: ${to.name}, from: ${from.name}`);
 
         
-        if(useCookie('userData').value) {
+        // Role-based path enforcement: if the user is logged in but trying to
+        // visit a path outside their role's prefix, bounce them to their root.
+        if (useCookie('userData').value) {
             const userRole = useCookie('userData').value.role;
-            // Define role-based access rules
             const roleAccess = {
-                admin: ['/admin'], // Admin can access all
-                client: ['/client'], // Client can only access client routes
-                agent: ['/agent'], // Agent can only access agent routes
+                admin: ['/admin'],
+                client: ['/client'],
+                agent: ['/agent'],
             };
-            const isAuthorized = roleAccess[userRole].some(route => to.path.startsWith(route));
+            const isAuthorized = roleAccess[userRole]?.some(route => to.path.startsWith(route));
 
-            if(isAuthorized) {
-                next();
-            } else {
-                next({name: userRole});
+            if (!isAuthorized && roleAccess[userRole]) {
+                return next({ name: userRole });
             }
+            // authorized → fall through to OTP / auth / subscription checks
         }
 
-        
-        
-    
         if (to.name === 'checkpoint' || to.name === 'add-user-email') {
             if (!isLoggedIn && isOtp) {
-                // Allow access to OTP page if not logged in and isOtp is true
-                next()                                
-            } else {
-                // Redirect to login if user is fully authenticated or isOtp is false
-                next({ name: 'login' });
+                return next();
             }
-        } else {
-            // if (!isLoggedIn && isOtp) {
-            //     next('checkpoint');
-            //     // alert(1);
-            //     // alert('checkpoint')
-            //     // if(redirectUri && redirectUri !== to.path) {
-            //     //     next(redirectUri);
-            //     //     alert(redirectUri)                    
-            //     // } 
-            // } else {
-            // Check if the target route is in the protected routes list
-            if (protectedRoutes.includes(to.name) && !isLoggedIn) {
-                next({ name: 'login' }); // Redirect to login if not logged in
-            } else if (to.name === 'login' && isLoggedIn) {
-                next({ name: 'second-page' }); // Redirect to home if already logged in
-            } else {
-                next(); // Allow the navigation
-            }
-
-             
-            // }
+            return next({ name: 'login' });
         }
-    
 
-        // 🔐 Check subscription
-        if(useCookie('userData').value.role == 'client') {
-            // Allow everything except invoice pages
-            const notRequiresSub = to.path.startsWith('/client/invoice')
+        if (protectedRoutes.includes(to.name) && !isLoggedIn) {
+            return next({ name: 'login' });
+        }
+        if (to.name === 'login' && isLoggedIn) {
+            return next({ name: 'second-page' });
+        }
+
+        // 🔐 Subscription gate (clients only). Pricing & invoice pages are unguarded.
+        if (useCookie('userData').value?.role === 'client') {
+            const notRequiresSub = to.path.startsWith('/client/invoice') || to.path.startsWith('/client/pricing');
 
             if (notRequiresSub) {
-                return next() // free access
+                accessState.showPage = true;
+                return next();
             }
 
             try {
-                const res = await $api('https://api-ds.bitemybytes.com/api/v1/client/profile',  { method: 'POST' });
-                const subscription = res.data.subscription;
-        
-                if (!subscription || subscription.status !== 'active') {
-                    accessState.showPage = !!res.data.active;
-                return next({ name: 'client-pricing' });
-                
+                const res = await $api('/v1/client/profile', { method: 'POST' });
+                const subscription = res.subscription;
+
+                if (!isEntitled(subscription)) {
+                    accessState.showPage = false;
+                    return next({ name: 'client-pricing' });
                 }
-        
+
+                accessState.showPage = true;
                 localStorage.setItem('subscription', JSON.stringify(subscription));
-                next();
+                return next();
             } catch (err) {
                 if (err.response?.status === 403) {
                     accessState.showPage = false;
-                    return router.push('/client/pricing');
-                
+                    return next({ name: 'client-pricing' });
                 }
-        
+
                 accessState.checked = true;
                 return next(false);
             }
         }
+
+        return next();
     });
   // Docs: https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
 //   router.beforeEach(to => {
