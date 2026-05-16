@@ -2,33 +2,34 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\SubscriptionState;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckSubscription
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
-                'message' => 'Unauthenticated. Please login first.'
+                'message' => 'Unauthenticated. Please login first.',
             ], 401);
         }
 
-        $activeSub = $user->subscriptions()->where('status', 'active')->first();
+        $entitlingStates = array_map(fn ($s) => $s->value, SubscriptionState::entitled());
 
-        if (!$activeSub) {
+        $subscription = $user->subscriptions()
+            ->whereIn('state', $entitlingStates)
+            ->orderByDesc('end_date')
+            ->first();
+
+        if (! $subscription || ! $subscription->isEntitled()) {
             return response()->json([
                 'message' => 'You need an active subscription or trial to access this feature.',
-                'subscription_required' => true
+                'subscription_required' => true,
             ], 403);
         }
 

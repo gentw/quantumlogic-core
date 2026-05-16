@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StartTrialRequest extends FormRequest
+class SubscribeRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,8 +16,9 @@ class StartTrialRequest extends FormRequest
     {
         return [
             'package_id' => ['required', 'integer', 'exists:packages,id'],
+            'billing_cycle' => ['required', Rule::in(['monthly', 'yearly'])],
             'payment_method' => ['required', Rule::in(['cc', 'paypal', 'bank_transfer'])],
-            'payment_token' => ['required', 'string', 'min:6', 'max:255'],
+            'payment_token' => ['nullable', 'string', 'max:255'],
             'payment_brand' => ['nullable', 'string', 'max:32'],
         ];
     }

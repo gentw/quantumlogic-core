@@ -2,45 +2,37 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\TrialAbuseException;
+use App\Services\TrialService;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\Invoice;
+use Symfony\Component\HttpFoundation\Response;
 
 class PreventTrialAbuse
 {
-    public function handle(Request $request, Closure $next)
+    public function __construct(private readonly TrialService $trials) {}
+
+    public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ], 401);
         }
 
-        $ip = $request->ip();
-        $fingerprint = $request->header('X-Trial-Fingerprint');
-
-        if (!$fingerprint) {
+        try {
+            $this->trials->assertEligible(
+                $user,
+                $request->ip(),
+                $request->header('X-Trial-Fingerprint'),
+            );
+        } catch (TrialAbuseException $e) {
             return response()->json([
-                'message' => 'Invalid device fingerprint.'
-            ], 403);
-        }
-
-        // 🔒 Check existing trial usage
-        $trialUsed = Invoice::where(function ($q) use ($user, $ip, $fingerprint) {
-            $q->where('user_id', $user->id)
-              ->orWhere('trial_fingerprint', $fingerprint)
-              ->orWhere('ip_address', $ip);
-        })
-        ->where('is_trial', true)
-        ->where('status', 'paid')
-        ->exists();
-
-        if ($trialUsed) {
-            return response()->json([
-                'message' => 'Trial already used.',
-                'trial_blocked' => true
+                'message' => $e->getMessage(),
+                'reason' => $e->reason,
+                'trial_blocked' => true,
             ], 403);
         }
 
