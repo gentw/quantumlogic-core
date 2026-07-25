@@ -16,7 +16,7 @@ not_started in_progress closed in_review
 const items = [
  
   {
-    title: 'Probleme me modulin e alarmit të sigurisë së lartë',
+    title: 'Contact form not sending on staging',
     users: [
       {
         name: "Filan Fisteku",
@@ -29,15 +29,15 @@ const items = [
       },
     ],
     priority: "high",
-    type: 'Kerkese',
+    type: 'Request',
     date: '15-04-2024 - 18:00',
-    days: '3 dite',
+    days: '3 days',
     color: 'success',
     status: 'not_started'
   },
 
   {
-    title: 'Probleme me modulin e alarmit të sigurisë së lartë',
+    title: 'Add multi-currency support to checkout',
     users: [
       {
         name: "Filan Fisteku",
@@ -50,15 +50,15 @@ const items = [
       },
     ],
     priority: "medium",
-    type: 'Kerkese',
+    type: 'Request',
     date: '15-04-2024 - 18:00',
-    days: '3 dite',
+    days: '3 days',
     color: 'warning',
     status: 'in_progress'
   },
 
   {
-    title: 'Probleme me modulin e alarmit të sigurisë së lartë',
+    title: 'Migrate WordPress site to new hosting',
     users: [
       {
         name: "Filan Fisteku",
@@ -71,15 +71,15 @@ const items = [
       },
     ],
     priority: "low",
-    type: 'Kerkese',
+    type: 'Request',
     date: '15-04-2024 - 18:00',
-    days: '3 dite',
+    days: '3 days',
     color: 'secondary',
     status: 'closed'
   },
 
   {
-    title: 'Probleme me modulin e alarmit të sigurisë së lartë',
+    title: 'Update product images on the shop page',
     users: [
       {
         name: "Filan Fisteku",
@@ -92,9 +92,9 @@ const items = [
       },
     ],
     priority: "no_priority",
-    type: 'Kerkese',
+    type: 'Request',
     date: '15-04-2024 - 18:00',
-    days: '3 dite',
+    days: '3 days',
     color: 'info',
     status: 'in_review'
   },
@@ -166,7 +166,7 @@ const renderFeatherIcon = (iconName, size) => {
           <VChip
             variant="outlined"
           >
-            Kerkese
+            Request
           </VChip>
         </div>
 
@@ -176,7 +176,7 @@ const renderFeatherIcon = (iconName, size) => {
         </div>
 
         <div class="days">
-          <p class="red font-weight-bold">3 dite</p>
+          <p class="red font-weight-bold">3 days</p>
         </div>
 
 

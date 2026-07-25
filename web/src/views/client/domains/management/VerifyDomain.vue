@@ -71,8 +71,8 @@ const onVerify = async () => {
           </VAlert>
 
           <p class="text-normal mt-5">
-            <strong>Step 1: Point your domain to SentriGate</strong><br><br>
-            Go to your DNS provider and add the following record to route traffic to SentriGate:
+            <strong>Step 1: Point your domain to QuantumLogic</strong><br><br>
+            Go to your DNS provider and add the following record to route traffic to QuantumLogic:
           </p>
 
           <VTable class="text-no-wrap">
@@ -101,7 +101,7 @@ const onVerify = async () => {
 
           <p class="text-normal mt-5">
             <strong>Step 2: Verify domain ownership</strong><br><br>
-            After pointing your domain to SentriGate, add the following <strong>TXT</strong> record
+            After pointing your domain to QuantumLogic, add the following <strong>TXT</strong> record
             to confirm that you own and control this domain.
           </p>
         </VCardText>
@@ -154,7 +154,7 @@ const onVerify = async () => {
             </td>
 
             <td style="width: 240px;">
-              sentrigate-verification
+              quantumlogic-verification
             </td>
 
             <td>

@@ -1,47 +1,45 @@
 <script setup>
 import * as feather from 'feather-icons';
+// TODO(2026-07-25): placeholder figures — wire to the tickets API once that
+// module lands. The route below should move with it.
+const ticketsRoute = { name: 'second-page' }
+
 const ticketsWidgetData = ref([
   {
-    icon: 'check-square',
+    icon: 'inbox',
     color: 'primary',
-    title: 'Blocked Attacks',
-    value: 42,
-    change: 18.2,
+    title: 'Open Tickets',
+    value: 12,
     isHover: false,
   },
   {
-    icon: 'check-square',
+    icon: 'clock',
     color: 'warning',
-    title: 'Requests Inspected',
-    value: 8,
-    change: -8.7,
+    title: 'In Progress',
+    value: 5,
     isHover: false,
   },
   {
-    icon: 'check-square',
+    icon: 'message-circle',
     color: 'error',
-    title: 'Active Threats',
+    title: 'Awaiting Reply',
+    value: 3,
+    isHover: false,
+  },
+  {
+    icon: 'check-square',
+    color: 'success',
+    title: 'Resolved This Month',
     value: 27,
-    change: 4.3,
     isHover: false,
   },
   {
-    icon: 'check-square',
+    icon: 'layers',
     color: 'info',
-    title: 'Attack Sources',
-    value: 13,
-    change: -2.5,
+    title: 'Active Services',
+    value: 4,
     isHover: false,
   },
-  {
-    icon: 'check-square',
-    color: 'info',
-    title: 'WAF Rules Triggered',
-    value: 13,
-    change: -2.5,
-    isHover: false,
-  },
-
 ])
 
 const renderFeatherIcon = (iconName) => {
@@ -63,7 +61,7 @@ const renderFeatherIcon = (iconName) => {
       sm="6"
     >
       <div>
-        <RouterLink to="/client/alarm-alerts" style="text-decoration: none; color: inherit;">
+        <RouterLink :to="ticketsRoute" class="widget-link">
         <VCard
           class="logistics-card-statistics cursor-pointer"
           :style="data.isHover ? `border-block-end-color: rgb(var(--v-theme-${data.color}))` : `border-block-end-color: rgba(var(--v-theme-${data.color}),0.38)`"
@@ -144,8 +142,14 @@ const renderFeatherIcon = (iconName) => {
   }
 }
 
+.widget-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .see-all {
-  background: #f9fafb;
+  // themed token rather than a fixed light grey, so dark mode stays readable
+  background: rgb(var(--v-theme-grey-50));
   padding-block: 10px;
 
   &--content {

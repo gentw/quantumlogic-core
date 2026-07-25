@@ -28,6 +28,6 @@ class RegisterWelcomeMail extends Mailable
 
     public function build()
     {
-        return $this->markdown('emails.send_otp_welcome')->subject('Welcome to SentriGate – Verify Your Account');
+        return $this->markdown('emails.send_otp_welcome')->subject('Welcome to QuantumLogic – Verify Your Account');
     }
 }

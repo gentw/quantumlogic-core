@@ -145,7 +145,7 @@ const pricingPlans = [
 <template>
   <div class="text-center">
     <h3 class="text-h3 pricing-title mb-2">
-      {{ props.title ? props.title : 'SentriGate Pricing Plans' }}
+      {{ props.title ? props.title : 'QuantumLogic Pricing Plans' }}
     </h3>
     <p class="mb-0">
       All plans include AI security monitoring, optimization, and multi-framework agents.

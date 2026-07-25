@@ -1,3 +1,5 @@
+import { appFeatures } from '@/utils/features'
+
 export default [
   {
     title: 'Dashboard',
@@ -14,21 +16,26 @@ export default [
     class: '',
   },
 
-  {
-    title: 'My Websites',
-    to: { name: 'client-domains' },
-    icon: 'credit-card',
-    role: 'client',
-    class: '',
-  },
-
-  {
-    title: 'Threat Activity',
-    to: { name: 'client-alarm-alerts' },
-    icon: 'alert-octagon',
-    role: 'client',
-    class: '',
-  },
+  // Security module (dormant) — definitions stay here so re-enabling is one flag.
+  // See docs/modules/security/README.md
+  ...(appFeatures.security
+    ? [
+      {
+        title: 'My Websites',
+        to: { name: 'client-domains' },
+        icon: 'credit-card',
+        role: 'client',
+        class: '',
+      },
+      {
+        title: 'Threat Activity',
+        to: { name: 'client-alarm-alerts' },
+        icon: 'alert-octagon',
+        role: 'client',
+        class: '',
+      },
+    ]
+    : []),
 
   {
     title: 'Account',
@@ -50,21 +57,28 @@ export default [
   // Agent
 
   {
-    title: 'Paneli',
+    title: 'Dashboard',
     to: { name: 'agent' },
     icon: 'zap',
     role: 'agent',
     class: '',
   },
+
+  // Security module (dormant)
+  ...(appFeatures.security
+    ? [
+      {
+        title: 'Alarm Alerts',
+        to: { name: 'agent-alarm-alerts' },
+        icon: 'alert-octagon',
+        role: 'agent',
+        class: '',
+      },
+    ]
+    : []),
+
   {
-    title: 'Alertet e Alarmit',
-    to: { name: 'agent-alarm-alerts' },
-    icon: 'alert-octagon',
-    role: 'agent',
-    class: '',
-  },
-  {
-    title: 'Tiketat e mia',
+    title: 'My Tickets',
     // to: { name: 'agent-tickets' },
     icon: 'check-square',
     role: 'agent',
@@ -72,7 +86,7 @@ export default [
   },
 
   {
-    title: 'Njoftimet',
+    title: 'Notifications',
     // to: { name: 'agent-notifications' },
     icon: 'bell',
     role: 'agent',
@@ -80,14 +94,14 @@ export default [
   },
 
   {
-    title: 'Llogaria',
+    title: 'Account',
     to: { name: 'agent-account' },
     icon: 'user',
     role: 'agent',
     class: '',
   },
   {
-    title: 'Cilesimet',
+    title: 'Settings',
     to: { name: 'agent-preferences' },
     icon: 'settings',
     role: 'agent',
@@ -100,21 +114,21 @@ export default [
 
 
   {
-    title: 'Paneli',
+    title: 'Dashboard',
     to: { name: 'admin' },
     icon: 'zap',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Klientët',
+    title: 'Clients',
     to: { name: 'admin-clients' },
     icon: 'users',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Agjentët',
+    title: 'Agents',
     to: { name: 'admin-agents' },
     icon: 'clipboard',
     role: 'admin',
@@ -122,7 +136,7 @@ export default [
   },
 
   {
-    title: 'Administratorët',
+    title: 'Admins',
     to: { name: 'admin-admins' },
     icon: 'hard-drive',
     role: 'admin',
@@ -130,49 +144,49 @@ export default [
   },
 
   {
-    title: 'Tiketat',
-    // to: { name: 'agent-account' },
+    title: 'Tickets',
+    // to: { name: 'admin-tickets' },
     icon: 'check-square',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Faturat',
+    title: 'Invoices',
     to: { name: 'admin-invoices' },
     icon: 'file',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Transaksionet',
-    // to: { name: 'agent-account' },
+    title: 'Transactions',
+    // to: { name: 'admin-transactions' },
     icon: 'credit-card',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Njoftimet & Rikujtimet',
+    title: 'Notifications & Reminders',
     to: { name: 'admin-notifications-reminders' },
     icon: 'bell',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Raportet',
+    title: 'Reports',
     to: { name: 'admin-reports-tab', params: { tab: 'users' } },
     icon: 'pie-chart',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Përmbajtja',
-    // to: { name: 'agent-account' },
+    title: 'Content',
+    // to: { name: 'admin-content' },
     icon: 'edit',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Cilesimet',
+    title: 'Settings',
     to: { name: 'admin-preferences' },
     icon: 'settings',
     role: 'admin',

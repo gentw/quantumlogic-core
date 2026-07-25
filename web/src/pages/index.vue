@@ -2,9 +2,9 @@
   <div>
     <VCard
       class="mb-6"
-      title="SentriGate"
+      title="QuantumLogic"
     >
-      <VCardText>SentriGate 22222</VCardText>
+      <VCardText>QuantumLogic 22222</VCardText>
       
       </VCard>
   </div>

@@ -12,7 +12,7 @@
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td align="center" style="font-size: 24px; font-weight: bold;">
-                            Sentri <span style="color: #dc3545;">Gate</span>
+                            Sentri <span style="color: #301068;">Gate</span>
                         </td>
                     </tr>
                 </table>
@@ -27,7 +27,7 @@
                 
                 <p style="margin: 0 0 20px 0; line-height: 1.5; color: #6c757d;">If you have lost your password or want to reset it, use the link below to get started.</p>
                 
-                <a href="https://beta.sentrigate.com/reset/password/{{$code}}" style="display: inline-block; background-color: #dc3545; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px;">Reset Password</a>
+                <a href="{{ config('app.frontend_url') }}/reset/password/{{$code}}" style="display: inline-block; background-color: #301068; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px;">Reset Password</a>
                 
                 <p style="margin: 0; font-size: 14px; color: #6c757d;">If you did not request a password reset, you can ignore this email. Only someone with access to your email can reset your account password.</p>
             </td>
@@ -38,7 +38,7 @@
         </tr>
         <tr>
             <td align="center" style="padding: 20px;">
-                <p style="margin: 0; font-size: 14px; color: #6c757d; text-align: center;">&copy;2026 SentriGate. All rights reservedss</p>
+                <p style="margin: 0; font-size: 14px; color: #6c757d; text-align: center;">&copy;2026 QuantumLogic. All rights reserved.</p>
             </td>
         </tr>
     </table>

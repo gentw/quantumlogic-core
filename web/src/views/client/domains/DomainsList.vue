@@ -187,7 +187,7 @@ console.log("from gent", domains);
         <VBtn type="button" class="add-user-btn">Add new Website</VBtn>
       </RouterLink>
       <VCardText class="pb-0">
-        <div>Connect your websites to the Sentrigate network to improve application security and delivery.</div>
+        <div>Connect your websites to the QuantumLogic network to improve application security and delivery.</div>
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
             <!-- <span>Show</span>

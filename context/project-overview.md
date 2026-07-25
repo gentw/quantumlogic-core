@@ -1,153 +1,123 @@
 # Project Overview
 
-## What is SentriGate?
+## What is QuantumLogic Core?
 
-SentriGate is a modern origin protection and optimization platform that protects websites, APIs, and applications from cyber threats, abusive bots, and performance bottlenecks. It sits in front of customer origin servers and provides AI-driven monitoring, traffic filtering, and incident response.
+QuantumLogic Core is the internal operations platform for **QuantumLogic**, a web and
+software agency based in Austria (quantumlogic.at). It is where the agency manages its
+**customers, the services it delivers to them, and the support tickets** that come out of
+that work — plus the billing, invoicing and back-office admin around it.
 
-**One-line definition:** a security system for your websites that protects them from harmful attacks, malicious traffic, hackers, and anything that could cause your site to break, go offline, or lose data.
-
-**Key differentiator:** SentriGate operates at the HTTP layer, so it is universally compatible with any backend technology — no framework plugins, no code changes.
+**One-line definition:** the agency's own back office — who our customers are, what we're
+building or running for them, what needs doing, and what they've been billed.
 
 ## Status
 
-Private beta. Already in use by existing clients while we work toward a fully scalable public launch with integrated billing and tiered plans.
+Private beta, in active development. The codebase was repurposed on **2026-07-25** from
+*SentriGate*, a web-security product. Billing, auth, admin user management and messaging
+are inherited and working; the customers/services/tickets core is the next build.
+
+> The security capability is **switched off**, not deleted. It is out of scope for all
+> normal work. See [`../docs/modules/security/README.md`](../docs/modules/security/README.md)
+> if and only if you are deliberately reviving it.
 
 ## Audience
 
-- **Clients** — site owners protecting one or more domains. Self-serve signup, trial → paid conversion, manage domains and subscription from the SPA.
-- **Agents** — security operators who triage alarms, chat with clients, and respond to incidents.
-- **Admins** — internal staff managing users (clients, agents, other admins), invoices, reports, and notification reminders.
-
-### Target users
-- **Primary:** developers and DevOps engineers running VPS or dedicated servers; agencies managing multiple client sites; SaaS companies protecting their APIs.
-- **Secondary:** small business owners on shared hosting (limited feature set); enterprise IT teams layering extra protection on top of an existing CDN.
+- **Clients** — the agency's customers. Self-serve login, see their services, raise and
+  follow tickets, view invoices, manage their subscription and account.
+- **Agents** — agency staff who pick up tickets, talk to clients, and do the work.
+- **Admins** — internal staff managing clients, agents, other admins, invoices, reports
+  and notification reminders.
 
 ## Core Capabilities
 
-| Capability | Description |
-|---|---|
-| Reverse proxying | Routes traffic through SentriGate before reaching origin |
-| Intelligent caching | Reduces backend load by serving cached responses at the edge |
-| Form & bot protection | Blocks bots from abusing forms, logins, and APIs |
-| Request risk scoring | Every request is scored for threat level in real time |
-| JS challenge | Browser validation to stop non-human traffic |
-| Edge protection | DDoS, flood, and volumetric attack absorption |
-| WAF | Blocks known attack patterns before they reach the app |
-| Origin shielding | The real server is never directly exposed |
-| Centralized analytics | Full visibility into traffic, attacks, and blocked requests |
-| Alarm pipeline | `IncomingAlarm` / `AlarmIncomingLog` with client + agent workflows (respond, change status, log) |
-| Real-time response | Pusher-driven chat between client and assigned agent; FCM push for mobile |
-| Live agent assignment | `AssignAgentToClient` job routes alarms; free-agent state in `ChatAgentClientOnLine` / `AgentQueue`; auto-detach after 2h inactivity |
-| Domain verification | DNS, file, and meta methods before a domain is brought under protection |
-| Trial + subscription billing | Trial start, upgrade/downgrade, proration via `changePlanInvoice`, anti-trial-abuse via `PreventTrialAbuse`, auto-renew via scheduler cron |
+| Capability | Status | Description |
+|---|---|---|
+| Client / agent / admin roles | Working | Middleware-enforced role separation, three dashboards |
+| Admin user management | Working | Full CRUD for clients, agents and admins; block/unblock, deactivate |
+| Subscription billing | Working | Trial start, upgrade/downgrade, proration via `changePlanInvoice`, anti-trial-abuse, auto-renew via scheduler cron |
+| Invoicing | Working | `Invoice` + `SubscriptionPayment`, admin invoice CRUD, PDF preview, client-facing invoice pages |
+| PayPal checkout | Working | Order creation, approval redirect, success/cancel callbacks |
+| Real-time messaging | Working | Pusher-driven chat between client and assigned agent; free-agent state in `ChatAgentClientOnLine` / `AgentQueue` |
+| Push notifications | Working | FCM tokens, notification reminders and reminder groups |
+| OTP auth + password reset | Working | OTP on login/signup, reset-code flow |
+| Reports | Partial | Admin reports with users and tickets tabs |
+| **Tickets** | **Not built** | Dashboard widgets and nav placeholders exist; no model, migration or API yet |
+| **Customers** | **Not built** | Currently just the `client`-role `User`; no separate customer/company entity |
+| **Services** | **Not built** | What the agency delivers per customer — no model yet |
+
+The three "not built" rows are the point of the platform and the next feature. Everything
+above them is inherited infrastructure to build on, not to rewrite.
 
 ## Architecture
 
-### Request flow
+Two independently deployed apps against one MySQL database:
 
 ```
-Client Browser
+Browser (Vue 3 SPA, web/)
       |
+      |  REST, /v1/*, Bearer token from cookie
       v
-SentriGate Edge          (DDoS / JS challenge / bot filtering / risk scoring)
+Laravel API (api/)
+      ├─ Passport auth (api guard)
+      ├─ Role middleware: admin | agent | client
+      ├─ Subscription gate: check-subscription
+      ├─ Services: SubscriptionService, TrialService, InvoiceService
+      ├─ Queue worker  → jobs, FCM blasts, mail
+      └─ Scheduler cron → subscription auto-renewal
       |
-      v
-Edge Layer (reverse proxy)
-      ├─ WAF (known threats)
-      ├─ Bot / IP filtering
-      ├─ Cache / static serving
-      └─ SentriGate decision (fast path)
-            |
-            v
-Application Backend (last resort)
-            |
-            └─ SentriGate Agent (metadata + intelligence)
-                      |
-                      └─ SentriGate Core (brain)
+      ├── MySQL
+      ├── Pusher      (real-time chat)
+      ├── FCM         (mobile push)
+      ├── PayPal      (checkout)
+      └── SMTP        (transactional mail; Mailpit in dev)
 ```
-
-### Components
-
-**SentriGate Edge** — outermost layer, sits in front of all customer infrastructure. Handles DDoS mitigation, JS browser validation, bot filtering, per-request reputation scoring, rate limiting, ASN/geo filtering, challenge orchestration, and distributed IP reputation. Only traffic that passes the Edge reaches origin.
-
-**SentriGate Agent** — lightweight binary on the customer's VPS or dedicated server. Intelligence layer, **not** a traffic handler. It validates headers/cookies/JWTs at the app level, detects request-pattern anomalies, optionally hashes uploads for malware scanning, reports cacheability and slow endpoints, and generates dynamic backend-bypass rules. Framework-agnostic — no dependency on Laravel/WordPress/Django/Rails internals.
-
-**SentriGate Core** — the brain. Does not sit in the traffic path. Aggregates traffic patterns, bot fingerprints, risk events, agent anomaly reports, WAF events, and global IP reputation across **all** protected sites. Produces bypass rules, cache rules, block rules (IP/ASN/UA/geo), emergency lockdown rules, and AI predictions. Threat intel detected on one site protects every other site.
 
 ### Design principles
-- **The backend is the last resort.** The Edge serves cached/static content, challenges/blocks suspicious traffic, and absorbs attacks. Only clean, verified requests reach the application.
-- **Intelligence flows upward.** Agent reports behavior to Core; Core sends rules back to the Edge.
-- **Threat intelligence is shared.** Attack patterns detected on one customer's site immediately protect every other site — no manual config.
+- **Thin controllers, logic in services.** `app/Services/` holds the non-trivial work;
+  `SubscriptionService`, `TrialService` and `InvoiceService` are the reference pattern.
+- **The backend is the security boundary.** CASL and hidden nav items are UX, never
+  enforcement. Every gated action needs middleware behind it.
+- **One database, three role views.** Roles are a column on `User` plus middleware, not
+  separate tables. Keep it that way unless there's a strong reason.
+- **Modules that aren't part of the product get flagged off, not deleted.** See
+  `config/features.php` and `web/src/utils/features.js`.
 
-### Agent ↔ Core communication
-- **Push (Agent → Core):** traffic metrics, anomalies, response latency, upload hashes.
-- **Pull (Agent ← Core):** updated rules, caching instructions, block lists, emergency directives.
-- Transport: HTTP REST (default) or WebSocket/gRPC for real-time rule delivery. Agent caches rules locally so it remains functional during a Core outage.
+## Roles and what they can do
 
-## Universal Compatibility
-
-The Agent operates at the HTTP layer with no application-level coupling. Supported platforms:
-
-PHP · WordPress · Laravel · Symfony · Node.js · Python (Django, Flask, FastAPI) · Java (Spring Boot, etc.) · Ruby (Rails, etc.) · .NET · custom HTTP services.
-
-## Shared Hosting Mode
-
-On shared hosting (no reverse-proxy install, no kernel firewall access), SentriGate runs a reduced feature set:
-
-- **Available:** form protection and honeypots, bot detection, browser validation, request analysis, challenge signaling.
-- **Not available:** reverse proxy, kernel-level firewall, low-level network filtering, full backend bypass.
-
-VPS or dedicated server is required for the full feature set.
+| | Client | Agent | Admin |
+|---|---|---|---|
+| Own dashboard | ✓ | ✓ | ✓ |
+| Raise / view own tickets | ✓ (planned) | — | ✓ (planned) |
+| Work tickets | — | ✓ (planned) | ✓ (planned) |
+| Chat | ✓ with assigned agent | ✓ with assigned clients | — |
+| Invoices | own | — | all, editable |
+| Subscription / plan changes | own | — | — |
+| Manage users | — | — | ✓ clients, agents, admins |
+| Reports | — | — | ✓ |
+| Notification reminders | receive | receive | ✓ manage |
 
 ## Plans
 
-Two tiers planned at launch: **Basic** and **Premium**. Premium-gated capabilities are enforced both server-side (`check.feature:NAME` middleware) and surfaced in the SPA via `GET /v1/user/features`. CASL is wired for view-level ability checks but is **not** the security boundary — the backend middleware is.
-
-## Competitive Positioning
-
-SentriGate is **not** a Cloudflare replacement — it is a complement. When used alongside Cloudflare or any CDN, SentriGate adds an AI-driven layer of behavioral analysis, advanced reporting, and origin-level protection that generic CDN tools cannot provide.
-
-### SentriGate + Cloudflare
-
-```
-Internet
-   |
-Cloudflare           (DDoS absorption, basic bot filtering, CDN, SSL)
-   |
-SentriGate Edge      (AI threat detection, behavioral analysis)
-   |
-SentriGate Agent     (origin-level intelligence)
-   |
-Application Backend
-```
-
-| Feature | Cloudflare only | Cloudflare + SentriGate |
-|---|---|---|
-| DDoS protection | Yes | Yes + AI monitoring |
-| Bot detection | Basic (rule-based) | + behavioral AI |
-| Threat alerts | None | Real-time + AI recommendations |
-| Reporting | Basic | Attack history, advanced analytics |
-| Custom AI rules | None | Predictive AI on traffic patterns |
-| API integration | Partial | Full sync of allowlists/blocklists |
-| Behavioral analysis | None | Full user-behavior + anomaly detection |
-
-Set up by adjusting DNS / reverse-proxy settings to route traffic through SentriGate, or by connecting via the Cloudflare API for deeper integration. No Cloudflare config changes required.
+Two tiers: **Basic** and **Premium**. Premium-gated capabilities are enforced server-side
+via `check.feature:NAME` middleware and surfaced to the SPA through
+`POST /v1/user/features`, which returns the `Package.features` JSON as a boolean map.
 
 ## Integrations
 
-- **Nginx + ModSecurity** — WAF and request filtering at the edge.
-- **System-level agents** — push events into the API.
-- **PayPal** (`srmklive/paypal`) — checkout, order creation, success/cancel callbacks.
-- **Pusher** — real-time chat & live updates.
-- **Firebase Cloud Messaging** — mobile push.
-- **Google API client** — installed; verify which features depend on it before changes.
-- **Cloudflare** — optional API-level integration (see above).
+- **PayPal** (`srmklive/paypal`) — checkout, order creation, success/cancel callbacks
+- **Pusher** — real-time chat and live updates
+- **Firebase Cloud Messaging** — mobile push
+- **Google API client** — installed; verify which features depend on it before changes
+- **SMTP / Mailpit** — transactional email (OTP, welcome, password reset, payment confirmation)
 
 ## Tech stack at a glance
 
-- **Backend:** Laravel 10.10+ on PHP 8.1+, REST API under `/v1/`, MySQL, queue worker via `php artisan queue:work`, scheduler cron for renewals.
+- **Backend:** Laravel 10.10+ on PHP 8.1+, REST API under `/v1/`, MySQL, Passport auth, queue worker, scheduler cron for renewals.
 - **Frontend:** Vue 3.4 + Vuetify 3.5 + Vuexy admin template v9.1.1, Vite 5, pnpm 8.6, Pinia, file-based routing via `unplugin-vue-router`.
-- **Auth:** Passport + Sanctum + JWT installed; cookie-based token storage on the SPA.
-- **Repo:** monorepo at `/var/www/sentrigate` split into `api/` (Laravel) and `web/` (SPA), deployed independently.
+- **Branding:** brand purple `#301068`, lavender accent `#CDBDF0`; theme in `web/src/plugins/vuetify/theme.js`, logo in `web/src/components/AppLogo.vue`.
+- **Repo:** monorepo at `/home/gex/projects/quantumlogic-core` split into `api/` and `web/`, deployed independently.
 
-For codebase-specific details (middleware aliases, full route map, gotchas), see [`../CLAUDE.md`](../CLAUDE.md). For the cumulative project history, see [`./backend-history.md`](./backend-history.md) and [`./frontend-history.md`](./frontend-history.md). For the in-flight feature, see [`./current-feature.md`](./current-feature.md).
+For codebase-specific details (middleware aliases, full route map, gotchas), see
+[`../CLAUDE.md`](../CLAUDE.md). For cumulative history, see
+[`./backend-history.md`](./backend-history.md) and [`./frontend-history.md`](./frontend-history.md).
+For the in-flight feature, see [`./current-feature.md`](./current-feature.md).

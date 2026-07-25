@@ -1,12 +1,22 @@
-export const staticPrimaryColor = '#F02227' // F02227
-export const staticPrimaryDarkenColor = '#675DD8'
+// QuantumLogic brand purple, taken from quantumlogic.at (--rr-theme-primary-2)
+export const staticPrimaryColor = '#301068'
+export const staticPrimaryDarkenColor = '#250C52'
+
+// The brand purple is too dark to read against the dark-theme surfaces, so dark
+// mode uses a lightened tint of the same hue. Both keep white text above 4.5:1.
+export const darkPrimaryColor = '#7C5CD6'
+export const darkPrimaryDarkenColor = '#6B4BC4'
+
+// Lavender accent (--rr-theme-primary) for chips, highlights and subtle fills.
+export const brandAccentColor = '#CDBDF0'
 export const themes = {
   light: {
     dark: false,
     colors: {
       'primary': staticPrimaryColor,
       'on-primary': '#fff',
-      'primary-darken-1': '#675DD8',
+      'primary-darken-1': staticPrimaryDarkenColor,
+      'primary-accent': brandAccentColor,
       'secondary': '#808390',
       'on-secondary': '#fff',
       'secondary-darken-1': '#737682',
@@ -78,9 +88,10 @@ export const themes = {
   dark: {
     dark: true,
     colors: {
-      'primary': staticPrimaryColor,
+      'primary': darkPrimaryColor,
       'on-primary': '#fff',
-      'primary-darken-1': '#675DD8',
+      'primary-darken-1': darkPrimaryDarkenColor,
+      'primary-accent': brandAccentColor,
       'secondary': '#808390',
       'on-secondary': '#fff',
       'secondary-darken-1': '#737682',

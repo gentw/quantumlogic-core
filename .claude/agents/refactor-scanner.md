@@ -32,12 +32,12 @@ You are an expert code refactoring analyst specializing in identifying duplicate
 
 ### Validation & Parsing
 - Inline `$request->validate([...])` arrays in controllers — should become FormRequest classes
-- Overlapping validation across the three signup endpoints (`register-client-email`, `register-new-client`, `register_client`)
+- Overlapping validation across the four signup endpoints (`register-client-email`, `register-new-client`, `register_client`, `register_client2`)
 - Vue: repeated input rule logic across `v-text-field` `:rules` props — extract to a `composables/useValidation.js`
 - Error message strings duplicated across controllers
 
 ### Data Transformations
-- Eloquent collections filtered/mapped the same way across controllers (e.g., active-subscription lookups, alarm filtering)
+- Eloquent collections filtered/mapped the same way across controllers (e.g. active-subscription lookups, role filtering)
 - Repeated `->whereHas(...)` / `->with(...)` chains for the same relationships
 - Vue `.map` / `.filter` / `.reduce` chains reshaping API response shapes the same way (extract to a composable)
 - API response normalization — same fields renamed/reshaped in multiple SPA pages
@@ -53,7 +53,7 @@ You are an expert code refactoring analyst specializing in identifying duplicate
 - Dialog / `v-snackbar` trigger logic repeated — Pinia store or composable
 
 ### Database & API Patterns
-- Repeated Eloquent queries (active subscription, user-with-role, unread alarms) — extract to model scopes or a service
+- Repeated Eloquent queries (active subscription, user-with-role, unread notifications) — extract to model scopes or a service
 - Similar controller action structures (same models, same authorization) — extract authorization into policies
 - Role checks duplicated across `EnsureUserIsAdmin` / `EnsureUserIsAgent` / `EnsureUserIsClient` — flag only if logic diverges
 

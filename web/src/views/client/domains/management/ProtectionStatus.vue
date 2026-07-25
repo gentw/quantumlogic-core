@@ -85,7 +85,7 @@ const agents = ref([
     key: 'wordpress',
     icon: 'tabler-brand-wordpress',
     title: 'WordPress',
-    text: 'Plugin agent – connects WordPress to SentriGate Core',
+    text: 'Plugin agent – connects WordPress to QuantumLogic Core',
     installed: false,
     downloadUrl: '/agents/wordpress.zip',
   },
@@ -451,7 +451,7 @@ const canAddOrigin = computed(() => {
     <VCol cols="6">
       <VCard
         title="Protection Status"
-        subtitle="Control SentriGate security & performance layers"
+        subtitle="Control QuantumLogic security & performance layers"
       >
         <VCardText>
           <VList class="card-list">
@@ -491,7 +491,7 @@ const canAddOrigin = computed(() => {
     <VCol cols="6">
       <VCard
         title="Agents & Integrations"
-        subtitle="Download SentriGate agents for your framework"
+        subtitle="Download QuantumLogic agents for your framework"
       >
         <VCardText>
           <VList class="card-list">
@@ -551,7 +551,7 @@ const canAddOrigin = computed(() => {
     <VCol cols="12">
    <VCard
       title="Latest Security Logs"
-      subtitle="View and manage AI-generated events for SentriGate"
+      subtitle="View and manage AI-generated events for QuantumLogic"
     >
         <VCardText>
       <LatestLogs />

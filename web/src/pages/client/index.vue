@@ -450,7 +450,7 @@ const participants = ref([]);
       class="mb-6"
       title="Welcome"
     >
-      <VCardText>SentriGate</VCardText>
+      <VCardText>QuantumLogic</VCardText>
       
       </VCard>
     </div>

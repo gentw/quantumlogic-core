@@ -1,8 +1,8 @@
-# SentriGate
+# QuantumLogic Core
 
-Intelligent web & server security platform — AI-driven threat detection, WAF/traffic filtering, origin protection, real-time alarms, and a multi-tenant SaaS billing layer (Basic & Premium).
+Internal operations platform for the QuantumLogic agency (quantumlogic.at) — manage customers, the services delivered to them, and support tickets, with subscription billing, invoicing and a multi-role admin back office (Basic & Premium plans).
 
-**Status:** Private beta, in active development. Already in use by existing clients while we work toward a fully scalable public launch.
+**Status:** Private beta, in active development. Repurposed on 2026-07-25 from *SentriGate*, a web-security product; that capability is switched off but retained — see [`docs/modules/security/README.md`](docs/modules/security/README.md).
 
 ---
 
@@ -11,7 +11,7 @@ Intelligent web & server security platform — AI-driven threat detection, WAF/t
 Monorepo with two independently deployable apps.
 
 ```
-sentrigate/
+quantumlogic-core/
 ├── api/      # Laravel 10 backend (REST API under /v1/)
 └── web/      # Vue 3 SPA (Vuetify 3 / Vuexy admin template)
 ```
@@ -22,7 +22,7 @@ There is no top-level package manager. `cd` into `api/` or `web/` for any comman
 
 ## Tech stack
 
-**Backend (`api/`):** Laravel 10.10+, PHP 8.1+, MySQL, Eloquent. Auth via Passport / Sanctum / JWT. Real-time via Pusher; mobile push via FCM; payments via PayPal (`srmklive/paypal`). API docs via L5-Swagger.
+**Backend (`api/`):** Laravel 10.10+, PHP 8.1+, MySQL, Eloquent. Auth via Passport (the `api` guard; Sanctum and JWT are installed but unused). Real-time via Pusher; mobile push via FCM; payments via PayPal (`srmklive/paypal`). API docs via L5-Swagger.
 
 **Frontend (`web/`):** Vue 3.4 (Composition API + `<script setup>`), Vuetify 3.5, Vuexy admin template (Vue 3 / Vite edition), Pinia, file-based routing via `unplugin-vue-router`. Vite 5, pnpm 8.6.
 
@@ -48,13 +48,13 @@ php artisan serve            # http://localhost:8000
 Run the queue worker and scheduler as long-running processes:
 
 ```bash
-php artisan queue:work       # background jobs (alarms, FCM, PayPal callbacks)
+php artisan queue:work       # background jobs (mail, FCM, PayPal callbacks)
 ```
 
 The scheduler typically runs as a cron entry:
 
 ```cron
-* * * * * cd /var/www/sentrigate/api && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /path/to/quantumlogic-core/api && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 Sail is also configured if you prefer Docker:
@@ -108,10 +108,11 @@ The repo is documented in layers — start at the top and dive deeper as needed.
 - **[`context/coding-standards.md`](context/coding-standards.md)** — PHP/Laravel + Vue/Vuetify conventions for this repo.
 - **[`context/ai-interaction.md`](context/ai-interaction.md)** — rules for AI assistants working in this repo.
 - **[`context/current-feature.md`](context/current-feature.md)** — in-flight feature tracker.
+- **[`docs/modules/security/README.md`](docs/modules/security/README.md)** — the dormant security module: what it was, and how to switch it back on. Not loaded into AI context.
 - **[`context/backend-history.md`](context/backend-history.md)** & **[`context/frontend-history.md`](context/frontend-history.md)** — topic-organized history (~190 commits) for the *why* behind a feature.
 
 ---
 
 ## Repository
 
-Private — `github.com:gentw/sentrigate.git`.
+Private — `github.com/gentw/quantumlogic-core`.

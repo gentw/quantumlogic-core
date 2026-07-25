@@ -398,7 +398,7 @@ onMounted( async() => {
                     label="Identifikuesi klientit"
                     placeholder="Vendosni ID e klientit"
                   />
-                  <span style="color: red;">(ID e klientit duhet të përputhet me atë në Databazën kryesore të SentriGate)</span>
+                  <span style="color: red;">(Client ID must match the one in the main QuantumLogic database)</span>
                 </VCol>
               <!-- 👉 First Name -->
               <VCol

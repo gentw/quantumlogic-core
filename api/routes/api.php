@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DomainController;
 use App\Http\Controllers\Api\ClientController;
 // use \App\Http\Controllers\Api\CodeCheckController;
 // use \App\Http\Controllers\Api\ResetPasswordController;
@@ -55,16 +56,18 @@ Route::group([
     'prefix' => 'v1', 
     'middleware' => 'auth:api'
 ], function () {
-    #incoming alarms
-    Route::get('fetchAlarms', [AlarmAlertController::class, 'fetchAlarms']);
-    Route::get('fetchAlarmsForAgents', [AlarmAlertController::class, 'fetchAlarmsForAgents']);
-    Route::post('/alarm/{alarm}/respondToAlarm',  [AlarmAlertController::class, 'respondToAlarm']);
-    Route::post('/client/alarm/{alarm}/logs',  [AlarmAlertController::class, 'fetchAlarmLogsByAlarm']);
+    #incoming alarms — dormant security module, see docs/modules/security/README.md
+    if (config('features.security')) {
+        Route::get('fetchAlarms', [AlarmAlertController::class, 'fetchAlarms']);
+        Route::get('fetchAlarmsForAgents', [AlarmAlertController::class, 'fetchAlarmsForAgents']);
+        Route::post('/alarm/{alarm}/respondToAlarm',  [AlarmAlertController::class, 'respondToAlarm']);
+        Route::post('/client/alarm/{alarm}/logs',  [AlarmAlertController::class, 'fetchAlarmLogsByAlarm']);
+
+        Route::post('/alarm/{alarm}/changeStatusByAgent',  [AlarmAlertController::class, 'changeStatusByAgent'])->middleware('agent');
+        Route::post('/alarm/{alarm}/logs',  [AlarmAlertController::class, 'fetchAlarmLogsForAgents'])->middleware('agent');
+    }
 
 
-    Route::post('/alarm/{alarm}/changeStatusByAgent',  [AlarmAlertController::class, 'changeStatusByAgent'])->middleware('agent');    
-    Route::post('/alarm/{alarm}/logs',  [AlarmAlertController::class, 'fetchAlarmLogsForAgents'])->middleware('agent');
-    
     // #Chat
     Route::post('/chat/checkAgentStatus', [ChatController::class, 'checkAgentStatus']);
     Route::post('/chat/sendMessage', [ChatController::class, 'sendMessage']);
@@ -172,17 +175,19 @@ Route::group([
 
 
 
-Route::group([
-        'namespace' => 'Api', 
-        'prefix' => 'v1', 
-        'middleware' => ['auth:api', 'check.subscription']
-], function () {
-    Route::get('/client/fetchDomains', [DomainController::class, 'fetchDomains']);
-    Route::post('/client/createDomain', [DomainController::class, 'store']);
-    Route::get('/client/showDomain/{domain}', [DomainController::class, 'show']);
-    Route::post('/client/domains/{domain}/verify', [DomainController::class, 'verify']);
-
-});
+// Domain protection — dormant security module, see docs/modules/security/README.md
+if (config('features.security')) {
+    Route::group([
+            'namespace' => 'Api',
+            'prefix' => 'v1',
+            'middleware' => ['auth:api', 'check.subscription']
+    ], function () {
+        Route::get('/client/fetchDomains', [DomainController::class, 'fetchDomains']);
+        Route::post('/client/createDomain', [DomainController::class, 'store']);
+        Route::get('/client/showDomain/{domain}', [DomainController::class, 'show']);
+        Route::post('/client/domains/{domain}/verify', [DomainController::class, 'verify']);
+    });
+}
 
 // Route::middleware(['auth:api'])->group(function () {
 //     Route::get('test', [AuthenticationController::class, 'test']);

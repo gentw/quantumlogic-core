@@ -47,7 +47,7 @@ class MyFcmNotification extends Notification
     {
         $notification = new FcmNotificationResource();
         $notification
-            ->setTitle('SentriGates')
+            ->setTitle('QuantumLogic')
             ->setBody($this->message);
 
         return FcmMessage::create()

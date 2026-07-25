@@ -9,7 +9,7 @@ const downloadPDF = () => {
 
   const opt = {
     margin:       0.5,
-    filename:     `SentriGate_Invoice_${invoice.value.id}.pdf`,
+    filename:     `QuantumLogic_Invoice_${invoice.value.id}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 1, useCORS: true },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -42,7 +42,7 @@ const invoice = ref({
 
 const paymentDetails = ref({
   totalDue: '$34',
-  bankName: 'Bank of SentriGate',
+  bankName: 'Bank of QuantumLogic',
   country: 'USA',
   iban: 'SG1234567890',
   swiftCode: 'SGATEUS33',
@@ -146,7 +146,7 @@ const totalAmount = computed(() => purchasedProducts.value.reduce((acc, i) => ac
                 <h6 class="text-h6 me-2">Salesperson:</h6>
                 <span>Jenny Parker</span>
               </div>
-              <p>Thanks for using SentriGate services!</p>
+              <p>Thanks for using QuantumLogic services!</p>
             </div>
             <div>
               <table class="w-100">
@@ -162,7 +162,7 @@ const totalAmount = computed(() => purchasedProducts.value.reduce((acc, i) => ac
 
           <VDivider class="my-6 border-dashed" />
           <p class="mb-0"><span class="text-high-emphasis font-weight-medium me-1">Note:</span>
-          Your SentriGate protection and optimization services are active. Enjoy your plan!</p>
+          Your QuantumLogic services are active. Enjoy your plan!</p>
         </VCard>
       </VCol>
 

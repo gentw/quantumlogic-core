@@ -42,7 +42,7 @@ const resetForm = () => {
             Boost your site's speed and security
           </h4>
           <p class="text-normal">
-            Connect your domain to start sending web traffic through SentriGate.
+            Connect your domain to start sending web traffic through QuantumLogic.
           </p>
         </VCardText>
       </VCard>

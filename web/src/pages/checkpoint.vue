@@ -176,7 +176,7 @@ const verifyOtp = async () => {
           <VCard flat :max-width="600" class="mt-12 mt-sm-0 pa-4 text-over-bg position-relative">
             <VCardText>
               <h3 class="text-h3 mb-4 text-white">
-                SentriGate - AI-driven security
+                QuantumLogic - Web, software & cloud solutions
               </h3>
               <h5 class="mb-0 text-white text-h5">
                 Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
@@ -196,13 +196,13 @@ const verifyOtp = async () => {
         <img class="auth-footer-mask z-index-100" :src="authThemeImg" alt="auth-footer-mask" width="100">
         <div class="support-text">
           <span style="font-size: 16px;">Qendra e thirrjeve:</span>
-          <a href="mailto:support@sentrigate.com" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@sentrigate.com</a>
+          <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text align-end gap-x-3">
-    <span class="font-weight-bold">©2026 SentriGate.</span>
+    <span class="font-weight-bold">©2026 QuantumLogic.</span>
     <span>All rights reserved</span>
   </div>>
 </template>

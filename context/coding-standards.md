@@ -29,12 +29,12 @@
 
 - Routes versioned under `v1/` in `api/routes/api.php` — keep new endpoints inside that group unless intentionally bumping
 - **Controllers stay thin**: validate input, delegate to a Service, return a Resource. Business logic does not live in controllers.
-- New non-trivial logic → `app/Services/<Name>Service.php` (the `Services/` directory exists but is empty — populate it instead of bloating controllers)
+- New non-trivial logic → `app/Services/<Name>Service.php`. `SubscriptionService`, `TrialService` and `InvoiceService` are the reference pattern — follow them instead of bloating controllers
 - Validation → `app/Http/Requests/<Name>Request.php` (FormRequest), not inline `$request->validate([...])` for anything non-trivial
-- Long-running work (PayPal callbacks, FCM blasts, alarm fanout) → Jobs in `app/Jobs/`, dispatched onto the queue (`nohup php artisan queue:work &`)
+- Long-running work (PayPal callbacks, FCM blasts, ticket notification fanout) → Jobs in `app/Jobs/`, dispatched onto the queue (`nohup php artisan queue:work &`)
 - Authorization → middleware (`admin`, `agent`, `client`, `check.subscription`) and Policies, never duplicated controller checks
 - API responses → `app/Http/Resources/` (Eloquent API Resources) for consistent shape; never return raw model arrays
-- Three coexisting signup endpoints (`register-client-email`, `register-new-client`, `register_client`) — do not add a fourth; consolidate before adding new flows
+- Four coexisting signup endpoints (`register-client-email`, `register-new-client`, `register_client`, `register_client2`) — do not add a fifth; consolidate before adding new flows
 - Run `./vendor/bin/pint` and `php artisan test` before pushing
 
 ## Vuetify 3 / Vuexy
@@ -55,7 +55,7 @@ Backend (`api/app/`):
 - `Http/Resources/<Name>Resource.php` — response shaping
 - `Http/Middleware/` — role gates, feature gates, subscription gates
 - `Models/<Name>.php` — Eloquent models
-- `Services/<Name>Service.php` — business logic (currently empty — start populating)
+- `Services/<Name>Service.php` — business logic (`SubscriptionService`, `TrialService`, `InvoiceService` exist)
 - `Jobs/<Name>Job.php`, `Events/`, `Notifications/`, `Mail/`
 
 Frontend (`web/src/`):
@@ -70,15 +70,15 @@ Frontend (`web/src/`):
 ## Naming
 
 PHP / Laravel:
-- Classes: `StudlyCase` (`AlarmService`, `RegisterClientRequest`)
+- Classes: `StudlyCase` (`TicketService`, `RegisterClientRequest`)
 - Methods: `camelCase` (`fetchActiveSubscription`)
 - DB columns: `snake_case` (`created_at`, `subscription_id`)
-- Routes: `kebab-case` (`/v1/client/fetch-domains`)
+- Routes: `kebab-case` (`/v1/client/fetch-tickets`)
 - Constants: `SCREAMING_SNAKE_CASE`
 
 Vue / JS:
-- Components: `PascalCase` (`AlarmCard.vue`, `DomainVerifyDialog.vue`)
-- Composables: `camelCase` prefixed `use` (`useAlarms.js`, `useSubscription.js`)
+- Components: `PascalCase` (`TicketCard.vue`, `ServiceEditDialog.vue`)
+- Composables: `camelCase` prefixed `use` (`useTickets.js`, `useSubscription.js`)
 - Pinia stores: `useXStore` (`useAuthStore`, `useChatStore`)
 - Props/data/methods: `camelCase`
 - Pages (file-based router): `kebab-case` filenames map to URL segments
@@ -122,4 +122,4 @@ Vue / JS:
 - No unused `import` (Vue) or `use` (PHP) statements
 - Keep functions under ~50 lines; extract once they grow past that
 - No `dd()` / `dump()` / `var_dump()` / `console.log` left in committed code
-- No hard-coded URLs or credentials — use `.env` (api) or `import.meta.env.VITE_*` (web). The hard-coded API URL in `web/src/plugins/1.router/guards.js` is a known issue; if you touch that file, fix it.
+- No hard-coded URLs or credentials — use `.env` (api) or `import.meta.env.VITE_*` (web). On the backend, the SPA origin is `config('app.frontend_url')`; never inline a host in a Blade email or controller.

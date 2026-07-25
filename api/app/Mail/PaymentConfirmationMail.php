@@ -21,7 +21,7 @@ class PaymentConfirmationMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Payment Confirmed – SentriGate');
+        return new Envelope(subject: 'Payment Confirmed – QuantumLogic');
     }
 
     public function build(): static

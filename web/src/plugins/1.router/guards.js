@@ -1,4 +1,5 @@
 import { accessState } from '@/@core/stores/access';
+import { isDisabledModuleRoute } from '@/utils/features';
 const router = useRouter();
 const ENTITLED_STATES = ['active', 'trial_active'];
 
@@ -54,14 +55,17 @@ export const setupGuards = router => {
         
         const isLoggedIn = !!(useCookie('userData').value && useCookie('accessToken').value);
         const isOtp = !!(useCookie('isOtp').value);
-        const redirectUri = useCookie('redirect_uri').value;
-        console.log(`Navigating to: ${to.name}, from: ${from.name}`);
+        const userRole = useCookie('userData').value?.role;
 
-        
+        // Dormant modules keep their pages on disk, so the file-based router still
+        // registers them. This is what actually makes them unreachable.
+        if (userRole && isDisabledModuleRoute(to.name)) {
+            return next({ name: userRole });
+        }
+
         // Role-based path enforcement: if the user is logged in but trying to
         // visit a path outside their role's prefix, bounce them to their root.
-        if (useCookie('userData').value) {
-            const userRole = useCookie('userData').value.role;
+        if (userRole) {
             const roleAccess = {
                 admin: ['/admin'],
                 client: ['/client'],
@@ -90,7 +94,7 @@ export const setupGuards = router => {
         }
 
         // 🔐 Subscription gate (clients only). Pricing & invoice pages are unguarded.
-        if (useCookie('userData').value?.role === 'client') {
+        if (userRole === 'client') {
             const notRequiresSub = to.path.startsWith('/client/invoice') || to.path.startsWith('/client/pricing');
 
             if (notRequiresSub) {

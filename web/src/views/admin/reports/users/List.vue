@@ -18,7 +18,6 @@ const {
   tableColumns,
   perPage,
   currentPage,
-  alarms,
   totalClients,
   dataMeta,
   perPageOptions,
@@ -35,8 +34,6 @@ const {
 
 onMounted(()=>{
   fetchClients();
-
-  console.log("XXXXXXXXXXXXXXXX",clientsDatas.value)
 });
 
 const renderFeatherIcon = (iconName, size) => {
