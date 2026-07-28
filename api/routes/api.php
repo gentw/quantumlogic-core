@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
 use App\Http\Controllers\Api\AuthenticationController;
+use App\Http\Controllers\Api\BillingPayPalController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientPaymentController;
 use App\Http\Controllers\Api\FirebaseController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PayPalController;
+use App\Http\Controllers\Api\PayPalWebhookController;
 use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\SubscriptionController;
@@ -149,6 +151,10 @@ Route::group([
     Route::post('/client/stripe/setup-intent', [StripeController::class, 'createSetupIntent'])->middleware('client');
     Route::get('/client/payments/{payment}/status', [ClientPaymentController::class, 'status'])->middleware('client');
 
+    // Billing & Payments — PayPal rail (invoice-based; legacy subscription
+    // PayPal flow lives in PayPalController behind the module flag)
+    Route::post('/client/invoices/{invoice}/paypal/create', [BillingPayPalController::class, 'createOrder'])->middleware('client');
+
     // ma vone duhna mi qit posht
     Route::post('/paypal/payment', [PayPalController::class, 'createPayment'])
         ->name('payment');
@@ -164,9 +170,15 @@ Route::group([
         Route::get('cancel', 'cancel')->name('paypal.cancel');
     });
 
+    // Billing & Payments — PayPal browser returns (UX only; the capture is
+    // idempotent with the webhook)
+    Route::get('/paypal/billing/success', [BillingPayPalController::class, 'success'])->name('paypal.billing.success');
+    Route::get('/paypal/billing/cancel', [BillingPayPalController::class, 'cancel'])->name('paypal.billing.cancel');
+
     // Billing & Payments webhooks — public by design; the provider
     // signature is the authentication, never auth:api.
     Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
+    Route::post('/webhooks/paypal', [PayPalWebhookController::class, 'handle']);
 });
 
 // Domain protection — dormant security module, see docs/modules/security/README.md
