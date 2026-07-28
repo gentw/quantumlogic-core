@@ -1,5 +1,5 @@
 import { accessState } from '@/@core/stores/access';
-import { isDisabledModuleRoute } from '@/utils/features';
+import { appFeatures, isDisabledModuleRoute } from '@/utils/features';
 const router = useRouter();
 const ENTITLED_STATES = ['active', 'trial_active'];
 
@@ -58,9 +58,10 @@ export const setupGuards = router => {
         const userRole = useCookie('userData').value?.role;
 
         // Dormant modules keep their pages on disk, so the file-based router still
-        // registers them. This is what actually makes them unreachable.
-        if (userRole && isDisabledModuleRoute(to.name)) {
-            return next({ name: userRole });
+        // registers them. This is what actually makes them unreachable — and it must
+        // not depend on being logged in, or anonymous visitors still render the page.
+        if (isDisabledModuleRoute(to.name)) {
+            return next(userRole ? { name: userRole } : { name: 'login' });
         }
 
         // Role-based path enforcement: if the user is logged in but trying to
@@ -94,7 +95,10 @@ export const setupGuards = router => {
         }
 
         // 🔐 Subscription gate (clients only). Pricing & invoice pages are unguarded.
-        if (userRole === 'client') {
+        // Retired module: with subscription plans off, clients are never locked out
+        // of the portal for lacking a plan — accessState keeps its default and the
+        // navigation falls through to the final next() below.
+        if (userRole === 'client' && appFeatures.subscriptionPlans) {
             const notRequiresSub = to.path.startsWith('/client/invoice') || to.path.startsWith('/client/pricing');
 
             if (notRequiresSub) {

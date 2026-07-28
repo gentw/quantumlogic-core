@@ -11,6 +11,13 @@ class CheckSubscription
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Plan-tier subscriptions are retired (docs/modules/subscriptions/README.md).
+        // The alias and the 403 JSON shape below stay untouched so re-enabling is
+        // just the flag — the SPA still keys its /client/pricing redirect on them.
+        if (! config('features.subscription_plans')) {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         if (! $user) {

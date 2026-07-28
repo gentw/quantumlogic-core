@@ -24,6 +24,14 @@ class CheckSubscriptionPayments extends Command
 
     public function handle(): int
     {
+        // Retired module — stays registered and scheduled, does nothing while the
+        // flag is off. See docs/modules/subscriptions/README.md.
+        if (! config('features.subscription_plans')) {
+            $this->info('[subs] subscription_plans module is off — skipping sweep.');
+
+            return self::SUCCESS;
+        }
+
         $now = Carbon::now();
 
         $this->info('[subs] starting renewal sweep at '.$now->toDateTimeString());
