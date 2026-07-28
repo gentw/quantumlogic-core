@@ -1,556 +1,407 @@
 <script setup>
-  
-import avatar1 from '@images/avatars/avatar-1.png';
-import { onMounted } from 'vue';
-import { useToast } from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-sugar.css';
+const route = useRoute('admin-invoices-id')
+const router = useRouter()
 
-const route = useRoute('admin-clients-id')
-const clientId = route.params.id;
+const invoice = ref(null)
+const client = ref(null)
+const payments = ref([])
+const activities = ref([])
+const reminders = ref([])
+const working = ref(false)
+const snackbar = ref({ show: false, text: '', color: 'success' })
 
-onMounted(() => {
-  
-  
-})
+// Draft-only editable fields
+const draftForm = ref({ reference: '', terms: '', notes: '', due_at: '' })
 
+// Dialogs (deep-linkable from the list's row menu via ?action=)
+const paymentDialog = ref(false)
+const paymentForm = ref({ amount: null, note: '' })
+const reminderDialog = ref(false)
+const reminderForm = ref({ offset_days: 3, channel: 'email' })
 
-const accountData = {
-  avatar: avatar1,
-  name: '',
-  surname: '',
-  email: '',
-  phone: '',
-  address: '',
-  city: '',
-  department: '',
-  postal_code: '',
+const isDraft = computed(() => invoice.value?.status === 'draft')
+
+const notify = (text, color = 'success') => {
+  snackbar.value = { show: true, text, color }
 }
 
-const refVForm = ref()
-
-const updateRequest = ref(0)
-
-const refInputEl = ref()
-const isConfirmDialogOpen = ref(false)
-const accountDataLocal = ref(structuredClone(accountData))
-
-const isCurrentPasswordVisible = ref(false)
-const isNewPasswordVisible = ref(false)
-const isConfirmPasswordVisible = ref(false)
-const currentPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
-const $toast = useToast();
-const killAllSessions = ref(false)
-
-const blockUser = ref(false);
-const deactivateUser = ref(false);
-
-const resetForm = () => {
-  accountDataLocal.value = structuredClone(accountData)
-}
-
-const refResetPswForm = ref()
-
-const errors = ref({
-  password: undefined,
-})
-
-const confirmPasswordRules = [
-v => v === newPassword.value || 'Fjalëkalimet duhen te jene te njejta!', // Check if the passwords match
-  v => !!v || 'Konfirmimi i passwordit eshte obligativ.',
-];
-
-const changeAvatar = file => {
-  const fileReader = new FileReader()
-  const { files } = file.target
-  if (files && files.length) {
-    fileReader.readAsDataURL(files[0])
-    fileReader.onload = () => {
-      if (typeof fileReader.result === 'string')
-        accountDataLocal.value.avatar = fileReader.result
-    }
-  }
-}
-
-const changeAvatar2 = file => {
-  const fileReader = new FileReader()
-  const { files } = file.target;
-  if (files && files.length) {
-    fileReader.readAsDataURL(files[0])
-    fileReader.onload = () => {
-      if (typeof fileReader.result === 'string')
-        accountDataLocal.value.avatar_temp = fileReader.result
-        accountDataLocal.value.avatar = files[0];  // Ensure this is a File object
-      }
-  }
-}
-
-// reset avatar image
-const resetAvatar = () => {
-  accountDataLocal.value.avatar = accountData.avatar
-}
-
-const fetchUserData = async () => {
+const load = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/user/profile/'+clientId+'/showUserDataById', {
-      method: 'POST',
-      onResponseError({ response }) {
-        // alert(1)
-        // console.log("TEST", response);
-        
-      },
+    const res = await $api(`/v1/admin/billing/invoices/${route.params.id}`)
+
+    invoice.value = res.invoice
+    client.value = res.client
+    payments.value = res.payments
+    activities.value = res.activities
+    reminders.value = res.reminders
+
+    draftForm.value = {
+      reference: res.invoice.reference ?? '',
+      terms: res.invoice.terms ?? '',
+      notes: res.invoice.notes ?? '',
+      due_at: res.invoice.due_at ?? '',
+    }
+
+    paymentForm.value.amount = res.invoice.amount_due
+  } catch (err) {
+    console.error('Failed to load invoice:', err)
+  }
+}
+
+const saveDraft = async () => {
+  working.value = true
+  try {
+    await $api(`/v1/admin/billing/invoices/${invoice.value.id}`, {
+      method: 'PATCH',
+      body: { ...draftForm.value, due_at: draftForm.value.due_at || null },
     })
-
-    console.log(res);
-    accountDataLocal.value.name = res.name;
-    accountDataLocal.value.surname = res.surname;
-    accountDataLocal.value.email = res.email;
-    accountDataLocal.value.phone = res.phone;
-    accountDataLocal.value.address = res.address;
-    accountDataLocal.value.city = res.city;
-    accountDataLocal.value.postal_code = res.postal_code;
-    accountDataLocal.value.department = res.department;
-    blockUser.value = (res.blocked) ? true : false;
-    deactivateUser.value = (res.deactivated) ? true : false;
-
-    updateRequest.value = res.update_request;
-    
-    if(res.img == "/src/assets/images/avatars/avatar-1.png") {
-      accountDataLocal.value.avatar_temp = avatar1;
-    } else {
-      accountDataLocal.value.avatar_temp = 'https://api-ds.bitemybytes.com/' + res.img;
-    }
-    // console.log("TEST", res.name);
-
-    
-
+    notify('Draft saved.')
+    await load()
   } catch (err) {
-   console.log("error");
+    notify(err.data?.message ?? 'Saving failed.', 'error')
+  } finally {
+    working.value = false
   }
 }
 
-const storeUserData = async () => {
+const action = async (name, body = {}) => {
+  working.value = true
   try {
-    const formData = new FormData();
+    const res = await $api(`/v1/admin/billing/invoices/${invoice.value.id}/${name}`, { method: 'POST', body })
 
-    // Append other fields from accountDataLocal to formData
-    for (const key in accountDataLocal.value) {
-      if (key === 'avatar' && accountDataLocal.value.avatar instanceof File) {
-        // Append the file directly for avatar if it exists
-        formData.append('avatar', accountDataLocal.value.avatar);
-      } else {
-        formData.append(key, accountDataLocal.value[key]);
-      }
-    }
-
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/admin/updateAgent/'+clientId, {
-      method: 'POST',
-      body: formData,
-      onResponseError({ response }) {
-        // alert(1)
-        // console.log("TEST", response);
-        console.log('error',response._data.errors.email);
-        if(response._data?.errors?.hasOwnProperty('email')) {
-          $toast.error(response._data.errors.email);
-        } else if(response._data?.errors?.hasOwnProperty('phone')) {
-          $toast.error(response._data.errors.phone);
-        } else {
-          $toast.error('Te gjitha fushat jane obligative!');
-        }
-       
-        
-      },
-    });
-    // console.log("TEST", res.name);
-    fetchUserData();
-    $toast.success('Agjenti u perditesua me sukses!');
-
-
-
+    if (name === 'credit-note') notify(`Credit note ${res.data.invoice_number} issued.`)
+    else notify('Done.')
+    await load()
   } catch (err) {
-   console.log("error");
+    notify(err.data?.message ?? 'The action failed.', 'error')
+  } finally {
+    working.value = false
   }
 }
 
-const changePassword = async () => {
+const recordPayment = async () => {
+  working.value = true
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/admin/updateClientPassword/'+clientId, {
+    await $api(`/v1/admin/billing/invoices/${invoice.value.id}/payments`, {
       method: 'POST',
-      body: {
-        password: newPassword.value,
-        killAllSessions: killAllSessions.value,
-        blockUser: blockUser.value,
-        deactivateUser: deactivateUser.value
-      },
-      onResponseError({ response }) {
-        errors.value = response._data.errors
-        if (Array.isArray(response._data.errors.password)) {
-          response._data.errors.password.forEach(error => {
-            $toast.error(error);
-          });
-        }
-
-        // if (Array.isArray(response._data.errors.old_password)) {
-        //   response._data.errors.old_password.forEach(error => {
-        //     $toast.error(error);
-        //   });
-        // }        
-      },
+      body: { amount: Number(paymentForm.value.amount), note: paymentForm.value.note || undefined },
     })
-
-    $toast.success("Ndryshimet u kryen me sukses!");
-
-    setTimeout(()=> {
-      window.location.reload();
-    },1000);
+    paymentDialog.value = false
+    notify('Payment recorded.')
+    await load()
   } catch (err) {
-    console.error(err)
+    notify(err.data?.message ?? 'Recording failed.', 'error')
+  } finally {
+    working.value = false
   }
 }
 
-const onSubmit = () => {  
-  refVForm.value?.validate().then(({ valid: isValid }) => {
-    if (isValid)
-      storeUserData()
-  })
+const addReminder = async () => {
+  working.value = true
+  try {
+    await $api(`/v1/admin/billing/invoices/${invoice.value.id}/reminders`, {
+      method: 'POST',
+      body: reminderForm.value,
+    })
+    reminderDialog.value = false
+    notify('Reminder scheduled.')
+    await load()
+  } catch (err) {
+    notify(err.data?.message ?? 'Scheduling failed.', 'error')
+  } finally {
+    working.value = false
+  }
 }
 
-const onSubmitResetPassword = () => {  
-  refResetPswForm.value?.validate().then(({ valid: isValid }) => {
-    if (isValid)
-      changePassword()
-  })
-}
+onMounted(async () => {
+  await load()
 
-const departments = [
-  { value: 'agjent', title: 'Agjent' },
-  { value: 'teknik', title: 'Teknik' },
-  { value: 'financat', title: 'Financat (inkasant)' },
-  { value: 'patrollat', title: 'Patrollat' },
-]
-
-
-onMounted( async() => {
-  fetchUserData();
-});  
+  if (route.query.action === 'payment') paymentDialog.value = true
+  if (route.query.action === 'reminder') reminderDialog.value = true
+})
 </script>
 
 <template>
-  <VRow>
-    <VCol class="admin-client-id" cols="12">
-      <VCard>
-        <VCardText>
-          <h3 class="text-h3 text-medium-emphasis mb-4 text-normal">
-            <span v-if="accountDataLocal.name && accountDataLocal.surname">
-            Profili i agjentit: {{accountDataLocal.name}} {{ accountDataLocal.surname }}
-            </span>
-            <span v-else>
-            Profili i agjentit: {{accountDataLocal.name}} {{ accountDataLocal.surname }}
-            </span>
-          </h3>
-        </VCardText>
-        
-      </VCard>
-      <div style="position: absolute;border-block-end: 1px solid #eee;inline-size: 150%;inset-inline-start: 0;"></div>
-    </VCol>
-    <VCol cols="12" md="4">
-      <VCard>
-        <VCardText>
-          <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Detajet Personale
-          </h5>
-          <p class="text-normal">
-            Përdorni një adresë të përhershme ku mund të pranoni email.
-          </p>
-        </VCardText>
-      </VCard>
-    </VCol>
-    <VCol cols="12" md="8">
-      <VCard>
-        <VCardText class="d-flex">
-          <!-- 👉 Avatar -->
-          <VAvatar
-            rounded
-            size="100"
-            class="me-6"
-            :image="accountDataLocal.avatar_temp"
-          />
+  <section v-if="invoice">
+    <div class="d-flex align-center gap-4 mb-6">
+      <VBtn icon="tabler-arrow-left" variant="text" :to="{ name: 'admin-invoices' }" />
+      <div>
+        <h5 class="text-h5">{{ invoice.invoice_number }}</h5>
+        <VChip v-bind="invoiceStatusChip(invoice)" size="small" label>
+          {{ invoiceStatusChip(invoice).label }}
+        </VChip>
+      </div>
+      <VSpacer />
+      <VBtn v-if="isDraft" color="primary" :loading="working" @click="action('issue')">
+        Issue
+      </VBtn>
+      <VBtn v-if="isDraft" variant="tonal" color="secondary" :loading="working" @click="action('cancel')">
+        Cancel draft
+      </VBtn>
+      <VBtn
+        v-if="['sent', 'awaiting_confirmation', 'paid'].includes(invoice.status)"
+        variant="tonal"
+        color="warning"
+        :loading="working"
+        @click="action('credit-note')"
+      >
+        Issue credit note
+      </VBtn>
+    </div>
 
-          <!-- 👉 Upload Photo -->
-          <form class="d-flex flex-column justify-center gap-4">
-            <div class="d-flex flex-wrap gap-4">
-              <VBtn
-                color="primary"
-                size="small"
-                @click="refInputEl?.click()"
-                :disabled="updateRequest"
-              >
-                <VIcon
-                  icon="tabler-cloud-upload"
-                  class="d-sm-none"
-                />
-                <span class="d-none d-sm-block">Ndrysho foton</span>
-              </VBtn>
-
-              <input
-                ref="refInputEl"
-                type="file"
-                name="file"
-                accept=".jpeg,.png,.jpg,GIF"
-                hidden
-                @input="changeAvatar2"
-              >
-
-              <VBtn
-                type="reset"
-                size="small"
-                color="secondary"
-                variant="tonal"
-                @click="resetAvatar"
-              >
-                <span class="d-none d-sm-block">Reseto</span>
-                <VIcon
-                  icon="tabler-refresh"
-                  class="d-sm-none"
-                />
-              </VBtn>
-            </div>
-
-            <p class="text-body-1 mb-0">
-              Allowed JPG, GIF or PNG. Max size of 800K
-            </p>
-          </form>
-        </VCardText>
-
-        <VCardText class="pt-2">
-          <!-- 👉 Form -->
-          <VForm class="mt-3"
-          ref="refVForm"
-          @submit.prevent="onSubmit">
-            <VRow>
-              <!-- 👉 First Name -->
-              <VCol
-                md="6"
-                cols="12"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.name"
-                  label="Emri"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-              <!-- 👉 Last Name -->
-              <VCol
-                md="6"
-                cols="12"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.surname"
-                  label="Mbiemri"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-              <!-- 👉 Email -->
-              <VCol
-                cols="12"
-                md="12"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.email"
-                  label="Email adresa juaj"
-                  placeholder="email@mail.com"
-                  type="email"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-             
-              <!-- 👉 Phone -->
-              <VCol
-                cols="12"
-                md="12"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.phone"
-                  label="Numri telefonit"
-                  placeholder="044123456"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-              <VCol
-                cols="12"
-                md="12"
-              >
-                <AppSelect
-                    :items="departments"
-                    label="Departamenti"
-                    placeholder="Zgjedh departamentin"
-                    v-model="accountDataLocal.department"
-                  />
-              </VCol>
-             
-              <!-- 👉 Address -->
-              <VCol
-                cols="12"
-                md="12"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.address"
-                  label="Adresa"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-              <!-- 👉 State -->
-              <VCol
-                cols="12"
-                md="8"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.city"
-                  label="Qyteti"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-              <!-- 👉 Zip Code -->
-              <VCol
-                cols="12"
-                md="4"
-              >
-                <AppTextField
-                  v-model="accountDataLocal.postal_code"
-                  label="Kodi Postal"
-                  placeholder="10000"
-                  :disabled="updateRequest"
-                />
-              </VCol>
-
-
-              <!-- 👉 Form Actions -->
-              <VCol
-                cols="12"
-                class="d-flex flex-wrap gap-4"
-              >
-                <VBtn class="w-100" type="submit">Ruaj</VBtn>
-              
-             
-              </VCol>
-
-              
-            </VRow>
-          </VForm>
-        </VCardText>
-      </VCard>
-    </VCol>
-  </VRow>
-
-  <VRow class="passwordChange">
-    <VCol cols="12" md="4">
-      <VCard>
-        <VCardText>
-          <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Ndrysho fjalëkalimin
-          </h5>
-          <p class="text-normal">
-            Përdorni një adresë të përhershme ku mund të pranoni email.
-          </p>
-        </VCardText>
-      </VCard>
-    </VCol>
-    
-    <VCol cols="12" md="8">
-      <VCard>
-        <VForm ref="refResetPswForm"
-          @submit.prevent="onSubmitResetPassword"
+    <VRow>
+      <!-- Main column -->
+      <VCol cols="12" md="8">
+        <!-- Read-only banner after issue -->
+        <VAlert
+          v-if="!isDraft"
+          type="info"
+          variant="tonal"
+          density="compact"
+          class="mb-4"
         >
-          <VCardText class="pt-0">
-            <!-- 👉 Current Password -->
-            
-            <!-- 👉 New Password -->
+          Issued invoices are immutable — corrections go through a credit note.
+        </VAlert>
+
+        <!-- Editable header fields (drafts only) -->
+        <VCard class="mb-6" title="Details">
+          <VCardText>
             <VRow>
-              <VCol
-                cols="12"
-              >
-                <!-- 👉 new password -->
-                <AppTextField
-                  v-model="newPassword"
-                  :type="isNewPasswordVisible ? 'text' : 'password'"
-                  :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Fjalëkalimi i ri"
-                  autocomplete="on"
-                  placeholder="············"
-                  @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
+              <VCol cols="12" sm="6">
+                <VTextField
+                  v-model="draftForm.reference"
+                  label="Reference"
+                  :readonly="!isDraft"
+                  class="mb-4"
+                />
+                <VTextField
+                  v-model="draftForm.due_at"
+                  label="Due date"
+                  type="date"
+                  :readonly="!isDraft"
                 />
               </VCol>
-
-              <VCol
-                cols="12"
-              >
-                <label class="v-label mb-1 text-body-2 text-wrap" style="line-height: 15px;" for="app-text-field-Fjalëkalimi i ri-bwt1b">Sesionet<!----></label>
-                <!-- 👉 confirm password -->
-                <VSwitch
-                  v-model="killAllSessions"
-                  :label="'Mbylli te gjitha sesionet e hapura'"
+              <VCol cols="12" sm="6">
+                <VTextarea
+                  v-model="draftForm.terms"
+                  label="Terms"
+                  rows="2"
+                  :readonly="!isDraft"
+                  class="mb-4"
                 />
-              </VCol>
-
-
-              <VCol
-                cols="12"
-                md="12"
-                class="d-flex"
-              >
-                <div>
-                  <VCheckbox
-                    v-model="blockUser"
-                    :label="'Bllokoni këtë përdorues nga sistemi'"
-                  />
-                </div>
-
-                <div class="mr-4">
-                  <VCheckbox
-                    v-model="deactivateUser"
-                    :label="'Çaktivizo këtë përdorues'"
-                  />
-                </div>
-
-                
+                <VTextarea
+                  v-model="draftForm.notes"
+                  label="Notes"
+                  rows="2"
+                  :readonly="!isDraft"
+                />
               </VCol>
             </VRow>
+            <VBtn v-if="isDraft" color="primary" variant="tonal" :loading="working" @click="saveDraft">
+              Save draft
+            </VBtn>
           </VCardText>
+        </VCard>
 
-         
-          <VCardText class="d-flex flex-wrap gap-4">
-            <VBtn class="w-100" type="submit">Ruaj</VBtn>
+        <!-- Lines -->
+        <VCard class="mb-6" title="Lines">
+          <VTable class="text-no-wrap">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th class="text-end">Qty</th>
+                <th class="text-end">Unit price</th>
+                <th class="text-end">VAT %</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in invoice.items" :key="item.id">
+                <td>{{ item.description }}</td>
+                <td class="text-end">{{ item.quantity }}</td>
+                <td class="text-end">{{ formatMoney(item.unit_price_net) }}</td>
+                <td class="text-end">{{ item.vat_rate }}</td>
+                <td class="text-end">{{ formatMoney(item.line_total_gross) }}</td>
+              </tr>
+              <tr class="font-weight-medium">
+                <td colspan="4" class="text-end">Net {{ formatMoney(invoice.subtotal_net) }} · VAT {{ formatMoney(invoice.vat_total) }}</td>
+                <td class="text-end">{{ formatMoney(invoice.total_gross) }}</td>
+              </tr>
+            </tbody>
+          </VTable>
+        </VCard>
+
+        <!-- Payment history -->
+        <VCard class="mb-6" title="Payments">
+          <VCardText v-if="!payments.length" class="text-body-2">
+            No payments yet.
           </VCardText>
-        </VForm>
+          <VTable v-else class="text-no-wrap">
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Status</th>
+                <th>Method</th>
+                <th>Date</th>
+                <th class="text-end">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="payment in payments" :key="payment.id">
+                <td class="text-capitalize">{{ payment.provider.replace('_', ' ') }}</td>
+                <td>{{ payment.status.replaceAll('_', ' ') }}</td>
+                <td>{{ payment.method ?? '—' }}</td>
+                <td>{{ payment.paid_at ?? '—' }}</td>
+                <td class="text-end">{{ formatMoney(payment.amount) }}</td>
+              </tr>
+            </tbody>
+          </VTable>
+        </VCard>
+
+        <!-- Audit trail -->
+        <VCard title="Activity">
+          <VCardText>
+            <VTimeline density="compact" align="start" truncate-line="both">
+              <VTimelineItem
+                v-for="(activity, index) in activities"
+                :key="index"
+                dot-color="primary"
+                size="x-small"
+              >
+                <div class="d-flex justify-space-between flex-wrap gap-2">
+                  <span class="font-weight-medium">{{ activity.event.replaceAll('_', ' ') }}</span>
+                  <span class="text-body-2">{{ activity.at }}</span>
+                </div>
+                <div class="text-body-2">{{ activity.actor }}</div>
+              </VTimelineItem>
+            </VTimeline>
+          </VCardText>
+        </VCard>
+      </VCol>
+
+      <!-- Right rail -->
+      <VCol cols="12" md="4">
+        <VCard class="mb-6">
+          <VCardText>
+            <div class="text-body-2">Outstanding</div>
+            <h4 class="text-h4 mb-4">{{ formatMoney(invoice.amount_due) }}</h4>
+            <div class="d-flex justify-space-between mb-2">
+              <span>Total</span><span>{{ formatMoney(invoice.total_gross) }}</span>
+            </div>
+            <div class="d-flex justify-space-between mb-4">
+              <span>Paid</span><span>{{ formatMoney(invoice.amount_paid) }}</span>
+            </div>
+            <VBtn
+              block
+              color="primary"
+              variant="tonal"
+              class="mb-3"
+              :disabled="invoice.amount_due <= 0"
+              @click="paymentDialog = true"
+            >
+              Record manual payment
+            </VBtn>
+            <VBtn
+              block
+              variant="tonal"
+              color="secondary"
+              :disabled="!invoice.due_at"
+              @click="reminderDialog = true"
+            >
+              Add reminder
+            </VBtn>
+          </VCardText>
+        </VCard>
+
+        <!-- Client rail -->
+        <VCard class="mb-6" title="Client">
+          <VCardText v-if="client">
+            <div class="font-weight-medium">{{ client.name }} {{ client.surname }}</div>
+            <div class="text-body-2">{{ client.company_name }}</div>
+            <div class="text-body-2 mb-2">{{ client.email }}</div>
+            <div class="text-body-2">{{ client.address }}</div>
+            <div class="text-body-2">{{ client.postal_code }} {{ client.city }} {{ client.country_code }}</div>
+            <div v-if="client.vat_id" class="text-body-2 mt-2">UID: {{ client.vat_id }}</div>
+          </VCardText>
+        </VCard>
+
+        <!-- Reminder rail -->
+        <VCard title="Reminders">
+          <VCardText v-if="!reminders.length" class="text-body-2">
+            None scheduled. Dunning defaults are 3 / 7 / 14 days after due.
+          </VCardText>
+          <VList v-else density="compact">
+            <VListItem v-for="reminder in reminders" :key="reminder.id">
+              <VListItemTitle>
+                {{ reminder.offset_days >= 0 ? `${reminder.offset_days} days after due` : `${-reminder.offset_days} days before due` }}
+              </VListItemTitle>
+              <VListItemSubtitle>
+                {{ formatDate(reminder.scheduled_for) }} · {{ reminder.channel }}
+                <VChip v-if="reminder.sent_at" size="x-small" color="success" label class="ms-1">sent</VChip>
+              </VListItemSubtitle>
+            </VListItem>
+          </VList>
+        </VCard>
+      </VCol>
+    </VRow>
+
+    <!-- Manual payment dialog -->
+    <VDialog v-model="paymentDialog" max-width="420">
+      <VCard title="Record manual payment">
+        <VCardText>
+          <VTextField
+            v-model="paymentForm.amount"
+            label="Amount"
+            type="number"
+            min="0.01"
+            suffix="EUR"
+            class="mb-4"
+          />
+          <VTextarea v-model="paymentForm.note" label="Note (optional)" rows="2" />
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn variant="text" color="secondary" @click="paymentDialog = false">Cancel</VBtn>
+          <VBtn color="primary" :loading="working" @click="recordPayment">Record</VBtn>
+        </VCardActions>
       </VCard>
-    </VCol>
-  </VRow>
-  
+    </VDialog>
+
+    <!-- Reminder dialog -->
+    <VDialog v-model="reminderDialog" max-width="420">
+      <VCard title="Add reminder">
+        <VCardText>
+          <VSelect
+            v-model="reminderForm.offset_days"
+            :items="[
+              { title: '3 days after due', value: 3 },
+              { title: '7 days after due', value: 7 },
+              { title: '14 days after due', value: 14 },
+              { title: 'Final notice (21 days)', value: 21 },
+            ]"
+            label="When"
+            class="mb-4"
+          />
+          <VSelect
+            v-model="reminderForm.channel"
+            :items="[
+              { title: 'Email', value: 'email' },
+              { title: 'Push', value: 'push' },
+              { title: 'Email + push', value: 'both' },
+            ]"
+            label="Channel"
+          />
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn variant="text" color="secondary" @click="reminderDialog = false">Cancel</VBtn>
+          <VBtn color="primary" :loading="working" @click="addReminder">Schedule</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VSnackbar v-model="snackbar.show" :color="snackbar.color" location="top end">
+      {{ snackbar.text }}
+    </VSnackbar>
+  </section>
 </template>
-
-<style type="scss">
-.passwordChange {
-  border-block-start: 1px solid #eee;
-  padding-block-start: 20px;
-}
-
-.layout-wrapper.layout-nav-type-vertical .layout-content-wrapper {
-  background: #fff;
-}
-
-.admin-client-id .v-card {
-  overflow: unset !important;
-}
-
-/* .text-default {
-  font-weight: normal !important;
-} */
-</style>
-

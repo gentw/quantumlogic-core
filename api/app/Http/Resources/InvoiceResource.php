@@ -30,6 +30,14 @@ class InvoiceResource extends JsonResource
             'due_at' => $this->due_at?->toDateString(),
             'paid_at' => $this->paid_at?->toDateString(),
             'order_number' => $this->whenLoaded('serviceOrder', fn () => $this->serviceOrder?->order_number),
+            'billed_to' => $this->whenLoaded('user', fn () => [
+                'id' => $this->user->id,
+                'name' => trim($this->user->name.' '.$this->user->surname),
+                'email' => $this->user->email,
+            ]),
+            'account_manager' => $this->whenLoaded('accountManager', fn () => $this->accountManager
+                ? trim($this->accountManager->name.' '.$this->accountManager->surname)
+                : null),
             'items' => InvoiceItemResource::collection($this->whenLoaded('items')),
         ];
     }

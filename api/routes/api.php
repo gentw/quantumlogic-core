@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminInvoiceController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
 use App\Http\Controllers\Api\AuthenticationController;
@@ -165,6 +166,17 @@ Route::group([
     // Billing & Payments — PayPal rail (invoice-based; legacy subscription
     // PayPal flow lives in PayPalController behind the module flag)
     Route::post('/client/invoices/{invoice}/paypal/create', [BillingPayPalController::class, 'createOrder'])->middleware('client');
+
+    // Billing & Payments — admin invoices
+    Route::get('/admin/billing/invoices', [AdminInvoiceController::class, 'index'])->middleware('admin');
+    Route::post('/admin/billing/invoices', [AdminInvoiceController::class, 'store'])->middleware('admin');
+    Route::get('/admin/billing/invoices/{invoice}', [AdminInvoiceController::class, 'show'])->middleware('admin');
+    Route::patch('/admin/billing/invoices/{invoice}', [AdminInvoiceController::class, 'update'])->middleware('admin');
+    Route::post('/admin/billing/invoices/{invoice}/issue', [AdminInvoiceController::class, 'issue'])->middleware('admin');
+    Route::post('/admin/billing/invoices/{invoice}/cancel', [AdminInvoiceController::class, 'cancel'])->middleware('admin');
+    Route::post('/admin/billing/invoices/{invoice}/credit-note', [AdminInvoiceController::class, 'creditNote'])->middleware('admin');
+    Route::post('/admin/billing/invoices/{invoice}/payments', [AdminInvoiceController::class, 'recordManualPayment'])->middleware('admin');
+    Route::post('/admin/billing/invoices/{invoice}/reminders', [AdminInvoiceController::class, 'addReminder'])->middleware('admin');
 
     // Billing & Payments — saved payment methods
     Route::get('/client/payment-methods', [ClientPaymentMethodController::class, 'index'])->middleware('client');
