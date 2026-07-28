@@ -5,11 +5,14 @@ use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
 use App\Http\Controllers\Api\AuthenticationController;
 use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\ClientPaymentController;
 use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PayPalController;
+use App\Http\Controllers\Api\StripeController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\SubscriptionController;
 // use \App\Http\Controllers\Api\CodeCheckController;
 // use \App\Http\Controllers\Api\ResetPasswordController;
@@ -141,6 +144,11 @@ Route::group([
 
     Route::get('/client/invoice/{id}', [InvoiceController::class, 'show']);
 
+    // Billing & Payments — Stripe rail
+    Route::post('/client/invoices/{invoice}/stripe/intent', [StripeController::class, 'createIntent'])->middleware('client');
+    Route::post('/client/stripe/setup-intent', [StripeController::class, 'createSetupIntent'])->middleware('client');
+    Route::get('/client/payments/{payment}/status', [ClientPaymentController::class, 'status'])->middleware('client');
+
     // ma vone duhna mi qit posht
     Route::post('/paypal/payment', [PayPalController::class, 'createPayment'])
         ->name('payment');
@@ -156,6 +164,9 @@ Route::group([
         Route::get('cancel', 'cancel')->name('paypal.cancel');
     });
 
+    // Billing & Payments webhooks — public by design; the provider
+    // signature is the authentication, never auth:api.
+    Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 });
 
 // Domain protection — dormant security module, see docs/modules/security/README.md
