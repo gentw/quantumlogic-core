@@ -127,7 +127,7 @@ class PayPalController extends Controller
         }
 
         // Idempotency — same callback hit twice (refresh, retry, etc.)
-        if ($invoice->status === 'paid' && $invoice->subscription_id) {
+        if ($invoice->status === \App\Enums\InvoiceStatus::Paid && $invoice->subscription_id) {
             return redirect($frontendUrl.'/client?payment=success');
         }
 

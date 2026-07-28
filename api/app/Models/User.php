@@ -120,4 +120,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function serviceOrders()
+    {
+        return $this->hasMany(ServiceOrder::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function paymentMethods()
+    {
+        return $this->hasMany(PaymentMethod::class);
+    }
+
+    public function recurringPlans()
+    {
+        return $this->hasMany(RecurringPlan::class);
+    }
 }
