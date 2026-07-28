@@ -29,6 +29,14 @@ protection status) is **switched off but still present on disk**.
 - When unsure between two valid approaches, ask once with a concrete recommendation rather than guess.
 - Be terse. Don't summarize what you just did when the diff already shows it.
 
+## Commit each phase as you build it
+
+When a feature spec has phases, commit each one the moment it lands and its gates pass —
+don't save the work up for one commit at the end, and don't ask first. Format, gates and
+granularity: [`../.claude/skills/feature/actions/commit.md`](../.claude/skills/feature/actions/commit.md).
+Short version: conventional subject, a body that explains *why* with bullets grouped by
+area, spec deviations under `Decisions:`, and a `Verified:` line naming only what actually ran.
+
 ## Don't add Claude to commit messages
 
 - No `Co-Authored-By: Claude ...` trailers.

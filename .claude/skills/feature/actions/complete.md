@@ -1,7 +1,12 @@
 # Complete Action
 
-1. Stage all changes and commit with a descriptive message
-2. Switch to main and merge the feature branch (no push yet)
+Phases were already committed as they landed (see [commit.md](commit.md)). This action
+closes the feature out — it is **not** where the work gets committed.
+
+1. Run `git status`. Anything left over from this feature gets its own commit in the
+   [commit.md](commit.md) format. Leave unrelated work in progress alone — don't sweep it in
+2. Switch to main and merge the feature branch with `--no-ff`, so the phase commits stay
+   grouped under one merge commit (no push yet)
 3. Delete the local feature branch
 4. Reset current-feature.md:
    - Change H1 back to `# Current Feature`

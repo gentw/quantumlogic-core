@@ -32,8 +32,12 @@ Execute the requested action: $ARGUMENTS
 | `start` | Begin implementation, create branch |
 | `review` | Check goals met, code quality |
 | `explain` | Document what changed and why |
-| `complete` | Commit, push, merge, reset |
+| `complete` | Merge, push, reset |
 
 See [actions/](actions/) for detailed instructions.
+
+Commits are **not** a separate step the user asks for. `start` commits every phase as it
+lands, using the format and gates in [actions/commit.md](actions/commit.md); by the time
+`complete` runs, the branch is already a readable phase-by-phase history.
 
 If no action provided, explain the available options.
