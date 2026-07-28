@@ -6,6 +6,9 @@ enum InvoiceStatus: string
 {
     case Draft = 'draft';
     case Sent = 'sent';
+    // A bank-transfer proof is uploaded and waiting for admin review; the
+    // invoice is NOT paid until an admin accepts.
+    case AwaitingConfirmation = 'awaiting_confirmation';
     case Paid = 'paid';
     case Cancelled = 'cancelled';
 

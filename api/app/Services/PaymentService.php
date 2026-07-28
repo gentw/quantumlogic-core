@@ -188,7 +188,9 @@ class PaymentService
             throw PaymentAlreadyAppliedException::for($invoice);
         }
 
-        if (! in_array($invoice->status, [InvoiceStatus::Sent, InvoiceStatus::Unpaid], true)) {
+        $payable = [InvoiceStatus::Sent, InvoiceStatus::AwaitingConfirmation, InvoiceStatus::Unpaid];
+
+        if (! in_array($invoice->status, $payable, true)) {
             throw InvalidInvoiceStateException::make($invoice, 'pay');
         }
     }

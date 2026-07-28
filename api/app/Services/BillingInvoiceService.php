@@ -181,7 +181,9 @@ class BillingInvoiceService
 
         $invoice->forceFill(['amount_due' => Money::toEuros($due)]);
 
-        if ($due === 0 && $invoice->status === InvoiceStatus::Sent) {
+        $settleable = [InvoiceStatus::Sent, InvoiceStatus::AwaitingConfirmation];
+
+        if ($due === 0 && in_array($invoice->status, $settleable, true)) {
             $invoice->forceFill(['status' => InvoiceStatus::Paid, 'paid_at' => now()]);
         }
 

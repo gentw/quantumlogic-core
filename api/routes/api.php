@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
 use App\Http\Controllers\Api\AuthenticationController;
+use App\Http\Controllers\Api\BankTransferController;
 use App\Http\Controllers\Api\BillingPayPalController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientPaymentController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PaymentReconciliationController;
 use App\Http\Controllers\Api\PayPalController;
 use App\Http\Controllers\Api\PayPalWebhookController;
 use App\Http\Controllers\Api\StripeController;
@@ -154,6 +156,14 @@ Route::group([
     // Billing & Payments — PayPal rail (invoice-based; legacy subscription
     // PayPal flow lives in PayPalController behind the module flag)
     Route::post('/client/invoices/{invoice}/paypal/create', [BillingPayPalController::class, 'createOrder'])->middleware('client');
+
+    // Billing & Payments — SEPA bank transfer rail
+    Route::get('/client/invoices/{invoice}/bank-details', [BankTransferController::class, 'bankDetails'])->middleware('client');
+    Route::post('/client/invoices/{invoice}/payment-proof', [BankTransferController::class, 'uploadProof'])->middleware('client');
+    Route::get('/admin/payment-proofs', [PaymentReconciliationController::class, 'index'])->middleware('admin');
+    Route::post('/admin/payment-proofs/{proof}/accept', [PaymentReconciliationController::class, 'accept'])->middleware('admin');
+    Route::post('/admin/payment-proofs/{proof}/reject', [PaymentReconciliationController::class, 'reject'])->middleware('admin');
+    Route::get('/admin/payment-proofs/{proof}/file', [PaymentReconciliationController::class, 'file'])->middleware('admin');
 
     // ma vone duhna mi qit posht
     Route::post('/paypal/payment', [PayPalController::class, 'createPayment'])
