@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ClientBillingController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientPaymentController;
 use App\Http\Controllers\Api\ClientPaymentMethodController;
+use App\Http\Controllers\Api\ClientServiceController;
 use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
@@ -151,6 +152,7 @@ Route::group([
     Route::get('/client/invoice/{id}', [InvoiceController::class, 'show']);
 
     // Billing & Payments — client reads
+    Route::get('/client/services', [ClientServiceController::class, 'index'])->middleware('client');
     Route::get('/client/billing/summary', [ClientBillingController::class, 'summary'])->middleware('client');
     Route::get('/client/billing/invoices', [ClientBillingController::class, 'index'])->middleware('client');
     Route::get('/client/billing/invoices/{invoice}', [ClientBillingController::class, 'show'])->middleware('client');

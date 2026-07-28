@@ -15,6 +15,20 @@ export default [
     role: 'client',
     class: '',
   },
+  {
+    title: 'My Services',
+    to: { name: 'client-services' },
+    icon: 'briefcase',
+    role: 'client',
+    class: '',
+  },
+  {
+    title: 'Billing',
+    to: { name: 'client-billing' },
+    icon: 'credit-card',
+    role: 'client',
+    class: '',
+  },
 
   // Security module (dormant) — definitions stay here so re-enabling is one flag.
   // See docs/modules/security/README.md
