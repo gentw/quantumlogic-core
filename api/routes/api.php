@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\BillingPayPalController;
 use App\Http\Controllers\Api\ClientBillingController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientPaymentController;
+use App\Http\Controllers\Api\ClientPaymentMethodController;
 use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
@@ -162,6 +163,11 @@ Route::group([
     // Billing & Payments — PayPal rail (invoice-based; legacy subscription
     // PayPal flow lives in PayPalController behind the module flag)
     Route::post('/client/invoices/{invoice}/paypal/create', [BillingPayPalController::class, 'createOrder'])->middleware('client');
+
+    // Billing & Payments — saved payment methods
+    Route::get('/client/payment-methods', [ClientPaymentMethodController::class, 'index'])->middleware('client');
+    Route::delete('/client/payment-methods/{paymentMethod}', [ClientPaymentMethodController::class, 'destroy'])->middleware('client');
+    Route::post('/client/payment-methods/{paymentMethod}/default', [ClientPaymentMethodController::class, 'setDefault'])->middleware('client');
 
     // Billing & Payments — SEPA bank transfer rail
     Route::get('/client/invoices/{invoice}/bank-details', [BankTransferController::class, 'bankDetails'])->middleware('client');
