@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AlarmAlertController;
 use App\Http\Controllers\Api\AuthenticationController;
 use App\Http\Controllers\Api\BankTransferController;
 use App\Http\Controllers\Api\BillingPayPalController;
+use App\Http\Controllers\Api\ClientBillingController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientPaymentController;
 use App\Http\Controllers\Api\FirebaseController;
@@ -147,6 +148,11 @@ Route::group([
     }
 
     Route::get('/client/invoice/{id}', [InvoiceController::class, 'show']);
+
+    // Billing & Payments — client reads
+    Route::get('/client/billing/summary', [ClientBillingController::class, 'summary'])->middleware('client');
+    Route::get('/client/billing/invoices', [ClientBillingController::class, 'index'])->middleware('client');
+    Route::get('/client/billing/invoices/{invoice}', [ClientBillingController::class, 'show'])->middleware('client');
 
     // Billing & Payments — Stripe rail
     Route::post('/client/invoices/{invoice}/stripe/intent', [StripeController::class, 'createIntent'])->middleware('client');
