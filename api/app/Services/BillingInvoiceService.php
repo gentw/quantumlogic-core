@@ -185,6 +185,11 @@ class BillingInvoiceService
             $invoice->forceFill(['status' => InvoiceStatus::Paid, 'paid_at' => now()]);
         }
 
+        // A refund can reopen a settled invoice.
+        if ($due > 0 && $invoice->status === InvoiceStatus::Paid) {
+            $invoice->forceFill(['status' => InvoiceStatus::Sent, 'paid_at' => null]);
+        }
+
         $invoice->save();
 
         return $invoice;
