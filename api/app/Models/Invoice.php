@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\InvoiceType;
+use App\Exceptions\InvoiceLockedException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,6 +12,41 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Invoice extends Model
 {
     use HasFactory, SoftDeletes;
+
+    /**
+     * The only columns that may still change after an invoice is locked —
+     * payment tracking and delivery state, never commercial content.
+     */
+    public const MUTABLE_WHEN_LOCKED = [
+        'status',
+        'amount_paid',
+        'amount_due',
+        'paid_at',
+        'cancelled_at',
+        'exported_pdf_path',
+        'public_token',
+        'public_token_expires_at',
+        'updated_at',
+    ];
+
+    protected static function booted(): void
+    {
+        // Immutability after issue (§11 UStG): once locked_at is stamped the
+        // commercial content is read-only; corrections go through credit
+        // notes. getOriginal() so the save that stamps locked_at itself (the
+        // issue transition, which also writes the number) still passes.
+        static::updating(function (Invoice $invoice) {
+            if (! $invoice->getOriginal('locked_at')) {
+                return;
+            }
+
+            $illegal = array_diff(array_keys($invoice->getDirty()), self::MUTABLE_WHEN_LOCKED);
+
+            if ($illegal !== []) {
+                throw InvoiceLockedException::for($invoice, array_values($illegal));
+            }
+        });
+    }
 
     protected $fillable = [
         'user_id',
@@ -86,6 +122,29 @@ class Invoice extends Model
         'trial_fingerprint',
         'ip_address',
     ];
+
+    public function isLocked(): bool
+    {
+        return $this->locked_at !== null;
+    }
+
+    /**
+     * Overdue is derived, never stored: past due with money still owed.
+     */
+    public function getIsOverdueAttribute(): bool
+    {
+        return $this->status === InvoiceStatus::Sent
+            && $this->due_at?->isPast() === true
+            && (float) $this->amount_due > 0;
+    }
+
+    public function scopeOverdue($query)
+    {
+        return $query
+            ->where('status', InvoiceStatus::Sent->value)
+            ->where('due_at', '<', now())
+            ->where('amount_due', '>', 0);
+    }
 
     public function serviceOrder()
     {
