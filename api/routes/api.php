@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminInvoiceController;
+use App\Http\Controllers\Api\AdminOrderController;
+use App\Http\Controllers\Api\AdminServiceCatalogueController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
 use App\Http\Controllers\Api\AuthenticationController;
@@ -177,6 +179,17 @@ Route::group([
     Route::post('/admin/billing/invoices/{invoice}/credit-note', [AdminInvoiceController::class, 'creditNote'])->middleware('admin');
     Route::post('/admin/billing/invoices/{invoice}/payments', [AdminInvoiceController::class, 'recordManualPayment'])->middleware('admin');
     Route::post('/admin/billing/invoices/{invoice}/reminders', [AdminInvoiceController::class, 'addReminder'])->middleware('admin');
+
+    // Billing & Payments — admin orders + catalogue
+    Route::get('/admin/billing/orders', [AdminOrderController::class, 'index'])->middleware('admin');
+    Route::post('/admin/billing/orders', [AdminOrderController::class, 'store'])->middleware('admin');
+    Route::get('/admin/billing/orders/{order}', [AdminOrderController::class, 'show'])->middleware('admin');
+    Route::post('/admin/billing/orders/{order}/transition', [AdminOrderController::class, 'transition'])->middleware('admin');
+    Route::get('/admin/billing/clients/{user}/orders', [AdminOrderController::class, 'forClient'])->middleware('admin');
+    Route::get('/admin/billing/services', [AdminServiceCatalogueController::class, 'index'])->middleware('admin');
+    Route::post('/admin/billing/services', [AdminServiceCatalogueController::class, 'store'])->middleware('admin');
+    Route::patch('/admin/billing/services/{service}', [AdminServiceCatalogueController::class, 'update'])->middleware('admin');
+    Route::post('/admin/billing/services/{service}/deactivate', [AdminServiceCatalogueController::class, 'deactivate'])->middleware('admin');
 
     // Billing & Payments — saved payment methods
     Route::get('/client/payment-methods', [ClientPaymentMethodController::class, 'index'])->middleware('client');
