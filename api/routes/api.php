@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminInvoiceController;
 use App\Http\Controllers\Api\AdminOrderController;
+use App\Http\Controllers\Api\AdminPaymentController;
 use App\Http\Controllers\Api\AdminServiceCatalogueController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
@@ -179,6 +180,9 @@ Route::group([
     Route::post('/admin/billing/invoices/{invoice}/credit-note', [AdminInvoiceController::class, 'creditNote'])->middleware('admin');
     Route::post('/admin/billing/invoices/{invoice}/payments', [AdminInvoiceController::class, 'recordManualPayment'])->middleware('admin');
     Route::post('/admin/billing/invoices/{invoice}/reminders', [AdminInvoiceController::class, 'addReminder'])->middleware('admin');
+
+    // Billing & Payments — admin payments ledger
+    Route::get('/admin/billing/payments', [AdminPaymentController::class, 'index'])->middleware('admin');
 
     // Billing & Payments — admin orders + catalogue
     Route::get('/admin/billing/orders', [AdminOrderController::class, 'index'])->middleware('admin');
