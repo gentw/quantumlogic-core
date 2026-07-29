@@ -163,6 +163,22 @@ class AdminInvoiceController extends Controller
         return response()->json(['id' => $reminder->id, 'scheduled_for' => $reminder->scheduled_for->toDateString()], 201);
     }
 
+    /** Mint (or rotate) the public pay link for an issued invoice. */
+    public function publicLink(Invoice $invoice): JsonResponse
+    {
+        abort_if($invoice->status === InvoiceStatus::Draft, 422, 'Issue the invoice first.');
+
+        $invoice->forceFill([
+            'public_token' => Str::random(64),
+            'public_token_expires_at' => now()->addDays(30),
+        ])->save();
+
+        return response()->json([
+            'url' => rtrim(config('app.frontend_url'), '/').'/pay/'.$invoice->public_token,
+            'expires_at' => $invoice->public_token_expires_at->toDateString(),
+        ]);
+    }
+
     /** The Billing card on the admin client detail page. */
     public function clientSummary(\App\Models\User $user): JsonResponse
     {

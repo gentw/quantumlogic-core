@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\PaymentReconciliationController;
 use App\Http\Controllers\Api\PayPalController;
 use App\Http\Controllers\Api\PayPalWebhookController;
 use App\Http\Controllers\Api\PublicCheckoutController;
+use App\Http\Controllers\Api\PublicInvoiceController;
 use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\SubscriptionController;
@@ -181,6 +182,7 @@ Route::group([
     Route::post('/admin/billing/invoices/{invoice}/credit-note', [AdminInvoiceController::class, 'creditNote'])->middleware('admin');
     Route::post('/admin/billing/invoices/{invoice}/payments', [AdminInvoiceController::class, 'recordManualPayment'])->middleware('admin');
     Route::post('/admin/billing/invoices/{invoice}/reminders', [AdminInvoiceController::class, 'addReminder'])->middleware('admin');
+    Route::post('/admin/billing/invoices/{invoice}/public-link', [AdminInvoiceController::class, 'publicLink'])->middleware('admin');
 
     // Billing & Payments — admin payments ledger
     Route::get('/admin/billing/payments', [AdminPaymentController::class, 'index'])->middleware('admin');
@@ -240,6 +242,10 @@ Route::group([
     Route::get('/public/services', [PublicCheckoutController::class, 'services'])->middleware('throttle:30,1');
     Route::post('/public/checkout/quote', [PublicCheckoutController::class, 'quote'])->middleware('throttle:30,1');
     Route::post('/public/checkout/start', [PublicCheckoutController::class, 'start'])->middleware('throttle:10,1');
+
+    // Public pay links — the expiring token is the credential.
+    Route::get('/public/invoices/{token}', [PublicInvoiceController::class, 'show'])->middleware('throttle:20,1');
+    Route::post('/public/invoices/{token}/pay', [PublicInvoiceController::class, 'pay'])->middleware('throttle:10,1');
 });
 
 // Domain protection — dormant security module, see docs/modules/security/README.md
