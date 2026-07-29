@@ -75,6 +75,8 @@ class ClientAccountService
             ['token' => $code],
         );
 
+        app(BillingNotifier::class)->guestWelcome($user, $code);
+
         Log::info('Guest checkout account activated', ['user_id' => $user->id]);
 
         return $code;

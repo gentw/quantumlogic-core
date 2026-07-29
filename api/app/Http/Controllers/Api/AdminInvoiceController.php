@@ -98,9 +98,11 @@ class AdminInvoiceController extends Controller
     {
         $validated = $request->validate(['terms_days' => ['nullable', 'integer', 'between:0,90']]);
 
-        return new InvoiceResource(
-            $this->invoices->issue($invoice, $request->user(), $validated['terms_days'] ?? null)->load('items')
-        );
+        $invoice = $this->invoices->issue($invoice, $request->user(), $validated['terms_days'] ?? null);
+
+        app(\App\Services\BillingNotifier::class)->invoiceIssued($invoice);
+
+        return new InvoiceResource($invoice->load('items'));
     }
 
     public function cancel(Request $request, Invoice $invoice): InvoiceResource

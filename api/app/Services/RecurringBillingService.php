@@ -135,6 +135,12 @@ class RecurringBillingService
             $this->payments->fail($payment, $result['error'] ?? 'Charge failed');
             $this->recordFailure($plan, $invoice->id, $result['error'] ?? 'Charge failed');
 
+            app(BillingNotifier::class)->recurringChargeFailed(
+                $invoice,
+                $result['error'] ?? 'Charge failed',
+                $plan->refresh()->state === RecurringPlanState::PastDue,
+            );
+
             return 'failed';
         });
     }

@@ -27,6 +27,7 @@ class BankTransferService
     public function __construct(
         private readonly PaymentService $payments,
         private readonly BillingInvoiceService $invoices,
+        private readonly BillingNotifier $notifier,
     ) {}
 
     /**
@@ -117,6 +118,8 @@ class BankTransferService
             $locked->forceFill(['status' => InvoiceStatus::AwaitingConfirmation])->save();
             $this->invoices->log($locked, 'proof_uploaded', $uploader, ['proof_id' => $proof->id]);
 
+            $this->notifier->proofReceived($locked, trim($uploader->name.' '.$uploader->surname));
+
             return $proof;
         });
     }
@@ -176,6 +179,8 @@ class BankTransferService
                 'proof_id' => $proof->id,
                 'reason' => $reason,
             ]);
+
+            $this->notifier->proofRejected($invoice, $reason);
 
             return $proof->refresh();
         });

@@ -27,6 +27,7 @@ class PaymentService
 {
     public function __construct(
         private readonly BillingInvoiceService $invoices,
+        private readonly BillingNotifier $notifier,
     ) {}
 
     /**
@@ -136,6 +137,8 @@ class PaymentService
                 'payment_id' => $locked->id,
                 'reason' => $reason,
             ]);
+
+            $this->notifier->paymentFailed($locked->invoice, $reason);
 
             return $locked->refresh();
         });
@@ -262,5 +265,8 @@ class PaymentService
             'provider' => $payment->provider->value,
             'amount' => (float) $payment->amount,
         ]);
+
+        // Queued with afterCommit — nothing leaves before the transaction lands.
+        $this->notifier->paymentReceived($locked, (float) $payment->amount);
     }
 }
