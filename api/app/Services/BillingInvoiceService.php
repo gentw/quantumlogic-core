@@ -90,8 +90,30 @@ class BillingInvoiceService
 
             $this->log($locked, 'issued', $actor, ['number' => $locked->invoice_number]);
 
+            $this->scheduleDefaultReminders($locked, $actor);
+
             return $locked->refresh();
         });
+    }
+
+    /**
+     * The default dunning ladder from the admin mock: 3 / 7 / 14 days after
+     * due plus a final notice at 21. billing:send-reminders does the sending.
+     */
+    private function scheduleDefaultReminders(Invoice $invoice, ?User $actor): void
+    {
+        if ($invoice->type === InvoiceType::CreditNote || $invoice->due_at === null) {
+            return;
+        }
+
+        foreach ([3, 7, 14, 21] as $offsetDays) {
+            $invoice->reminders()->create([
+                'offset_days' => $offsetDays,
+                'channel' => 'email',
+                'scheduled_for' => $invoice->due_at->copy()->addDays($offsetDays),
+                'created_by_user_id' => $actor?->id,
+            ]);
+        }
     }
 
     /** Drafts can be cancelled; issued invoices need a credit note. */

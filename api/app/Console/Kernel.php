@@ -21,6 +21,13 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping(60)
             ->onOneServer()
             ->runInBackground();
+
+        // Billing & Payments: dunning (3/7/14 + final notice per invoice).
+        $schedule->command('billing:send-reminders')
+            ->dailyAt('09:00')
+            ->withoutOverlapping(60)
+            ->onOneServer()
+            ->runInBackground();
     }
 
     protected function commands(): void
