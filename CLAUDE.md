@@ -1,8 +1,8 @@
 # QuantumLogic Core
 
 Internal platform for the QuantumLogic agency (quantumlogic.at) — manage **customers,
-services and tickets**, with subscription billing, invoicing and a multi-role admin back
-office.
+services and tickets**, with order-based billing & payments (Stripe, PayPal, SEPA),
+Austrian-compliant invoicing and a multi-role admin back office.
 
 **Status:** private beta, in active development. Some flows below are partially
 implemented — verify against current code before assuming behavior.
@@ -58,22 +58,28 @@ manager — `cd` into `api/` or `web/` for any command.
 
 ### Layout (`api/app/`)
 - `Http/Controllers/` — feature controllers (root) + `Api/` (most v1 endpoints live here)
-- `Http/Middleware/` — role gates, subscription gate, feature gate
+- `Http/Middleware/` — role gates, subscription gate (flag-off pass-through), feature gate
 - `Models/` — Eloquent models
-- `Services/` — `SubscriptionService`, `TrialService`, `InvoiceService`
-- `Enums/` — `SubscriptionState`
+- `Services/` — Billing & Payments: `ServiceCatalogueService`, `ServiceOrderService`, `InvoiceNumberService`, `BillingInvoiceService`, `TaxService`, `PaymentService`, `StripeGateway`, `PayPalGateway`, `BankTransferService`, `RecurringBillingService`, `ClientAccountService`, `BillingNotifier`; retired module: `SubscriptionService`, `TrialService`, `InvoiceService`
+- `Support/` — `Money` (billing math in integer cents)
+- `Enums/` — `InvoiceType`, `InvoiceStatus`, `ServiceOrderStatus`, `PaymentProvider`, `PaymentStatus`, `PaymentProofStatus`, `RecurringPlanState`, `BillingType`, `SubscriptionState` (retired)
 - `Jobs/`, `Events/`, `Notifications/`, `Mail/`, `Console/`, `Providers/`
 
 ### Data model (active)
-- **User** — base auth model (large, `app/Models/User.php`)
+- **User** — base auth model (large, `app/Models/User.php`; billing profile: `country_code`, `company_name`, `vat_id`, `origin`)
 - Roles split into **Admin**, **Agent**, **Client** (enforced by middleware, not separate tables)
-- Billing: `Subscription`, `Package`, `Invoice`, `SubscriptionPayment`
+- Billing & Payments: `Service` (catalogue) → `ServiceOrder` + `ServiceOrderItem` → `Invoice` + `InvoiceItem` → `Payment` (+ `PaymentProof`, `PaymentMethod`, `RecurringPlan`, `InvoiceReminder`, `InvoiceActivity` append-only audit trail, `InvoiceSequence` gapless numbering)
+- Retired plan-tier module (flag `FEATURE_SUBSCRIPTION_PLANS`): `Subscription`, `Package`, `SubscriptionPayment` — see `docs/modules/subscriptions/README.md`
 - Messaging: `Chat`, `Message`, `ChatAgentClientOnLine`, `AgentQueue`
 - Notifications: `NotificationReminder`, `NotificationReminderGroup`, `NotificationList`, `FirebaseToken`
 - Auth flows: `Otp`, `ResetCodePassword`, `RegisteredClients`
 - Profile: `UserPreference`, `UserRequestUpdates`, `AccountDetail`
 
-Customers/services/tickets are **not yet modelled** — the SPA has ticket dashboard
+Invoices are **immutable once issued** (model-level lock; corrections via credit note only),
+numbered gaplessly at issue time, soft-deleted only (7-year retention). Payment application
+is idempotent per key — webhooks are the source of truth for Stripe and PayPal.
+
+Customers/tickets are **not yet modelled** — the SPA has ticket dashboard
 widgets and nav placeholders, but no backend behind them. That is the next feature.
 
 ### Middleware aliases (`api/app/Http/Kernel.php`)
@@ -93,21 +99,32 @@ All API routes are under `v1/`.
 - Forgot password: `password/email`, `password/token/check`, `password/reset`
 - PayPal callbacks: `GET /v1/paypal/{success,cancel}`
 
+**Public Billing & Payments (no auth by design):**
+- Webhooks: `POST /v1/webhooks/{stripe,paypal}` — provider signature is the authentication
+- Guest checkout (throttled): `GET /v1/public/services`, `POST /v1/public/checkout/{quote,start}`
+- Public pay links (throttled, expiring 64-char token): `GET /v1/public/invoices/{token}`, `POST /v1/public/invoices/{token}/pay`
+- PayPal browser returns: `GET /v1/paypal/billing/{success,cancel}` (UX only; capture is idempotent with the webhook)
+
 **Authenticated (`auth:api`):**
 - Chat: `chat/checkAgentStatus`, `sendMessage`, `assignAgentToClient`, `fetchMessagesByClient`, `clientSwitchLiveOff`
 - Notifications & reminders: `notifications/fetch`, `readUnread`, `admin/notifReminders/*`
 - User profile / preferences / approve-or-decline profile-update requests
 - Admin user management: `admin/registerNew{Agent,Client,Admin}`, update/delete equivalents, `blockUnblockUser`, `deactivateUser`
 - Firebase: `firebase/registerToken`, `unRegisterToken`, `notification`
-- Billing: `client/sub/{startTrial,subscribe,upgradeDowngrade,generateInvoice,changePlanInvoice/{id},generateTrialInvoice}` (trial invoice is `trial-guard` protected), `client/invoice/{id}`, `paypal/payment`
+- Client billing (`client` middleware): `client/billing/{summary,invoices,invoices/{id}}`, `client/services`, `client/invoices/{id}/{stripe/intent,paypal/create,bank-details,payment-proof,print}`, `client/stripe/setup-intent`, `client/payments/{id}/status`, `client/payment-methods*`, `client/recurring-plans/{id}/{pause,cancel}`
+- Admin billing (`admin` middleware): `admin/billing/invoices*` (CRUD, issue, cancel, credit-note, payments, reminders, public-link, print), `admin/billing/{payments,orders*,services*,recurring-plans*}`, `admin/billing/clients/{id}/{orders,summary}`, `admin/payment-proofs*` (reconciliation)
+- Retired module (only when `FEATURE_SUBSCRIPTION_PLANS` is on): `client/sub/*`, legacy `client/invoice/{id}`, `paypal/payment`
 - Feature map: `POST /v1/user/features`
 
-Route groups wrapped in `if (config('features.security'))` belong to the dormant module
-— ignore them.
+Route groups wrapped in `if (config('features.security'))` or
+`if (config('features.subscription_plans'))` belong to switched-off modules — ignore them.
 
 ### Config & ops
 - `.env.example` covers app, DB (mysql), mail (smtp/Mailpit dev), Pusher, Redis, AWS placeholders. PayPal/Firebase/Google keys are populated only in real `.env`.
 - `FEATURE_SECURITY_MODULE=false` keeps the dormant module's routes unregistered.
+- `FEATURE_SUBSCRIPTION_PLANS=false` keeps the retired plan-tier module off (`docs/modules/subscriptions/README.md`).
+- Billing env: `BILLING_*` (number prefix, NET-14 terms, VAT, VIES toggle), `STRIPE_*`, `PAYPAL_WEBHOOK_ID`, `COMPANY_*` (legal footer + SEPA beneficiary — populate before go-live).
+- Billing cron: `billing:charge-recurring` (03:00) and `billing:send-reminders` (09:00) ride the same scheduler cron.
 - `FRONTEND_URL` is the SPA origin used to build links in emails (`config('app.frontend_url')`) and PayPal return URLs. Never hard-code the SPA host.
 - Queue worker: `nohup php artisan queue:work &`
 - Auto-renew via cron: `* * * * * cd <repo>/api && php artisan schedule:run >> /dev/null 2>&1`
@@ -170,8 +187,9 @@ their named exports are available globally without an import.
 
 ### Pages by role
 - **Auth:** `login`, `register`, `checkpoint` (OTP), `add-user-email`, `register-success`, `reset/forgot-password`, `reset/password/[token]`, `reset/verify-email`, `not-authorized`, `[...error]`
-- **Client:** dashboard, tickets (placeholder → `second-page`), pricing & plans-billing (upgrade/downgrade, history), invoices (view, change-plan, pay-now), preferences, account
-- **Admin:** dashboard, clients/agents/admins CRUD, invoices (list/edit/add/preview), reports/[tab] (users, tickets), notifications-reminders, account, preferences
+- **Public (blank layout):** `order` (guest checkout), `order/success`, `pay/[token]` (public pay link)
+- **Client:** dashboard, tickets (placeholder → `second-page`), billing (list, invoice detail, checkout, pay, payment-methods), services (My Services), preferences, account; retired: pricing, plans-billing, invoice/change-plan
+- **Admin:** dashboard, clients/agents/admins CRUD, invoices (list/detail/add stepper), payments (ledger + reconciliation), services (catalogue), orders, reports/[tab] (users, tickets), notifications-reminders, account, preferences
 - **Agent:** dashboard, account, preferences
 
 ### Common commands

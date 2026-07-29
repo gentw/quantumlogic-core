@@ -34,19 +34,23 @@ are inherited and working; the customers/services/tickets core is the next build
 |---|---|---|
 | Client / agent / admin roles | Working | Middleware-enforced role separation, three dashboards |
 | Admin user management | Working | Full CRUD for clients, agents and admins; block/unblock, deactivate |
-| Subscription billing | Working | Trial start, upgrade/downgrade, proration via `changePlanInvoice`, anti-trial-abuse, auto-renew via scheduler cron |
-| Invoicing | Working | `Invoice` + `SubscriptionPayment`, admin invoice CRUD, PDF preview, client-facing invoice pages |
-| PayPal checkout | Working | Order creation, approval redirect, success/cancel callbacks |
+| **Services catalogue** | Working | What the agency sells (`Service`): price, VAT rate, billing type, deposit default, public orderability; admin CRUD |
+| **Service orders** | Working | `ServiceOrder` + items, status lifecycle draft → awaiting_payment → active → in_delivery → completed, deposit split |
+| **Invoicing (Austrian)** | Working | Gapless numbering at issue, immutability after issue (credit notes only), per-line VAT with EU reverse charge, soft-delete retention, append-only audit trail, printable legal document with EPC QR |
+| **Payments — 3 rails** | Working | Stripe (Payment Element, SCA, saved cards), PayPal (invoice-based, idempotent capture), SEPA transfer (EPC QR, proof upload, admin reconciliation). Webhooks are the source of truth; application is idempotent per key |
+| **Guest checkout + pay links** | Working | Prospect buys with a 50% deposit, account created via `ClientAccountService`; public expiring `/pay/{token}` links |
+| **Recurring billing** | Working | Per-service `RecurringPlan` (hosting, retainers): daily charge sweep, 1/3/7-day retries, past_due handoff — never silent cancellation |
+| **Dunning + notifications** | Working | 3/7/14 + final reminders via `billing:send-reminders`; lifecycle email + in-app + FCM through `BillingNotifier` |
+| Subscription billing (plan tiers) | **Retired** | Behind `FEATURE_SUBSCRIPTION_PLANS` (default off) — see `docs/modules/subscriptions/README.md`; recurring revenue lives in `RecurringPlan` now |
 | Real-time messaging | Working | Pusher-driven chat between client and assigned agent; free-agent state in `ChatAgentClientOnLine` / `AgentQueue` |
 | Push notifications | Working | FCM tokens, notification reminders and reminder groups |
 | OTP auth + password reset | Working | OTP on login/signup, reset-code flow |
 | Reports | Partial | Admin reports with users and tickets tabs |
 | **Tickets** | **Not built** | Dashboard widgets and nav placeholders exist; no model, migration or API yet |
-| **Customers** | **Not built** | Currently just the `client`-role `User`; no separate customer/company entity |
-| **Services** | **Not built** | What the agency delivers per customer — no model yet |
+| **Customers** | **Not built** | Currently just the `client`-role `User`; no separate customer/company entity — though `ServiceOrder` is designed for tickets to hang off it |
 
-The three "not built" rows are the point of the platform and the next feature. Everything
-above them is inherited infrastructure to build on, not to rewrite.
+The "not built" rows are the next feature. Everything above them is working
+infrastructure to build on, not to rewrite.
 
 ## Architecture
 

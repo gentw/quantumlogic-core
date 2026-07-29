@@ -75,9 +75,15 @@ This repo has four public signup endpoints in `api/routes/api.php`: `register-cl
 
 ### 7. Role & Subscription Gating
 - Sensitive routes use `admin` / `agent` / `client` middleware (registered in `api/app/Http/Kernel.php`)
-- `check.subscription` middleware on every route requiring an active subscription — flag any client-data route missing it
+- The plan-tier subscription module is **retired** behind `FEATURE_SUBSCRIPTION_PLANS` (default off): `check-subscription` and `check.feature` pass everything through while the flag is off. Do not flag the pass-through — it is the design. Flag anything that *re-adds* plan gating without the flag.
 - Frontend CASL is **not** a security boundary — verify backend middleware exists for anything CASL hides
-- `check.feature:NAME` middleware actually registered in the kernel (CLAUDE.md flags this as needs-verification)
+
+### 7b. Billing & Payments Surfaces
+- **Guest checkout** creates accounts through `App\Services\ClientAccountService::findOrCreateForBilling()` — it is deliberately NOT a fifth signup endpoint. Flag any new signup endpoint, and flag guest-checkout changes that (a) return a Stripe client secret or public pay token for an **existing** email, or (b) let an anonymous request pay onto an established account. `POST /v1/public/checkout/start` must keep one response shape for both outcomes and stay throttled.
+- **Public pay links**: `invoices.public_token` is a 64-char expiring credential. Verify tokens stay unique-indexed, expiring, throttled, and that unknown vs expired tokens are indistinguishable (both 404). The public payload must never grow account data.
+- **Webhooks** `POST /v1/webhooks/{stripe,paypal}` are public **by design** — the provider signature is the authentication. Verify signature checking happens before any work and rejects with 400; flag any webhook route without verification, and never suggest adding `auth:api` to them.
+- **Payment proofs** live on the private `local` disk and are served only through the admin-guarded streaming route — flag any public URL to them.
+- Provisional guest accounts get a random password hash and `email_verified_at` null until the deposit settles; activation goes through the existing `ResetCodePassword` flow — flag any second token mechanism.
 
 ### 8. Input Validation
 - Every public/auth endpoint has FormRequest or `validate()` — no unvalidated input reaches the controller body
