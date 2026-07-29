@@ -22,6 +22,11 @@ class ServiceOrderResource extends JsonResource
             'started_at' => $this->started_at?->toDateString(),
             'completed_at' => $this->completed_at?->toDateString(),
             'created_at' => $this->created_at?->toDateString(),
+            'client' => $this->whenLoaded('user', fn () => [
+                'id' => $this->user->id,
+                'name' => trim($this->user->name.' '.$this->user->surname),
+                'email' => $this->user->email,
+            ]),
             'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
                 'id' => $item->id,
                 'description' => $item->description,

@@ -163,6 +163,22 @@ class AdminInvoiceController extends Controller
         return response()->json(['id' => $reminder->id, 'scheduled_for' => $reminder->scheduled_for->toDateString()], 201);
     }
 
+    /** The Billing card on the admin client detail page. */
+    public function clientSummary(\App\Models\User $user): JsonResponse
+    {
+        $invoices = Invoice::query()->where('user_id', $user->id);
+
+        return response()->json([
+            'lifetime_value' => (float) $user->payments()->where('status', \App\Enums\PaymentStatus::Succeeded->value)->sum('amount'),
+            'outstanding' => (float) (clone $invoices)->whereIn('status', [InvoiceStatus::Sent->value, InvoiceStatus::AwaitingConfirmation->value])->sum('amount_due'),
+            'invoice_count' => (clone $invoices)->count(),
+            'payment_method_count' => $user->paymentMethods()->count(),
+            'recent_invoices' => InvoiceResource::collection(
+                (clone $invoices)->latest('id')->limit(5)->get()
+            ),
+        ]);
+    }
+
     /** Draft an invoice against an order (used by the create flow). */
     public function store(Request $request): JsonResponse
     {

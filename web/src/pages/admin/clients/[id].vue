@@ -1,5 +1,6 @@
 <script setup>
-  
+
+import AdminClientBillingCard from '@/components/billing/AdminClientBillingCard.vue';
 import avatar1 from '@images/avatars/avatar-1.png';
 import { onMounted } from 'vue';
 import { useToast } from 'vue-toast-notification';
@@ -602,7 +603,8 @@ onMounted( async() => {
       </VCard>
     </VCol>
   </VRow>
-  
+
+  <AdminClientBillingCard :client-id="clientId" />
 </template>
 
 <style type="scss">

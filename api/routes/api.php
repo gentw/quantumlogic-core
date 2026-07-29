@@ -190,6 +190,7 @@ Route::group([
     Route::get('/admin/billing/orders/{order}', [AdminOrderController::class, 'show'])->middleware('admin');
     Route::post('/admin/billing/orders/{order}/transition', [AdminOrderController::class, 'transition'])->middleware('admin');
     Route::get('/admin/billing/clients/{user}/orders', [AdminOrderController::class, 'forClient'])->middleware('admin');
+    Route::get('/admin/billing/clients/{user}/summary', [AdminInvoiceController::class, 'clientSummary'])->middleware('admin');
     Route::get('/admin/billing/services', [AdminServiceCatalogueController::class, 'index'])->middleware('admin');
     Route::post('/admin/billing/services', [AdminServiceCatalogueController::class, 'store'])->middleware('admin');
     Route::patch('/admin/billing/services/{service}', [AdminServiceCatalogueController::class, 'update'])->middleware('admin');
