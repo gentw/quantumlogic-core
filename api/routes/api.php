@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\ClientServiceController;
 use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\InvoicePrintController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentReconciliationController;
 use App\Http\Controllers\Api\PayPalController;
@@ -200,6 +201,10 @@ Route::group([
     Route::post('/admin/billing/services', [AdminServiceCatalogueController::class, 'store'])->middleware('admin');
     Route::patch('/admin/billing/services/{service}', [AdminServiceCatalogueController::class, 'update'])->middleware('admin');
     Route::post('/admin/billing/services/{service}/deactivate', [AdminServiceCatalogueController::class, 'deactivate'])->middleware('admin');
+
+    // Billing & Payments — printable invoice document
+    Route::get('/client/invoices/{invoice}/print', [InvoicePrintController::class, 'client'])->middleware('client');
+    Route::get('/admin/billing/invoices/{invoice}/print', [InvoicePrintController::class, 'admin'])->middleware('admin');
 
     // Billing & Payments — recurring plans
     Route::post('/client/recurring-plans/{plan}/pause', [ClientRecurringPlanController::class, 'pause'])->middleware('client');
