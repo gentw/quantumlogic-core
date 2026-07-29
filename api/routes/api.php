@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentReconciliationController;
 use App\Http\Controllers\Api\PayPalController;
 use App\Http\Controllers\Api\PayPalWebhookController;
+use App\Http\Controllers\Api\PublicCheckoutController;
 use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\SubscriptionController;
@@ -233,6 +234,12 @@ Route::group([
     // signature is the authentication, never auth:api.
     Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
     Route::post('/webhooks/paypal', [PayPalWebhookController::class, 'handle']);
+
+    // Guest checkout — public, throttled. Account creation happens inside
+    // ClientAccountService, not a signup endpoint.
+    Route::get('/public/services', [PublicCheckoutController::class, 'services'])->middleware('throttle:30,1');
+    Route::post('/public/checkout/quote', [PublicCheckoutController::class, 'quote'])->middleware('throttle:30,1');
+    Route::post('/public/checkout/start', [PublicCheckoutController::class, 'start'])->middleware('throttle:10,1');
 });
 
 // Domain protection — dormant security module, see docs/modules/security/README.md

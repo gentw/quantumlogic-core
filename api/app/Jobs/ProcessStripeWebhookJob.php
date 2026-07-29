@@ -73,6 +73,30 @@ class ProcessStripeWebhookJob implements ShouldQueue
                 'method_last4' => $card['last4'] ?? null,
             ],
         );
+
+        $this->settleGuestCheckout($payment);
+    }
+
+    /**
+     * A guest's deposit settled: activate the provisional account (set-
+     * password code via the existing reset flow) and start the order.
+     * Idempotent — activation and transition both no-op on replay.
+     */
+    private function settleGuestCheckout(Payment $payment): void
+    {
+        $invoice = $payment->invoice->refresh();
+        $user = $invoice->user;
+
+        if (! $user || $user->origin !== 'guest_checkout') {
+            return;
+        }
+
+        app(\App\Services\ClientAccountService::class)->activateAfterDeposit($user);
+
+        $order = $invoice->serviceOrder;
+        if ($order && $order->status === \App\Enums\ServiceOrderStatus::AwaitingPayment) {
+            app(\App\Services\ServiceOrderService::class)->activate($order);
+        }
     }
 
     private function paymentFailed(PaymentService $payments): void

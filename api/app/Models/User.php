@@ -31,6 +31,7 @@ class User extends Authenticatable
         'phone_2',
         'password',
         'role',
+        'origin',
         'is_busy',
         'address',
         'city',
