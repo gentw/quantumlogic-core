@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminInvoiceController;
 use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\AdminPaymentController;
+use App\Http\Controllers\Api\AdminRecurringPlanController;
 use App\Http\Controllers\Api\AdminServiceCatalogueController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AlarmAlertController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Api\ClientBillingController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientPaymentController;
 use App\Http\Controllers\Api\ClientPaymentMethodController;
+use App\Http\Controllers\Api\ClientRecurringPlanController;
 use App\Http\Controllers\Api\ClientServiceController;
 use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
@@ -198,6 +200,14 @@ Route::group([
     Route::post('/admin/billing/services', [AdminServiceCatalogueController::class, 'store'])->middleware('admin');
     Route::patch('/admin/billing/services/{service}', [AdminServiceCatalogueController::class, 'update'])->middleware('admin');
     Route::post('/admin/billing/services/{service}/deactivate', [AdminServiceCatalogueController::class, 'deactivate'])->middleware('admin');
+
+    // Billing & Payments — recurring plans
+    Route::post('/client/recurring-plans/{plan}/pause', [ClientRecurringPlanController::class, 'pause'])->middleware('client');
+    Route::post('/client/recurring-plans/{plan}/cancel', [ClientRecurringPlanController::class, 'cancel'])->middleware('client');
+    Route::get('/admin/billing/recurring-plans', [AdminRecurringPlanController::class, 'index'])->middleware('admin');
+    Route::post('/admin/billing/recurring-plans', [AdminRecurringPlanController::class, 'store'])->middleware('admin');
+    Route::post('/admin/billing/recurring-plans/{plan}/manage', [AdminRecurringPlanController::class, 'manage'])->middleware('admin');
+    Route::patch('/admin/billing/recurring-plans/{plan}/price', [AdminRecurringPlanController::class, 'changePrice'])->middleware('admin');
 
     // Billing & Payments — saved payment methods
     Route::get('/client/payment-methods', [ClientPaymentMethodController::class, 'index'])->middleware('client');

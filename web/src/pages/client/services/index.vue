@@ -41,6 +41,20 @@ const load = async () => {
 }
 
 onMounted(load)
+
+const planWorking = ref(null)
+
+const planAction = async (plan, action) => {
+  planWorking.value = plan.id
+  try {
+    await $api(`/v1/client/recurring-plans/${plan.id}/${action}`, { method: 'POST' })
+    await load()
+  } catch (err) {
+    console.error(`Plan ${action} failed:`, err)
+  } finally {
+    planWorking.value = null
+  }
+}
 </script>
 
 <template>
@@ -88,6 +102,28 @@ onMounted(load)
                     <RouterLink :to="{ name: 'client-billing-payment-methods' }">add a card</RouterLink>
                     to avoid interruptions.
                   </VAlert>
+
+                  <div v-if="['active', 'paused'].includes(plan.state)" class="d-flex gap-2 mt-3">
+                    <VBtn
+                      v-if="plan.state === 'active'"
+                      size="small"
+                      variant="tonal"
+                      color="secondary"
+                      :loading="planWorking === plan.id"
+                      @click="planAction(plan, 'pause')"
+                    >
+                      Pause
+                    </VBtn>
+                    <VBtn
+                      size="small"
+                      variant="tonal"
+                      color="error"
+                      :loading="planWorking === plan.id"
+                      @click="planAction(plan, 'cancel')"
+                    >
+                      Cancel
+                    </VBtn>
+                  </div>
                 </VCardText>
               </VCard>
             </VCol>

@@ -14,6 +14,13 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping(60)
             ->onOneServer()
             ->runInBackground();
+
+        // Billing & Payments: recurring services (hosting, retainers).
+        $schedule->command('billing:charge-recurring')
+            ->dailyAt('03:00')
+            ->withoutOverlapping(60)
+            ->onOneServer()
+            ->runInBackground();
     }
 
     protected function commands(): void

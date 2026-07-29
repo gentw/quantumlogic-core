@@ -93,6 +93,62 @@ class StripeGateway
         }
     }
 
+    /**
+     * Off-session charge against a saved method (recurring billing). SCA can
+     * demand authentication mid-cycle — that comes back as requires_action
+     * with the client secret for an emailed authentication link, not as a
+     * hard failure.
+     *
+     * @return array{status: string, intent_id: ?string, client_secret: ?string, error: ?string}
+     */
+    public function chargeOffSession(Payment $payment, Invoice $invoice, string $methodToken, ?string $customerId): array
+    {
+        try {
+            $intent = $this->client()->paymentIntents->create([
+                'amount' => Money::toCents((float) $payment->amount),
+                'currency' => strtolower($invoice->currency ?? 'EUR'),
+                'customer' => $customerId,
+                'payment_method' => $methodToken,
+                'off_session' => true,
+                'confirm' => true,
+                'metadata' => [
+                    'payment_id' => (string) $payment->id,
+                    'invoice_id' => (string) $invoice->id,
+                ],
+            ], [
+                'idempotency_key' => 'recurring-'.$payment->id,
+            ]);
+
+            return [
+                'status' => $intent->status === 'succeeded' ? 'succeeded'
+                    : ($intent->status === 'requires_action' ? 'requires_action' : 'failed'),
+                'intent_id' => $intent->id,
+                'client_secret' => $intent->client_secret,
+                'error' => null,
+            ];
+        } catch (ApiErrorException $e) {
+            $intent = method_exists($e, 'getError') ? ($e->getError()->payment_intent ?? null) : null;
+
+            if (($e->getError()->code ?? null) === 'authentication_required') {
+                return [
+                    'status' => 'requires_action',
+                    'intent_id' => $intent->id ?? null,
+                    'client_secret' => $intent->client_secret ?? null,
+                    'error' => null,
+                ];
+            }
+
+            Log::error('Stripe off-session charge failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+
+            return [
+                'status' => 'failed',
+                'intent_id' => $intent->id ?? null,
+                'client_secret' => null,
+                'error' => $e->getError()->message ?? $e->getMessage(),
+            ];
+        }
+    }
+
     /** Provider-side refund; bookkeeping happens in PaymentService::refund. */
     public function refund(Payment $payment, int $amountCents): void
     {

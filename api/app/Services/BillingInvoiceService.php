@@ -172,6 +172,56 @@ class BillingInvoiceService
     }
 
     /**
+     * One cycle's invoice for a recurring plan: a single line carrying the
+     * plan's amount and VAT rate for the given period.
+     */
+    public function createDraftForRecurringPlan(\App\Models\RecurringPlan $plan, \Carbon\CarbonInterface $periodStart, \Carbon\CarbonInterface $periodEnd): Invoice
+    {
+        return DB::transaction(function () use ($plan, $periodStart, $periodEnd) {
+            $invoice = Invoice::create([
+                'user_id' => $plan->user_id,
+                'service_order_id' => $plan->service_order_id,
+                'type' => InvoiceType::Recurring,
+                'status' => InvoiceStatus::Draft,
+                'currency' => $plan->currency ?? 'EUR',
+                'reference' => sprintf(
+                    '%s %s – %s',
+                    $plan->service?->name ?? 'Recurring service',
+                    $periodStart->toDateString(),
+                    $periodEnd->toDateString()
+                ),
+                'invoice_number' => 'draft-'.uniqid(),
+                'amount' => 0,
+                'tax' => 0,
+                'total' => 0,
+                'issued_at' => now(),
+                'billing_period_start' => $periodStart,
+                'billing_period_end' => $periodEnd,
+            ]);
+
+            $netCents = Money::toCents((float) $plan->amount_net);
+            $grossCents = (int) round($netCents * (1 + (float) $plan->vat_rate / 100));
+
+            $invoice->items()->create([
+                'service_id' => $plan->service_id,
+                'description' => sprintf('%s (%s)', $plan->service?->name ?? 'Recurring service', $plan->interval),
+                'quantity' => 1,
+                'unit_price_net' => Money::toEuros($netCents),
+                'discount_percent' => 0,
+                'vat_rate' => (float) $plan->vat_rate,
+                'line_total_net' => Money::toEuros($netCents),
+                'line_total_gross' => Money::toEuros($grossCents),
+                'sort_order' => 0,
+            ]);
+
+            $this->recalculate($invoice);
+            $this->log($invoice, 'created', null, ['recurring_plan_id' => $plan->id]);
+
+            return $invoice->refresh();
+        });
+    }
+
+    /**
      * Re-derive amount_due from amount_paid and flip to paid when settled.
      * Caller must hold the row lock (PaymentService::apply does).
      */
