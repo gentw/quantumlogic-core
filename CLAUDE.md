@@ -44,6 +44,9 @@ quantumlogic-core/
 The two apps are deployed and developed separately. There is no top-level package
 manager — `cd` into `api/` or `web/` for any command.
 
+Short lookup notes (columns, formulas, invariants, commands) live in
+[`docs/explain/`](docs/explain/README.md) — read one file instead of re-deriving.
+
 ---
 
 ## Backend — `api/`
