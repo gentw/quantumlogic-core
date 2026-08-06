@@ -1,1 +1,10 @@
 // Write your overrides
+
+// The auth pages render a white support line over the dark brand hero image, but the
+// mail link inside it falls back to Vuetify's link colour (theme primary, #301068),
+// which is unreadable against that purple artwork. Inherit the parent's white instead.
+// Rule lives here rather than in @core/scss/template/pages/page-auth.scss so the
+// Vuexy template internals stay untouched.
+.support-text a {
+  color: inherit;
+}

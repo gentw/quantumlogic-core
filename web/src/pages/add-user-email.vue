@@ -196,7 +196,7 @@ const onSubmit = () => {
               QuantumLogic - Web, software & cloud solutions
             </h3>
             <h5 class="mb-0 text-white text-h5">
-              Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
+              Your projects, services and support in one place. Follow the work we are doing for you, raise a ticket whenever you need us, and keep track of your invoices - all from a single dashboard.
             </h5>
 
             <!-- Add app store image icons -->
