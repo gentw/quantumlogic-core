@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Auth\AuthenticationException;
+
+class Authenticate extends Middleware
+{
+    /**
+     * Get the path the user should be redirected to when they are not authenticated.
+     */
+    protected function redirectTo(Request $request): ?string
+    {
+        // Return a JSON response for unauthenticated requests
+        if($request->expectsJson()){
+            return response()->json(['error' => "You're not authenticated!"], 401);
+        }
+
+        return route('401error');
+    }
+}

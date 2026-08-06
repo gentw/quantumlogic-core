@@ -1,0 +1,27 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+
+# Service-account credentials. These were committed by mistake and purged from
+# history on 2026-07-25; the exposed key must stay revoked. Provision the file
+# out of band (deploy secret / secret manager), never through git.
+firebase-service-account.json
+*-service-account.json
+/config/firebase-service-account.json
+/app/json/firebase-service-account.json
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode

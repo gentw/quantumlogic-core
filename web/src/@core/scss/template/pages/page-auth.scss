@@ -1,0 +1,110 @@
+@media (max-width: 920px) {
+  .layout-blank {
+    .auth-wrapper {
+      margin-block-start: 112px !important;
+      min-block-size: auto !important;
+    }
+  }
+}
+
+.layout-blank {
+  .auth-wrapper {
+    min-block-size: 100dvh;
+  }
+
+  .auth-v1-top-shape,
+  .auth-v1-bottom-shape {
+    position: absolute;
+  }
+
+  .auth-footer-mask {
+    position: absolute;
+    block-size: 100%;
+    inline-size: 100%;
+    inset-block-end: 0;
+    min-inline-size: 100%;
+  }
+
+  .text-over-bg {
+    z-index: 9;
+    background: transparent !important;
+  }
+
+  .auth-card {
+    z-index: 1 !important;
+  }
+
+  .auth-illustration {
+    z-index: 1;
+  }
+
+  .auth-v1-top-shape {
+    inset-block-start: -77px;
+    inset-inline-start: -45px;
+  }
+
+  .auth-v1-bottom-shape {
+    inset-block-end: -58px;
+    inset-inline-end: -58px;
+  }
+
+  @media (min-width: 1264px), (max-width: 959px) and (min-width: 450px) {
+    .v-otp-input .v-otp-input__content {
+      gap: 1rem;
+    }
+  }
+}
+
+@media (min-width: 960px) {
+  .skin--bordered {
+    .auth-card-v2 {
+      border-inline-start: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+    }
+  }
+}
+
+.auth-logo {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 2rem;
+  inset-inline-start: 2.3rem;
+}
+
+@media (max-width: 992px) {
+  .copyright-text {
+    position: relative !important;
+    z-index: 2;
+    flex-direction: column;
+    align-items: center !important;
+    inset-block-end: 0 !important;
+    inset-inline-start: 0 !important;
+    margin-block-start: 50px;
+  }
+}
+
+.copyright-text {
+  position: absolute;
+  z-index: 2;
+  inset-block-end: 2rem;
+  inset-inline-start: 2.3rem;
+}
+
+.support-text {
+  position: absolute;
+  z-index: 2;
+  color: #fff;
+  inset-block-end: 2rem;
+  inset-inline-end: 2.3rem !important;
+}
+
+.auth-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  line-height: 1.5rem;
+  text-transform: capitalize;
+}
+
+.v-theme--light {
+  --v-theme-background: #fff;
+}

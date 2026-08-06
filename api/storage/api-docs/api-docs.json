@@ -1,0 +1,2993 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "DSConnect API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/alarm/{alarm}/respondToAlarm": {
+            "post": {
+                "tags": [
+                    "Alarms"
+                ],
+                "summary": "ClientSide: Respond to an alarm",
+                "description": "Allows the client to respond to an alarm. If the client confirms they triggered the alarm, it is marked as resolved. If not, security is dispatched.",
+                "operationId": "178ca2914a898ab59a96f36b03cadbaf",
+                "parameters": [
+                    {
+                        "name": "alarm",
+                        "in": "path",
+                        "description": "ID of the alarm to respond to",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "response"
+                                ],
+                                "properties": {
+                                    "response": {
+                                        "description": "Response to the alarm. 'is_me' if the client triggered it, 'not_me' if not.",
+                                        "type": "string",
+                                        "enum": [
+                                            "is_me",
+                                            "not_me"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "You're not authorized!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Alarm not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Alarm not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fetchAlarms": {
+            "get": {
+                "tags": [
+                    "Alarms"
+                ],
+                "summary": "ClientSide: Fetch a list of alarms with optional filters",
+                "description": "Retrieves a paginated list of alarms based on filters like search query, status, date range, and sorting options.",
+                "operationId": "fetchAlarms",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "Field to sort by",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "updated_at"
+                        }
+                    },
+                    {
+                        "name": "sortDesc",
+                        "in": "query",
+                        "description": "Sort order: true for descending, false for ascending",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "rangePicker",
+                        "in": "query",
+                        "description": "Date range in the format 'YYYY-MM-DD to YYYY-MM-DD'",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "2024-10-01 to 2024-10-31"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter alarms by status (e.g., 'is_me' or other status values)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "is_me"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search query to filter alarms by description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Alarm triggered"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched alarms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "alarms": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "alarm_description": {
+                                                        "type": "string",
+                                                        "example": "Unauthorized access detected"
+                                                    },
+                                                    "is_me": {
+                                                        "type": "string",
+                                                        "example": "safe"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2024-10-15T14:30:00Z"
+                                                    },
+                                                    "date": {
+                                                        "type": "string",
+                                                        "example": "15-10-2024"
+                                                    },
+                                                    "time": {
+                                                        "type": "string",
+                                                        "example": "14:30:00"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 100
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/client/alarm/{alarm}/logs": {
+            "post": {
+                "tags": [
+                    "Alarms"
+                ],
+                "summary": "ClientSide: Fetch alarm logs for clients by Alarm ID",
+                "description": "Retrieves all logs related to a specific alarm, intended for client users to review alarm activity.",
+                "operationId": "fetchAlarmLogsForClient",
+                "parameters": [
+                    {
+                        "name": "alarm",
+                        "in": "path",
+                        "description": "ID of the alarm to fetch logs for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched alarm logs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "alarm_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "event_type": {
+                                                "type": "string",
+                                                "example": "resolved"
+                                            },
+                                            "user_id": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "timestamp": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T14:30:00Z"
+                                            },
+                                            "details": {
+                                                "type": "object",
+                                                "example": {
+                                                    "response": "is_me",
+                                                    "description": "Klienti konfirmoi qe alarmi ishte aktivizuar nga vet ai."
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Alarm not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fetchAlarmsForAgents": {
+            "get": {
+                "tags": [
+                    "Alarms"
+                ],
+                "summary": "Agent side:: Fetch a list of alarms with optional filters",
+                "description": "Retrieves a paginated list of alarms based on filters like search query, status, date range, and sorting options.",
+                "operationId": "fetchAlarmsForAgents",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "Field to sort by",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "updated_at"
+                        }
+                    },
+                    {
+                        "name": "sortDesc",
+                        "in": "query",
+                        "description": "Sort order: true for descending, false for ascending",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "rangePicker",
+                        "in": "query",
+                        "description": "Date range in the format 'YYYY-MM-DD to YYYY-MM-DD'",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "2024-10-01 to 2024-10-31"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter alarms by status (e.g., 'is_me' or other status values)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "is_me"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search query to filter alarms by description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Alarm triggered"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched alarms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "alarms": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "alarm_description": {
+                                                        "type": "string",
+                                                        "example": "Unauthorized access detected"
+                                                    },
+                                                    "is_me": {
+                                                        "type": "string",
+                                                        "example": "safe"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2024-10-15T14:30:00Z"
+                                                    },
+                                                    "date": {
+                                                        "type": "string",
+                                                        "example": "15-10-2024"
+                                                    },
+                                                    "time": {
+                                                        "type": "string",
+                                                        "example": "14:30:00"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 100
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/alarm/{alarm}/logs": {
+            "post": {
+                "tags": [
+                    "Alarms"
+                ],
+                "summary": "ClientSide: Fetch alarm logs for agents",
+                "description": "Retrieves all logs related to a specific alarm, intended for agent users to review alarm activity.",
+                "operationId": "fetchAlarmLogsForAgents",
+                "parameters": [
+                    {
+                        "name": "alarm",
+                        "in": "path",
+                        "description": "ID of the alarm to fetch logs for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched alarm logs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "alarm_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "event_type": {
+                                                "type": "string",
+                                                "example": "resolved"
+                                            },
+                                            "user_id": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "timestamp": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T14:30:00Z"
+                                            },
+                                            "details": {
+                                                "type": "object",
+                                                "example": {
+                                                    "response": "is_me",
+                                                    "description": "Klienti konfirmoi qe alarmi ishte aktivizuar nga vet ai."
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Alarm not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/alarm/{alarm}/changeStatusByAgent": {
+            "post": {
+                "tags": [
+                    "Alarms"
+                ],
+                "summary": "Change status of an alarm by agent",
+                "description": "Allows an agent to update the status of a specific alarm based on the client's response.",
+                "operationId": "changeStatusByAgent",
+                "parameters": [
+                    {
+                        "name": "alarm",
+                        "in": "path",
+                        "description": "ID of the alarm to change status for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "response"
+                                ],
+                                "properties": {
+                                    "response": {
+                                        "description": "The status to set for the alarm",
+                                        "type": "string",
+                                        "enum": [
+                                            "resolved",
+                                            "no_response",
+                                            "patrol_dispatched",
+                                            "pending"
+                                        ],
+                                        "example": "resolved"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid response type provided",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "invalid_response_type"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Alarm not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login user and generate OTP (Admins and agents use emails in the phone field, clients use phone numbers)",
+                "operationId": "a377553fa412f64a7282cc78a9aee69c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "description": "Phone number (clients) or email (admins/agents)",
+                                        "type": "string",
+                                        "example": "044123456"
+                                    },
+                                    "password": {
+                                        "description": "User's password",
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful. OTP generated and sent.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "redirect": {
+                                            "description": "Next step URL or checkpoint",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "operationId": "c332693e956e96e9f5bdb228856f8d8c",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/verify-otp": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verify OTP for user authentication using received OTP code",
+                "operationId": "104327d86c757598bb9484830c3196f3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "format": "phone"
+                                    },
+                                    "otp": {
+                                        "type": "string",
+                                        "format": "digits",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "your_generated_token_here"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "1234567890"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired OTP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired OTP."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/register-new-client": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new client",
+                "operationId": "4ef36756a5c36a128e008a04f378399c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "surname",
+                                    "email",
+                                    "phone",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "Client's first name",
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "surname": {
+                                        "description": "Client's surname",
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "description": "Client's email address",
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "phone": {
+                                        "description": "Client's phone number",
+                                        "type": "string",
+                                        "example": "044123456"
+                                    },
+                                    "password": {
+                                        "description": "Client's password",
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "description": "Indicates success",
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "Client ID",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "Client's name",
+                                                    "type": "string"
+                                                },
+                                                "surname": {
+                                                    "description": "Client's surname",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "Client's email",
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "description": "Client's phone number",
+                                                    "type": "string"
+                                                },
+                                                "created_at": {
+                                                    "description": "Creation timestamp",
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "description": "Last update timestamp",
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "description": "Indicates failure",
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "errors": {
+                                            "description": "Validation error messages",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/firebase/notification": {
+            "post": {
+                "tags": [
+                    "Firebase"
+                ],
+                "summary": "Send FCM Notification",
+                "description": "Send a Firebase Cloud Messaging (FCM) notification to a recipient.",
+                "operationId": "sendNotification",
+                "requestBody": {
+                    "description": "Notification data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "message": {
+                                        "description": "The message to send in the notification",
+                                        "type": "string"
+                                    },
+                                    "sender_id": {
+                                        "description": "ID of the sender",
+                                        "type": "integer"
+                                    },
+                                    "recipient_id": {
+                                        "description": "ID of the recipient",
+                                        "type": "integer"
+                                    },
+                                    "post_id": {
+                                        "description": "ID of the associated post",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Success message: 'Notification sent successfully'",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Internal server error message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/firebase/registerToken": {
+            "post": {
+                "tags": [
+                    "Firebase"
+                ],
+                "summary": "Register Firebase Token",
+                "description": "Register a Firebase Cloud Messaging (FCM) token for the authenticated user.",
+                "operationId": "registerFirebaseToken",
+                "requestBody": {
+                    "description": "Token data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "token": {
+                                        "description": "Firebase Cloud Messaging token to register",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Token registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Success message: 'Token added successfully.'",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - User not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Unauthorized error message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Internal server error message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/firebase/unRegisterToken": {
+            "post": {
+                "tags": [
+                    "Firebase"
+                ],
+                "summary": "Unregister Firebase Token",
+                "description": "Unregister the Firebase Cloud Messaging (FCM) token for the authenticated user.",
+                "operationId": "unregisterFirebaseToken",
+                "responses": {
+                    "200": {
+                        "description": "Token unregistered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Success message: 'Token unregistered successfully.'",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - User not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Unauthorized error message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/password/email": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Send a password reset link",
+                "description": "This endpoint sends a password reset code to the specified email address.",
+                "operationId": "9939269fe12804539d0405b585439dbc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email field is required."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred while processing your request."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/password/reset": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Reset user password",
+                "description": "Allows a user to reset their password using a valid token.",
+                "operationId": "a437e5a26c25e3f310c2b2bbb6ac3262",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "your-token"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or expired token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The selected token is invalid."
+                                                    }
+                                                },
+                                                "password": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The password must be at least 6 characters."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "expired_code"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "user_not_found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/password/token/check": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Check password reset token",
+                "description": "Verifies if a password reset token is valid and has not expired.",
+                "operationId": "dcbd52caedf05dcb3efd7d73849a9eb4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "your-token"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Token is valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "your-token"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or expired token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The selected token is invalid."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "expired"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/notifications/fetch": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Fetch notifications for the authenticated user",
+                "operationId": "e86266dc9b92ed17e02b790e4869dba9",
+                "responses": {
+                    "200": {
+                        "description": "Notifications retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "notifications": {
+                                            "description": "List of notifications",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "Notification ID",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "content": {
+                                                        "description": "Notification content",
+                                                        "type": "string",
+                                                        "example": "You have a new message!"
+                                                    },
+                                                    "updated_at": {
+                                                        "description": "Time when the notification was last updated",
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2024-10-30T12:45:30Z"
+                                                    },
+                                                    "time_ago": {
+                                                        "description": "Time since the notification was updated",
+                                                        "type": "string",
+                                                        "example": "10 minuta me pare"
+                                                    },
+                                                    "read": {
+                                                        "description": "Read status of the notification (0 = unread, 1 = read)",
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total_notifications": {
+                                            "description": "Total number of notifications",
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "unread_notifications": {
+                                            "description": "Total number of unread notifications",
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "No notifications found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/notifications/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark a notification as read or unread",
+                "operationId": "fe0dbb332aaa5a6d30ac03b7de1a92f5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "description": "ID of the notification",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "type": {
+                                        "description": "Type of action to perform on the notification",
+                                        "type": "string",
+                                        "enum": [
+                                            "read",
+                                            "unread"
+                                        ],
+                                        "example": "read"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "success"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/token/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh access token",
+                "operationId": "4ca83cd89b34dcb24e5289fe6a7abf44",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "refresh_token"
+                                ],
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "example": "your_refresh_token_here"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully refreshed access token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized, invalid refresh token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "invalid_grant"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The refresh token is invalid or expired."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/preferences/store": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Store user preferences",
+                "description": "Stores or updates the authenticated user's preferences.",
+                "operationId": "storeUserPreferences",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email_news_and_updates": {
+                                        "description": "Receive news and updates via email (1 for true, 0 for false)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "email_tips_and_tutorials": {
+                                        "description": "Receive tips and tutorials via email",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "email_my_tickets": {
+                                        "description": "Receive updates about tickets via email",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "email_invoices": {
+                                        "description": "Receive invoice notifications via email",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "email_reminders": {
+                                        "description": "Receive reminders via email",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "push_my_tickets": {
+                                        "description": "Receive push notifications for tickets",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "push_my_comments": {
+                                        "description": "Receive push notifications for comments",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "push_reminders": {
+                                        "description": "Receive push reminders",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "push_invoices": {
+                                        "description": "Receive push notifications for invoices",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "email_news_and_updates": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email_tips_and_tutorials": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email_my_tickets": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email_invoices": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email_reminders": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "push_my_tickets": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "push_my_comments": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "push_reminders": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "push_invoices": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email_news_and_updates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email_news_and_updates field is required."
+                                                    }
+                                                },
+                                                "email_tips_and_tutorials": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email_tips_and_tutorials field is required."
+                                                    }
+                                                },
+                                                "email_my_tickets": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email_my_tickets field is required."
+                                                    }
+                                                },
+                                                "email_invoices": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email_invoices field is required."
+                                                    }
+                                                },
+                                                "email_reminders": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email_reminders field is required."
+                                                    }
+                                                },
+                                                "push_my_tickets": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The push_my_tickets field is required."
+                                                    }
+                                                },
+                                                "push_my_comments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The push_my_comments field is required."
+                                                    }
+                                                },
+                                                "push_reminders": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The push_reminders field is required."
+                                                    }
+                                                },
+                                                "push_invoices": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The push_invoices field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/preferences/fetch": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Fetch user preferences",
+                "description": "Retrieves the preferences for the authenticated user.",
+                "operationId": "fetchUserPreferences",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "email_news_and_updates": {
+                                            "description": "Preference for news and updates via email",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "email_tips_and_tutorials": {
+                                            "description": "Preference for tips and tutorials via email",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "email_my_tickets": {
+                                            "description": "Preference for ticket updates via email",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "email_invoices": {
+                                            "description": "Preference for receiving invoices via email",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "email_reminders": {
+                                            "description": "Preference for reminders via email",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "push_my_tickets": {
+                                            "description": "Preference for push notifications about tickets",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "push_my_comments": {
+                                            "description": "Preference for push notifications about comments",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "push_reminders": {
+                                            "description": "Preference for push notifications about reminders",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "push_invoices": {
+                                            "description": "Preference for push notifications about invoices",
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Preferences not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Preferences not found for the user"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/profile/updateUserRequest": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user request",
+                "description": "This endpoint allows the user to submit a request to update their profile, including name, surname, email, phone, city, postal code, address, and avatar.",
+                "operationId": "updateUserRequest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "surname",
+                                    "email",
+                                    "phone",
+                                    "city",
+                                    "postal_code",
+                                    "address"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "The first name of the user.",
+                                        "type": "string"
+                                    },
+                                    "surname": {
+                                        "description": "The last name of the user.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "The email of the user.",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "description": "The phone number of the user.",
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "description": "The city where the user resides.",
+                                        "type": "string"
+                                    },
+                                    "postal_code": {
+                                        "description": "The postal code of the user's address.",
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "description": "The full address of the user.",
+                                        "type": "string"
+                                    },
+                                    "avatar": {
+                                        "description": "The profile image of the user (optional).",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated the user request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "The unique identifier of the update request.",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "The full name of the user.",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "The email of the user.",
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "description": "The phone number of the user.",
+                                                    "type": "string"
+                                                },
+                                                "address": {
+                                                    "description": "The address of the user.",
+                                                    "type": "string"
+                                                },
+                                                "city": {
+                                                    "description": "The city of the user.",
+                                                    "type": "string"
+                                                },
+                                                "postal_code": {
+                                                    "description": "The postal code of the user.",
+                                                    "type": "string"
+                                                },
+                                                "img": {
+                                                    "description": "The URL of the profile image (if uploaded).",
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "description": "The user ID associated with this update.",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email has already been taken."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized, user not authenticated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/profile/{user}/approveUpdateUserRequest": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Approve a user update request FROM ADMIN",
+                "description": "This endpoint allows the admin to approve a user's update request, applying the changes from the update request and deleting the request.",
+                "operationId": "approveUpdateUserRequest",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "The ID of the user whose update request is being approved.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully approved the update request and applied changes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "The unique identifier of the user.",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "The full name of the user.",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "The email of the user.",
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "description": "The phone number of the user.",
+                                                    "type": "string"
+                                                },
+                                                "address": {
+                                                    "description": "The address of the user.",
+                                                    "type": "string"
+                                                },
+                                                "city": {
+                                                    "description": "The city of the user.",
+                                                    "type": "string"
+                                                },
+                                                "postal_code": {
+                                                    "description": "The postal code of the user.",
+                                                    "type": "string"
+                                                },
+                                                "img": {
+                                                    "description": "The URL of the profile image of the user.",
+                                                    "type": "string"
+                                                },
+                                                "update_request": {
+                                                    "description": "Indicates if the user has an update request.",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Update request not found for the user.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No update request found for this user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/profile/{user}/showUserRequestDataByUserId": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user request data by user ID",
+                "description": "This endpoint retrieves the user request data for a specific user by their user ID.",
+                "operationId": "showUserRequestDataByUserId",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "The ID of the user whose request data is being fetched.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved the user request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "The unique identifier of the update request.",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "The full name of the user.",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "The email of the user.",
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "description": "The phone number of the user.",
+                                                    "type": "string"
+                                                },
+                                                "address": {
+                                                    "description": "The address of the user.",
+                                                    "type": "string"
+                                                },
+                                                "city": {
+                                                    "description": "The city of the user.",
+                                                    "type": "string"
+                                                },
+                                                "postal_code": {
+                                                    "description": "The postal code of the user.",
+                                                    "type": "string"
+                                                },
+                                                "img": {
+                                                    "description": "The URL of the profile image (if uploaded).",
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "description": "The user ID associated with this update.",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User request data not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User request data not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/profile/{user_id}/showUserRequestData": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user request data by request ID",
+                "description": "This endpoint retrieves the user request data based on the request ID.",
+                "operationId": "showUserRequestData",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the user request data being fetched.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved the user request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "The unique identifier of the update request.",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "The full name of the user.",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "The email of the user.",
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "description": "The phone number of the user.",
+                                                    "type": "string"
+                                                },
+                                                "address": {
+                                                    "description": "The address of the user.",
+                                                    "type": "string"
+                                                },
+                                                "city": {
+                                                    "description": "The city of the user.",
+                                                    "type": "string"
+                                                },
+                                                "postal_code": {
+                                                    "description": "The postal code of the user.",
+                                                    "type": "string"
+                                                },
+                                                "img": {
+                                                    "description": "The URL of the profile image (if uploaded).",
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "description": "The user ID associated with this update.",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User request data not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User request data not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/profile/updatePassword": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user password",
+                "description": "Updates the user's password after verifying the old password.",
+                "operationId": "41c4df923f5a2293e309731757586fd1",
+                "requestBody": {
+                    "description": "Password update details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "old_password",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "old_password": {
+                                        "description": "The user's current password.",
+                                        "type": "string",
+                                        "example": "oldpassword123"
+                                    },
+                                    "password": {
+                                        "description": "The new password to be set.",
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation or password mismatch error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "old_password": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The old password is incorrect."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/assignAgentToClient": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Assigns an agent to a client in an active chat",
+                "operationId": "3a94cbb9cc584ef9eed6abc777e6e565",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "client_id",
+                                    "chat_id"
+                                ],
+                                "properties": {
+                                    "client_id": {
+                                        "description": "ID of the client",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "chat_id": {
+                                        "description": "ID of the chat session",
+                                        "type": "integer",
+                                        "example": 10
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Agent assigned successfully with status messages",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "description": "The client is connected to the requesting agent",
+                                                    "type": "string",
+                                                    "example": "connected_with_me"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "description": "The client is connected to a different agent",
+                                                    "type": "string",
+                                                    "example": "connected_with_another_agent"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/checkAgentStatus": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Check the availability status of an agent for the client",
+                "operationId": "4b6d85b329d118ba3db1b1ce5d4186f2",
+                "responses": {
+                    "200": {
+                        "description": "Agent status response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "available": {
+                                                    "description": "Agent availability status",
+                                                    "type": "boolean"
+                                                },
+                                                "agent_data": {
+                                                    "description": "Data of the available agent",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "is_busy": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "role": {
+                                                            "type": "string",
+                                                            "example": "agent"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "agent_id": {
+                                                    "description": "ID of the available agent",
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "available": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Added to waiting queue"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/sendMessage": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send a message in a chat between a client and an agent",
+                "operationId": "97a6e6c0f255597d649de59318cb1749",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Hello, I need assistance"
+                                    },
+                                    "chat_id": {
+                                        "description": "Chat ID (required for agents)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "client_id": {
+                                        "description": "Client ID (required for agents)",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Message sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid request data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/fetchMessagesByClient": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Fetches messages for the authenticated client",
+                "operationId": "8156c05ba20bbf72b63fe8c55d0ef88c",
+                "responses": {
+                    "200": {
+                        "description": "Messages retrieved successfully or no messages found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "messages": {
+                                                    "description": "Array of messages",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Message ID",
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "content": {
+                                                                "description": "Message content",
+                                                                "type": "string",
+                                                                "example": "Hello!"
+                                                            },
+                                                            "created_at": {
+                                                                "description": "Timestamp of message creation",
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2024-10-27T12:45:30Z"
+                                                            },
+                                                            "sender_id": {
+                                                                "description": "ID of the user who sent the message",
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "messages": {
+                                                    "description": "Empty array when no messages are found",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/fetchMessagesByChatIdAndClient": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Fetches messages for a given chat and client ID",
+                "operationId": "64f0712daa44a2aa41c8a393b9c27663",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "chat_id": {
+                                        "description": "ID of the chat session",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "client_id": {
+                                        "description": "ID of the client",
+                                        "type": "integer",
+                                        "example": 10
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Messages retrieved successfully or no messages found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "messages": {
+                                                    "description": "Array of messages for the chat",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Message ID",
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "content": {
+                                                                "description": "Message content",
+                                                                "type": "string",
+                                                                "example": "Hello!"
+                                                            },
+                                                            "created_at": {
+                                                                "description": "Timestamp of message creation",
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2024-10-27T12:45:30Z"
+                                                            },
+                                                            "sender_id": {
+                                                                "description": "ID of the user who sent the message",
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "user": {
+                                                                "description": "User information",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "description": "User ID",
+                                                                        "type": "integer",
+                                                                        "example": 2
+                                                                    },
+                                                                    "name": {
+                                                                        "description": "User name",
+                                                                        "type": "string",
+                                                                        "example": "John Doe"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "messages": {
+                                                    "description": "Empty array if no messages are found",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/clientSwitchLiveOff": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Sets a client's live chat status to off",
+                "operationId": "112a4c2a9c93405944fb5156ff7fafb0",
+                "responses": {
+                    "200": {
+                        "description": "Live chat status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "description": "Indicates success in updating the status",
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Client or chat not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Alarms",
+            "description": "Alarms"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Firebase",
+            "description": "Firebase"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        },
+        {
+            "name": "Chat",
+            "description": "Chat"
+        }
+    ]
+}

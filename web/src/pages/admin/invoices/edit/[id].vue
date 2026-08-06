@@ -1,0 +1,216 @@
+<script setup>
+// import InvoiceAddPaymentDrawer from '@/views/apps/invoice/InvoiceAddPaymentDrawer.vue'
+import InvoiceEditable from '@/views/admin/invoices/InvoiceEditable.vue'
+// import InvoiceSendInvoiceDrawer from '@/views/apps/invoice/InvoiceSendInvoiceDrawer.vue'
+
+// const invoiceData = ref()
+const route = useRoute('admin-invoices-edit-id')
+// const { data: invoiceDetails } = await useApi(`/apps/invoice/${ route.params.id }`)
+
+const invoiceDetails = ref()
+const invoiceData = ref({
+  invoice: {
+    id: 5036,
+    issuedDate: '',
+    service: '',
+    total: 0,
+    avatar: '',
+    invoiceStatus: '',
+    dueDate: '',
+    balance: 0,
+    client: {
+      address: '112, Lorem Ipsum, Florida',
+      company: 'Greeva Inc',
+      companyEmail: 'johndoe@greeva.com',
+      contact: '+1 123 3452 12',
+      country: 'USA',
+      name: 'John Doe',
+    },
+  },
+  paymentDetails: {
+    totalDue: '$12,110.55',
+    bankName: 'American Bank',
+    country: 'United States',
+    iban: 'ETD95476213',
+    swiftCode: 'BR91905',
+  },
+  purchasedProducts: [{
+    title: '',
+    cost: 0,
+    hours: 0,
+    description: '',
+  }],
+  note: '',
+  paymentMethod: '',
+  salesperson: '',
+  thanksNote: '',
+})
+
+if (invoiceDetails.value) {
+  invoiceData.value = {
+    invoice: invoiceDetails.value.invoice,
+    paymentDetails: invoiceDetails.value.paymentDetails,
+    purchasedProducts: [{
+      title: 'App Design',
+      cost: 24,
+      hours: 2,
+      description: 'Designed UI kit & app pages.',
+    }],
+    note: 'It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance projects. Thank You!',
+    paymentMethod: 'Bank Account',
+    salesperson: 'Tom Cook',
+    thanksNote: 'Thanks for your business',
+  }
+}
+
+const addProduct = value => {
+  invoiceData.value?.purchasedProducts.push(value)
+}
+
+const removeProduct = id => {
+  invoiceData.value?.purchasedProducts.splice(id, 1)
+}
+
+const isSendSidebarActive = ref(false)
+const isAddPaymentSidebarActive = ref(false)
+const paymentTerms = ref(true)
+const clientNotes = ref(false)
+const paymentStub = ref(false)
+const selectedPaymentMethod = ref('Bank Account')
+
+const paymentMethods = [
+  'Bank Account',
+  'PayPal',
+  'UPI Transfer',
+]
+</script>
+
+<template>
+  <VRow v-if="invoiceData && invoiceData?.invoice ">
+    <!-- 👉 InvoiceEditable -->
+    <VCol
+      cols="12"
+      md="9"
+    >
+      <InvoiceEditable
+        v-if="invoiceData?.invoice"
+        :data="invoiceData"
+        @push="addProduct"
+        @remove="removeProduct"
+      />
+    </VCol>
+
+    <!-- 👉 Right Column: Invoice Action -->
+    <VCol
+      cols="12"
+      md="3"
+    >
+      <VCard class="mb-8">
+        <VCardText>
+          <!-- 👉 Send Invoice Trigger button -->
+          <VBtn
+            block
+            prepend-icon="tabler-send"
+            class="mb-4"
+            @click="isSendSidebarActive = true"
+          >
+            Send Invoice
+          </VBtn>
+
+          <div class="d-flex flex-wrap gap-4">
+            <!-- 👉  Preview button -->
+            <VBtn
+              color="secondary"
+              variant="tonal"
+              class="flex-grow-1"
+              :to="{ name: 'admin-invoices-preview-id', params: { id: route.params.id } }"
+            >
+              Preview
+            </VBtn>
+
+            <!-- 👉 Save button -->
+            <VBtn
+              color="secondary"
+              variant="tonal"
+              class="mb-4 flex-grow-1"
+            >
+              Save
+            </VBtn>
+          </div>
+
+          <!-- 👉 Add Payment trigger button -->
+          <VBtn
+            block
+            color="success"
+            prepend-icon="tabler-currency-dollar"
+            @click="isAddPaymentSidebarActive = true"
+          >
+            Add Payment
+          </VBtn>
+        </VCardText>
+      </VCard>
+
+      <!-- 👉 Accept payment via  -->
+      <AppSelect
+        v-model="selectedPaymentMethod"
+        :items="paymentMethods"
+        label="Accept Payment Via"
+        class="mb-4"
+      />
+
+      <!-- 👉 Payment Terms -->
+      <div class="d-flex align-center justify-space-between">
+        <VLabel for="payment-terms">
+          Payment Terms
+        </VLabel>
+        <div>
+          <VSwitch
+            id="payment-terms"
+            v-model="paymentTerms"
+          />
+        </div>
+      </div>
+
+      <!-- 👉 Client Notes -->
+      <div class="d-flex align-center justify-space-between">
+        <VLabel for="client-notes">
+          Client Notes
+        </VLabel>
+        <div>
+          <VSwitch
+            id="client-notes"
+            v-model="clientNotes"
+          />
+        </div>
+      </div>
+
+      <!-- 👉 Payment Stub -->
+      <div class="d-flex align-center justify-space-between">
+        <VLabel for="payment-stub">
+          Payment Stub
+        </VLabel>
+        <div>
+          <VSwitch
+            id="payment-stub"
+            v-model="paymentStub"
+          />
+        </div>
+      </div>
+    </VCol>
+
+    <!-- 👉 Invoice send drawer -->
+    <!--<InvoiceSendInvoiceDrawer v-model:isDrawerOpen="isSendSidebarActive" />-->
+
+    <!-- 👉 Invoice add payment drawer -->
+    <!--<InvoiceAddPaymentDrawer v-model:isDrawerOpen="isAddPaymentSidebarActive" /> -->
+  </VRow>
+
+  <section v-else>
+    <VAlert
+      type="error"
+      variant="tonal"
+    >
+      Invoice with ID  {{ route.params.id }} not found!
+    </VAlert>
+  </section>
+</template>
