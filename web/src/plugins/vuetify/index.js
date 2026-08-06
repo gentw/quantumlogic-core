@@ -3,7 +3,7 @@ import { createVuetify } from 'vuetify'
 import { VBtn } from 'vuetify/components/VBtn'
 import defaults from './defaults'
 import { icons } from './icons'
-import { staticPrimaryColor, staticPrimaryDarkenColor, themes } from './theme'
+import { darkPrimaryColor, darkPrimaryDarkenColor, staticPrimaryColor, staticPrimaryDarkenColor, themes } from './theme'
 import { themeConfig } from '@themeConfig'
 
 // Styles
@@ -23,8 +23,11 @@ export default function (app) {
       },
       dark: {
         colors: {
-          'primary': cookieRef('darkThemePrimaryColor', staticPrimaryColor).value,
-          'primary-darken-1': cookieRef('darkThemePrimaryDarkenColor', staticPrimaryDarkenColor).value,
+          // ❗ Must default to the dark-theme brand tints, not the light ones —
+          // this merge is applied last and would otherwise override theme.js and
+          // paint the unreadable dark purple on dark surfaces.
+          'primary': cookieRef('darkThemePrimaryColor', darkPrimaryColor).value,
+          'primary-darken-1': cookieRef('darkThemePrimaryDarkenColor', darkPrimaryDarkenColor).value,
         },
       },
     },
