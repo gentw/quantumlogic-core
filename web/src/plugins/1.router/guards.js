@@ -58,9 +58,10 @@ export const setupGuards = router => {
         const userRole = useCookie('userData').value?.role;
 
         // Dormant modules keep their pages on disk, so the file-based router still
-        // registers them. This is what actually makes them unreachable.
-        if (userRole && isDisabledModuleRoute(to.name)) {
-            return next({ name: userRole });
+        // registers them. This is what actually makes them unreachable — and it must
+        // not depend on being logged in, or anonymous visitors still render the page.
+        if (isDisabledModuleRoute(to.name)) {
+            return next(userRole ? { name: userRole } : { name: 'login' });
         }
 
         // Role-based path enforcement: if the user is logged in but trying to
