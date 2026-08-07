@@ -64,7 +64,15 @@ export const useBillingApi = () => ({
   invoices: ({ page = 1, perPage = 10, status = '', search = '' } = {}) =>
     $api('/v1/client/billing/invoices', { query: { page, per_page: perPage, status: status || undefined, search: search || undefined } }),
 
-  invoice: id => $api(`/v1/client/billing/invoices/${id}`),
+  /**
+   * A single invoice. The API returns an InvoiceResource, and resource wrapping
+   * is on, so the payload arrives as { data: {...} } — unwrapped here so callers
+   * get the invoice itself. (The paginated list above keeps its envelope: its
+   * meta/links drive server-side pagination.)
+   *
+   * @param {number|string} id @returns {Promise<object>}
+   */
+  invoice: async id => (await $api(`/v1/client/billing/invoices/${id}`)).data,
 
   bankDetails: id => $api(`/v1/client/invoices/${id}/bank-details`),
 
