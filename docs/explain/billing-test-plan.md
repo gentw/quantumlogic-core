@@ -57,20 +57,44 @@ foreach(DB::table('failed_jobs')->where('failed_at','>','2026-07-01')->get() as 
   echo \$j->failed_at.' | '.substr(strtok(\$j->exception, PHP_EOL),0,140).PHP_EOL;}"
 ```
 
-### Known gaps that will make things fail for boring reasons
+### Readiness — status as of 2026-08-07
 
-| Missing | Consequence |
+| Prerequisite | Status |
 |---|---|
-| `STRIPE_KEY` / `STRIPE_SECRET` / `STRIPE_WEBHOOK_SECRET` | **Card rail entirely untestable.** Add test keys before Round 8 |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | Payment Element won't mount |
-| `COMPANY_*` | Invoice PDF renders with a blank legal footer — expected, not a bug |
-| `BILLING_*` | Defaults apply (prefix `QL`, NET-14, 20%) — fine |
-| `FEATURE_*` | Absent → both flags default off. Correct |
+| `STRIPE_KEY` / `STRIPE_SECRET` | **READY** (test mode) |
+| `STRIPE_WEBHOOK_SECRET` | **READY** — Dashboard endpoint `we_1U1vIk…`, verified: signed → 200, tampered → 400 |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | **READY** — baked into `dist/assets/stripe-*.js` |
+| Passport keys | **READY** — were missing entirely; generated 2026-08-07 |
+| Services seeded / both feature flags off | **READY** |
+| `PAYPAL_WEBHOOK_ID` | **BLOCKED** — Round 9's webhook half will 400 until set |
+| `COMPANY_*` (UID, FN, court, IBAN) | **BLOCKED** — Round 16's legal footer renders blank |
+| Queue worker | **must be started manually** — see Pre-flight |
 
-PayPal sandbox credentials **are** present, so Round 9 is live-testable now.
+Two environment traps already found and fixed here; check for them if a round misbehaves:
+
+- **`.env` had an unterminated quote** on `WEB_LINK` that silently swallowed every
+  variable after line 91 — all `FEATURE_*`, `BILLING_*`, `STRIPE_*`, `COMPANY_*` and
+  `PAYPAL_WEBHOOK_ID` read as empty. Both flags being correct was luck, not config.
+  If config seems ignored, run `php8.3 -r 'require "vendor/autoload.php";
+  var_dump(count(Dotenv\Dotenv::createArrayBacked(getcwd())->load()));'` and compare
+  against the number of `KEY=` lines in `.env`.
+- **The SPA is served from `web/dist`**, not a dev server (nginx: `core.quantumlogic.at`
+  → `/var/www/quantumlogic-core/web/dist`). Vite bakes `VITE_*` at build time, so any
+  `web/.env` change needs `npm run build` before it is live. Hard-refresh after building.
 
 `FRONTEND_URL=http://178.105.16.221:5173/` has a **trailing slash** — watch for `//`
 in generated pay links and email links (Round 14, Round 17).
+
+### Login works — but know the two quirks
+
+`AuthenticationController::store()` finds **non-client** users by matching your input
+against the **`phone`** column, and clients by `email`. So:
+
+- `admin@ds.com`, `agent@ds.com`, `agent2@ds.com` → log in with the email (their `phone`
+  column holds it)
+- personal admin/agent accounts whose `phone` holds a real number → log in with the
+  **number** (`0441231233`, `044123458`); typing their email returns **500**
+  (`Attempt to read property "blocked" on null` — unguarded null on the fallback branch)
 
 ### Pre-flight
 
