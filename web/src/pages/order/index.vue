@@ -7,7 +7,26 @@ definePage({
 
 const services = ref([])
 const selected = ref({}) // id -> quantity
-const buyer = ref({ name: '', email: '', company: '', vat_id: '', country_code: 'AT' })
+const buyer = ref({
+  name: '', email: '', company: '', vat_id: '', country_code: 'AT',
+  password: '', password_confirmation: '',
+})
+const showPassword = ref(false)
+
+// Mirrors the FormRequest (min:8, confirmed) so the buyer finds out before the
+// round trip; the server rules remain the actual check.
+const passwordError = computed(() =>
+  buyer.value.password && buyer.value.password.length < 8 ? 'At least 8 characters.' : '')
+
+const confirmError = computed(() =>
+  buyer.value.password_confirmation && buyer.value.password_confirmation !== buyer.value.password
+    ? 'The passwords do not match.'
+    : '')
+
+const detailsComplete = computed(() =>
+  !!buyer.value.name && !!buyer.value.email
+  && buyer.value.password.length >= 8
+  && buyer.value.password_confirmation === buyer.value.password)
 const quote = ref(null)
 const step = ref('pick') // pick -> details -> pay
 
@@ -20,7 +39,7 @@ const showsVatIdHint = computed(() => isEuCountry(buyer.value.country_code) && b
 const vatIdPlaceholder = computed(() => `${buyer.value.country_code || 'AT'}123456789`)
 const working = ref(false)
 const errorMessage = ref('')
-const requiresLogin = ref(false)
+const existingAccount = ref(false)
 
 let stripe = null
 let elements = null
@@ -82,11 +101,10 @@ const start = async () => {
 
     orderNumber.value = res.order_number
 
-    if (res.requires_login) {
-      requiresLogin.value = true
-
-      return
-    }
+    // The email already had an account: the order joined it and can be paid
+    // right here, but the password typed above was ignored — they sign in with
+    // the one they already have.
+    existingAccount.value = !!res.existing_account
 
     const stripeInstance = await loadStripe()
 
@@ -176,6 +194,26 @@ const pay = async () => {
                 <VCol cols="12" sm="6">
                   <VTextField v-model="buyer.name" label="Full name" class="mb-3" />
                   <VTextField v-model="buyer.email" label="Email" type="email" class="mb-3" />
+                  <VTextField
+                    v-model="buyer.password"
+                    label="Choose a password"
+                    :type="showPassword ? 'text' : 'password'"
+                    :append-inner-icon="showPassword ? 'tabler-eye-off' : 'tabler-eye'"
+                    autocomplete="new-password"
+                    :error-messages="passwordError ? [passwordError] : []"
+                    hint="At least 8 characters — this is how you'll sign in to the client portal."
+                    persistent-hint
+                    class="mb-3"
+                    @click:append-inner="showPassword = !showPassword"
+                  />
+                  <VTextField
+                    v-model="buyer.password_confirmation"
+                    label="Confirm password"
+                    :type="showPassword ? 'text' : 'password'"
+                    autocomplete="new-password"
+                    :error-messages="confirmError ? [confirmError] : []"
+                    class="mb-3"
+                  />
                 </VCol>
                 <VCol cols="12" sm="6">
                   <VTextField v-model="buyer.company" label="Company (optional)" class="mb-3" />
@@ -220,9 +258,12 @@ const pay = async () => {
           {{ errorMessage }}
         </VAlert>
 
-        <VAlert v-if="requiresLogin" type="info" variant="tonal" class="mt-4">
-          An account already exists for this email. Order {{ orderNumber }} is
-          waiting — <RouterLink :to="{ name: 'login' }">log in</RouterLink> to pay.
+        <VAlert v-if="existingAccount" type="info" variant="tonal" class="mt-4">
+          You already have an account with this email, so order {{ orderNumber }}
+          has been added to it. Pay below as usual — then
+          <RouterLink :to="{ name: 'login' }">sign in</RouterLink> with your
+          existing password to follow it. (The password you entered above was
+          not applied.)
         </VAlert>
       </VCol>
 
@@ -257,7 +298,7 @@ const pay = async () => {
               color="primary"
               class="mt-4"
               :loading="working"
-              :disabled="!buyer.name || !buyer.email"
+              :disabled="!detailsComplete"
               @click="start"
             >
               Continue to payment

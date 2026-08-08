@@ -94,11 +94,20 @@ class BillingNotifier
         ), "Payment proof for {$invoice->invoice_number} was rejected");
     }
 
-    public function guestWelcome(User $user, string $setPasswordCode): void
+    /**
+     * @param  string|null  $setPasswordCode  when the account has no password yet
+     * @param  string|null  $plainPassword  the one the buyer chose at checkout
+     */
+    public function guestWelcome(User $user, ?string $setPasswordCode = null, ?string $plainPassword = null): void
     {
+        $frontend = rtrim(config('app.frontend_url'), '/');
+
         $this->send($user, new \App\Mail\GuestWelcomeMail(
-            $user->name,
-            rtrim(config('app.frontend_url'), '/').'/reset/password/'.$setPasswordCode,
+            userName: $user->name,
+            email: $user->email,
+            setPasswordUrl: $setPasswordCode !== null ? $frontend.'/reset/password/'.$setPasswordCode : null,
+            plainPassword: $plainPassword,
+            loginUrl: $frontend.'/login',
         ), 'Welcome to QuantumLogic');
     }
 

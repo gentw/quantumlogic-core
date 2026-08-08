@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PublicCheckoutRequest;
 use App\Models\Service;
 use App\Services\BillingInvoiceService;
+use App\Services\BillingNotifier;
 use App\Services\ClientAccountService;
 use App\Services\PaymentService;
 use App\Services\ServiceOrderService;
@@ -32,6 +33,7 @@ class PublicCheckoutController extends Controller
         private readonly PaymentService $payments,
         private readonly StripeGateway $stripe,
         private readonly TaxService $tax,
+        private readonly BillingNotifier $notifier,
     ) {}
 
     /** The publicly orderable catalogue. */
@@ -108,11 +110,18 @@ class PublicCheckoutController extends Controller
     }
 
     /**
-     * Start the purchase. New email: provisional account + order + deposit
-     * invoice + Stripe client secret, inline. Existing email: the order
-     * attaches to that account but payment requires login — an anonymous
-     * request must never pay onto an established account. Both answers share
-     * one JSON shape.
+     * Start the purchase: account (found or created) + order + deposit invoice
+     * + Stripe client secret, inline, either way.
+     *
+     * A new email creates the account with the password the buyer chose. An
+     * existing email attaches the order to that account and pays for it, but
+     * the supplied password is ignored and no account data is returned — so
+     * the response still cannot be used to reach an established account.
+     *
+     * Note this makes the two outcomes distinguishable (existing_account), i.e.
+     * the endpoint confirms whether an email is registered. Accepted trade-off
+     * for letting returning customers buy without signing in first; the route
+     * throttle is what limits enumeration.
      */
     public function start(PublicCheckoutRequest $request): JsonResponse
     {
@@ -124,7 +133,14 @@ class PublicCheckoutController extends Controller
             $validated['company'] ?? null,
             $validated['vat_id'] ?? null,
             $validated['country_code'] ?? null,
+            $validated['password'],
         );
+
+        // Credentials go out now because this is the only point the plaintext
+        // exists — activation happens later, in the webhook, where it doesn't.
+        if ($created) {
+            $this->notifier->guestWelcome($user, plainPassword: $validated['password']);
+        }
 
         return DB::transaction(function () use ($validated, $user, $created) {
             $lines = collect($validated['services'])
@@ -146,27 +162,29 @@ class PublicCheckoutController extends Controller
                 'public_token_expires_at' => now()->addDays(30),
             ])->save();
 
-            $clientSecret = null;
+            // Both outcomes can pay inline: refusing an existing customer their
+            // own purchase helped nobody. Paying does not expose the account —
+            // no account data is returned, and the password is untouched, so
+            // the worst an email-guesser achieves is paying someone's deposit.
+            $payment = $this->payments->recordPending($invoice, PaymentProvider::Stripe, (float) $invoice->amount_due, [
+                'user_id' => $user->id,
+            ]);
+            $intent = $this->stripe->createPaymentIntent($payment, $invoice);
+            $payment->forceFill([
+                'provider_payment_id' => $intent->id,
+                'idempotency_key' => 'stripe:pi:'.$intent->id,
+            ])->save();
 
-            if ($created) {
-                $payment = $this->payments->recordPending($invoice, PaymentProvider::Stripe, (float) $invoice->amount_due, [
-                    'user_id' => $user->id,
-                ]);
-                $intent = $this->stripe->createPaymentIntent($payment, $invoice);
-                $payment->forceFill([
-                    'provider_payment_id' => $intent->id,
-                    'idempotency_key' => 'stripe:pi:'.$intent->id,
-                ])->save();
-                $clientSecret = $intent->client_secret;
-            }
-
-            // One shape for both outcomes; requires_login carries the
-            // difference and the route throttle blunts email enumeration.
             return response()->json([
                 'order_number' => $order->order_number,
                 'deposit_amount' => (float) $invoice->amount_due,
-                'requires_login' => ! $created,
-                'client_secret' => $clientSecret,
+                // The order joined an account that already existed, so the SPA
+                // tells them to sign in with their existing password rather
+                // than the one they just typed (which was ignored).
+                'existing_account' => ! $created,
+                'client_secret' => $intent->client_secret,
+                // A standing pay-link credential only goes to brand-new
+                // accounts; an established client signs in instead.
                 'pay_token' => $created ? $invoice->public_token : null,
             ], 201);
         });

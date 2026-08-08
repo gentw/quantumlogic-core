@@ -5,6 +5,7 @@ namespace Tests\Feature\Billing;
 use App\Models\ResetCodePassword;
 use App\Models\User;
 use App\Services\ClientAccountService;
+use Illuminate\Support\Facades\Hash;
 
 class GuestCheckoutTest extends BillingTestCase
 {
@@ -48,6 +49,41 @@ class GuestCheckoutTest extends BillingTestCase
         $this->assertTrue(ResetCodePassword::where('email', $user->email)->exists());
 
         $this->assertNull($accounts->activateAfterDeposit($user), 'activation must be idempotent');
+    }
+
+    public function test_a_password_chosen_at_checkout_is_usable_immediately(): void
+    {
+        $accounts = app(ClientAccountService::class);
+        $email = uniqid('guest-').'@example.test';
+
+        ['user' => $user] = $accounts->findOrCreateForBilling($email, 'Anna Muster', null, null, 'AT', 'correct-horse-battery');
+
+        $this->assertTrue(Hash::check('correct-horse-battery', $user->password));
+    }
+
+    public function test_checkout_can_never_overwrite_an_existing_accounts_password(): void
+    {
+        $existing = $this->makeClient(['password' => Hash::make('the-real-password')]);
+
+        ['user' => $user, 'created' => $created] = app(ClientAccountService::class)
+            ->findOrCreateForBilling($existing->email, 'Impersonator', null, null, 'AT', 'attacker-chosen');
+
+        $this->assertFalse($created);
+        $this->assertSame($existing->id, $user->id);
+        $this->assertTrue(Hash::check('the-real-password', $user->refresh()->password), 'the original password must survive');
+        $this->assertFalse(Hash::check('attacker-chosen', $user->password), 'a public form must not set a password on an existing account');
+    }
+
+    public function test_activation_issues_no_reset_code_when_a_password_was_chosen(): void
+    {
+        $accounts = app(ClientAccountService::class);
+        $email = uniqid('guest-').'@example.test';
+
+        ['user' => $user] = $accounts->findOrCreateForBilling($email, 'Anna Muster', null, null, 'AT', 'chosen-at-checkout');
+
+        $this->assertNull($accounts->activateAfterDeposit($user), 'no second way into an account that already has a password');
+        $this->assertNotNull($user->refresh()->email_verified_at, 'the account is still activated');
+        $this->assertFalse(ResetCodePassword::where('email', $email)->exists());
     }
 
     public function test_activation_never_touches_non_guest_accounts(): void

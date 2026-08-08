@@ -16,6 +16,10 @@ class PublicCheckoutRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
+            // Used only when this email is new. An existing account's password
+            // is never touched here — otherwise anyone knowing a client's email
+            // could take the account over from a public, unauthenticated form.
+            'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
             'company' => ['nullable', 'string', 'max:255'],
             'vat_id' => ['nullable', 'string', 'max:20'],
             'country_code' => ['nullable', 'string', 'size:2'],
