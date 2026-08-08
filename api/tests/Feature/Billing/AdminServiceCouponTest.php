@@ -4,6 +4,7 @@ namespace Tests\Feature\Billing;
 
 use App\Models\Service;
 use App\Models\ServiceCoupon;
+use Illuminate\Support\Str;
 
 /**
  * The admin side of discount codes. Authenticates with actingAs on the `api`
@@ -16,17 +17,21 @@ class AdminServiceCouponTest extends BillingTestCase
     {
         $service = Service::publiclyOrderable()->first();
 
+        // Generated, not a literal: `code` is globally unique, so a fixed
+        // string couples this test to every other one that names a code.
+        $mixedCase = 'For-'.Str::random(8);
+
         $response = $this->actingAs($this->makeAdmin(), 'api')
             ->postJson("/api/v1/admin/billing/services/{$service->id}/coupons", [
-                'code' => 'For-Eros-Sefa',
+                'code' => $mixedCase,
                 'label' => 'Eros Sefa — referral',
                 'discount_percent' => 25,
             ])->assertCreated();
 
-        $response->assertJsonPath('data.code', 'for-eros-sefa');
+        $response->assertJsonPath('data.code', mb_strtolower($mixedCase));
         $this->assertSame(25.0, (float) $response->json('data.discount_percent'));
         $this->assertStringEndsWith(
-            "/order/{$service->slug}?coupon=for-eros-sefa",
+            "/order/{$service->slug}?coupon=".mb_strtolower($mixedCase),
             $response->json('data.order_url'),
         );
     }
@@ -34,16 +39,18 @@ class AdminServiceCouponTest extends BillingTestCase
     public function test_a_duplicate_code_is_refused_whatever_its_case(): void
     {
         $service = Service::publiclyOrderable()->first();
+        $taken = Str::lower(Str::random(12));
+
         ServiceCoupon::create([
             'service_id' => $service->id,
-            'code' => 'taken-code',
+            'code' => $taken,
             'discount_percent' => 10,
             'active' => true,
         ]);
 
         $this->actingAs($this->makeAdmin(), 'api')
             ->postJson("/api/v1/admin/billing/services/{$service->id}/coupons", [
-                'code' => 'TAKEN-CODE',
+                'code' => mb_strtoupper($taken),
                 'discount_percent' => 15,
             ])->assertStatus(422)
             ->assertJsonValidationErrors('code');

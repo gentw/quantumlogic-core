@@ -299,7 +299,7 @@ onMounted(async () => {
                     <div class="font-weight-medium">{{ bankDetails.reference }}</div>
                   </div>
                 </div>
-                <div class="text-center">
+                <div v-if="bankDetails.epc_qr_png" class="text-center">
                   <img
                     :src="bankDetails.epc_qr_png"
                     alt="EPC QR — scan with your banking app"

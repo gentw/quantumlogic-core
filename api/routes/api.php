@@ -266,6 +266,9 @@ Route::group([
     // Public pay links — the expiring token is the credential.
     Route::get('/public/invoices/{token}', [PublicInvoiceController::class, 'show'])->middleware('throttle:20,1');
     Route::post('/public/invoices/{token}/pay', [PublicInvoiceController::class, 'pay'])->middleware('throttle:10,1');
+    // Transfer receipt without signing in. Tighter throttle than the rest:
+    // this one writes a file to disk.
+    Route::post('/public/invoices/{token}/proof', [PublicInvoiceController::class, 'uploadProof'])->middleware('throttle:5,1');
 });
 
 // Domain protection — dormant security module, see docs/modules/security/README.md

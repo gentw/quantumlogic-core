@@ -31,12 +31,29 @@ class BankTransferService
     ) {}
 
     /**
-     * Beneficiary details + the EPC QR the client scans in a banking app.
+     * Beneficiary details, plus the EPC QR the client scans in a banking app
+     * when `company.epc_qr` is on. With it off both QR fields come back null
+     * and every surface hides the QR — see the config note for why.
      *
-     * @return array{account_holder: string, iban: string, bic: string, bank_name: string, reference: string, amount: float, epc_payload: string, epc_qr_png: string}
+     * @return array{account_holder: string, iban: string, bic: string, bank_name: string, reference: string, amount: float, epc_payload: string|null, epc_qr_png: string|null}
      */
     public function bankDetails(Invoice $invoice): array
     {
+        $details = [
+            'account_holder' => (string) config('company.legal_name'),
+            'iban' => (string) config('company.iban'),
+            'bic' => (string) config('company.bic'),
+            'bank_name' => (string) config('company.bank_name'),
+            'reference' => (string) $invoice->invoice_number,
+            'amount' => (float) $invoice->amount_due,
+            'epc_payload' => null,
+            'epc_qr_png' => null,
+        ];
+
+        if (! config('company.epc_qr')) {
+            return $details;
+        }
+
         $payload = $this->epcPayload($invoice);
 
         $png = (new Builder(
@@ -48,16 +65,7 @@ class BankTransferService
             margin: 8,
         ))->build();
 
-        return [
-            'account_holder' => (string) config('company.legal_name'),
-            'iban' => (string) config('company.iban'),
-            'bic' => (string) config('company.bic'),
-            'bank_name' => (string) config('company.bank_name'),
-            'reference' => (string) $invoice->invoice_number,
-            'amount' => (float) $invoice->amount_due,
-            'epc_payload' => $payload,
-            'epc_qr_png' => $png->getDataUri(),
-        ];
+        return [...$details, 'epc_payload' => $payload, 'epc_qr_png' => $png->getDataUri()];
     }
 
     /**

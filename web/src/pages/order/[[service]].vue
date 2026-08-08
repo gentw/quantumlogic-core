@@ -177,6 +177,55 @@ const start = async () => {
   }
 }
 
+// Transfer receipt. VFileInput models an array even for a single file.
+const proofFile = ref([])
+const proofNote = ref('')
+const proofError = ref('')
+const proofUploaded = ref(false)
+const uploadingProof = ref(false)
+
+const PROOF_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
+const PROOF_MAX_BYTES = 10 * 1024 * 1024
+
+/**
+ * Send the bank slip against the pay-link token. Mirrors PaymentProofRequest
+ * client-side so an obvious reject costs no upload; the server rules remain
+ * the actual check, and it content-sniffs rather than trusting the extension.
+ */
+const uploadProof = async () => {
+  const file = proofFile.value[0]
+
+  if (!file) return
+
+  if (!PROOF_TYPES.includes(file.type)) {
+    proofError.value = 'Please attach a PDF, JPG or PNG.'
+
+    return
+  }
+  if (file.size > PROOF_MAX_BYTES) {
+    proofError.value = 'That file is over 10 MB.'
+
+    return
+  }
+
+  uploadingProof.value = true
+  proofError.value = ''
+
+  const body = new FormData()
+
+  body.append('file', file)
+  if (proofNote.value) body.append('note', proofNote.value)
+
+  try {
+    await $api(`/v1/public/invoices/${payToken.value}/proof`, { method: 'POST', body })
+    proofUploaded.value = true
+  } catch (err) {
+    proofError.value = err.data?.message ?? 'The upload failed. Please try again.'
+  } finally {
+    uploadingProof.value = false
+  }
+}
+
 const pay = async () => {
   if (!stripe || !elements) return
   working.value = true
@@ -341,7 +390,7 @@ const pay = async () => {
                     <div class="font-weight-medium">{{ formatMoney(bankDetails.amount) }}</div>
                   </div>
                 </div>
-                <div class="text-center">
+                <div v-if="bankDetails.epc_qr_png" class="text-center">
                   <img
                     :src="bankDetails.epc_qr_png"
                     alt="EPC QR — scan with your banking app"
@@ -354,19 +403,50 @@ const pay = async () => {
             </VCardText>
           </VCard>
 
-          <!-- Upload proof without signing in first; new accounts only, since an
-               existing client already has the invoice in their portal. -->
-          <VBtn
-            v-if="payToken"
-            block
-            color="primary"
-            :to="`/pay/${payToken}`"
-          >
-            Open the invoice / upload your transfer receipt
-          </VBtn>
-          <VBtn v-else block color="primary" :to="{ name: 'login' }">
-            Sign in to follow this invoice
-          </VBtn>
+          <!-- Receipt upload, inline and without signing in: the pay-link token
+               issued above is the credential. Nothing here settles the invoice. -->
+          <VCard v-if="payToken" variant="outlined">
+            <VCardItem>
+              <VCardTitle class="text-h6">Already transferred?</VCardTitle>
+              <VCardSubtitle class="text-wrap">
+                Upload the receipt or bank confirmation and we will match it against
+                your order. PDF, JPG or PNG, up to 10 MB.
+              </VCardSubtitle>
+            </VCardItem>
+            <VCardText>
+              <VAlert v-if="proofUploaded" type="success" variant="tonal" class="mb-0">
+                Receipt received. We will confirm it and get started — you can close
+                this page. A copy of the invoice is in your email.
+              </VAlert>
+
+              <template v-else>
+                <VFileInput
+                  v-model="proofFile"
+                  label="Receipt"
+                  accept="application/pdf,image/jpeg,image/png"
+                  prepend-icon=""
+                  prepend-inner-icon="tabler-paperclip"
+                  :error-messages="proofError ? [proofError] : []"
+                  class="mb-3"
+                />
+                <VTextarea
+                  v-model="proofNote"
+                  label="Note (optional)"
+                  rows="2"
+                  class="mb-3"
+                />
+                <VBtn
+                  block
+                  color="primary"
+                  :loading="uploadingProof"
+                  :disabled="!proofFile.length"
+                  @click="uploadProof"
+                >
+                  Send the receipt
+                </VBtn>
+              </template>
+            </VCardText>
+          </VCard>
         </template>
 
         <template v-else>

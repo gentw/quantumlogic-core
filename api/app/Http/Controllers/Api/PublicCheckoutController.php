@@ -219,7 +219,13 @@ class PublicCheckoutController extends Controller
                     'invoice_number' => $invoice->invoice_number,
                     'bank_details' => $this->bank->bankDetails($invoice),
                     'client_secret' => null,
-                    'pay_token' => $created ? $invoice->public_token : null,
+                    // Unlike the card rail, transfer needs a way back to this
+                    // invoice — the receipt is uploaded later — so the token
+                    // goes out for existing accounts too. It reaches only the
+                    // invoice this request just created, which holds nothing
+                    // the requester did not supply, and the order was already
+                    // attached to the account with or without it.
+                    'pay_token' => $invoice->public_token,
                 ], 201);
             }
 

@@ -48,7 +48,7 @@ in `api/storage/logs/laravel.log`*. Never switch to smtp while 5000+ real client
 | 18 | Open a valid link, logged out | Invoice summary + seller block, no login required |
 | 19 | Payload contents | Number, lines, amounts, due date, seller identity **only** — no client name, email, address, or other invoices |
 | 20 | Pay by card | Settles via webhook; page reflects paid |
-| 21 | Bank transfer tab | IBAN/BIC/reference + EPC QR |
+| 21 | Bank transfer tab | IBAN/BIC/reference (+ EPC QR only when `BILLING_EPC_QR=true`) |
 | 22 | Change one character of the token | Bare 404 |
 | 23 | Expired token | **Identical** 404 — indistinguishable from unknown |
 | 24 | Already-settled invoice link | Clear terminal state, no payment form |
@@ -80,12 +80,16 @@ its link. Browse it **logged out** — the role guard bounces logged-in users ou
 | # | Scenario | Expect |
 |---|---|---|
 | 26l | Open the link | Copy says "by bank transfer"; the CTA reads **Place the order** |
-| 26m | Place the order | **No Stripe element ever loads.** IBAN, BIC, reference, amount and EPC QR shown inline |
+| 26m | Place the order | **No Stripe element ever loads**, and no card option appears anywhere on the page. IBAN, BIC, reference and amount shown inline |
 | 26n | Reference | The invoice number — that is what reconciliation matches on |
-| 26o | New email | Button opens `/pay/{token}` to upload the transfer receipt |
-| 26p | Existing email | No token; button sends them to sign in instead |
-| 26q | State afterwards | Invoice issued and payable, order stays `awaiting_payment` — nothing is settled until an admin reconciles |
-| 26r | Combine with `?coupon=` | Both apply; discount visible in the quote and on the invoice |
+| 26o | Receipt upload | "Already transferred?" card on the same page: PDF/JPG/PNG up to 10 MB, optional note, no sign-in |
+| 26p | After uploading | Success message; invoice moves to `awaiting_confirmation`, payment to `awaiting_confirmation`, **`amount_paid` stays 0** |
+| 26q | The upload in `/admin/payments/reconciliation` | Appears in the queue attributed to the buyer's account; accepting it is what settles the invoice |
+| 26r | Attach a `.exe` renamed `.pdf` | Refused — the type is content-sniffed, not read off the extension |
+| 26s | Attach a >10 MB file | Refused client-side before the upload starts |
+| 26t | Upload 6 times in a minute | Throttled (429) |
+| 26u | Existing email | Also gets the upload card — transfer needs a way back to the invoice, unlike the card rail |
+| 26v | Combine with `?coupon=` | Both apply; discount visible in the quote and on the invoice |
 
 ---
 
@@ -109,7 +113,7 @@ its link. Browse it **logged out** — the role guard bounces logged-in users ou
 | # | Scenario | Expect |
 |---|---|---|
 | 35 | Open a `sent` invoice | Lines with qty/unit/discount/VAT; net/VAT/gross/paid/due panel |
-| 36 | EPC QR | Present while payable; **absent** once paid |
+| 36 | EPC QR | Hidden entirely while `BILLING_EPC_QR=false`; with it on, present while payable and **absent** once paid |
 | 37 | Scan the QR with a banking app | Beneficiary, IBAN, amount pre-fill (amount = **remaining**, not original) |
 | 38 | A reverse-charge invoice | Art. 196 notice shown |
 | 39 | A partially paid invoice | Paid and due both shown, QR asks for the remainder |
@@ -132,7 +136,7 @@ its link. Browse it **logged out** — the role guard bounces logged-in users ou
 | 51 | Switch rails back and forth | No duplicate Payment Elements, no lost amount |
 | 52 | PayPal → approve | Returns and settles |
 | 53 | PayPal → cancel | Returns cleanly, invoice untouched |
-| 54 | Bank transfer tab | IBAN/BIC/reference + EPC QR |
+| 54 | Bank transfer tab | IBAN/BIC/reference (+ EPC QR only when `BILLING_EPC_QR=true`) |
 | 55 | Upload a valid proof (pdf/jpg/png) | Invoice → *awaiting confirmation*, **not** paid |
 | 56 | Upload an `.exe` renamed `.pdf` | Rejected — content sniffed |
 | 57 | Upload a 15 MB file | Rejected |

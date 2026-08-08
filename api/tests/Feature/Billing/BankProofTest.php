@@ -70,6 +70,23 @@ class BankProofTest extends BillingTestCase
         $this->assertSame(PaymentStatus::Failed, $proof->payment->refresh()->status);
     }
 
+    public function test_the_epc_qr_is_omitted_when_switched_off(): void
+    {
+        $invoice = $this->issueInvoice($this->makeOrder($this->makeClient()));
+        $service = app(BankTransferService::class);
+
+        config(['company.epc_qr' => true]);
+        $this->assertNotNull($service->bankDetails($invoice)['epc_qr_png']);
+
+        // Off, the beneficiary details still come back — only the QR goes.
+        config(['company.epc_qr' => false]);
+        $off = $service->bankDetails($invoice);
+
+        $this->assertNull($off['epc_qr_png']);
+        $this->assertNull($off['epc_payload']);
+        $this->assertSame($invoice->invoice_number, $off['reference']);
+    }
+
     public function test_reviewing_twice_is_a_noop(): void
     {
         $client = $this->makeClient();

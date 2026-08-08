@@ -152,7 +152,7 @@ onMounted(async () => {
               <div class="mb-2"><span class="text-body-2">IBAN</span><div class="font-weight-medium">{{ invoice.bank.iban }}</div></div>
               <div class="mb-2"><span class="text-body-2">BIC</span><div class="font-weight-medium">{{ invoice.bank.bic }}</div></div>
               <div class="mb-3"><span class="text-body-2">Reference</span><div class="font-weight-medium">{{ invoice.bank.reference }}</div></div>
-              <div class="text-center">
+              <div v-if="invoice.bank.epc_qr_png" class="text-center">
                 <img :src="invoice.bank.epc_qr_png" alt="EPC QR — scan with your banking app" width="160" height="160">
                 <div class="text-body-2 mt-1">Scan with your banking app</div>
               </div>

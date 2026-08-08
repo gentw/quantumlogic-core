@@ -121,10 +121,12 @@
                 IBAN: {{ $bank['iban'] }} · BIC: {{ $bank['bic'] }}<br>
                 Verwendungszweck: <strong>{{ $bank['reference'] }}</strong>
             </div>
-            <div class="qr">
-                <img src="{{ $bank['epc_qr_png'] }}" width="110" height="110" alt="Giro-Code"><br>
-                Mit Banking-App scannen
-            </div>
+            @if ($bank['epc_qr_png'])
+                <div class="qr">
+                    <img src="{{ $bank['epc_qr_png'] }}" width="110" height="110" alt="Giro-Code"><br>
+                    Mit Banking-App scannen
+                </div>
+            @endif
         </div>
     @endif
 

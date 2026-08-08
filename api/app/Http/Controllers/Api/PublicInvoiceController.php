@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\PaymentProvider;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PublicPaymentProofRequest;
 use App\Models\Invoice;
 use App\Services\BankTransferService;
 use App\Services\PaymentService;
@@ -73,6 +74,32 @@ class PublicInvoiceController extends Controller
         ])->save();
 
         return response()->json(['client_secret' => $intent->client_secret]);
+    }
+
+    /**
+     * Upload the bank slip against a pay-link token, so a buyer who paid by
+     * transfer can send the receipt without signing in first.
+     *
+     * The proof is attributed to the invoice's owner — the account the
+     * invoice already belongs to — because that is who the transfer is for.
+     * Nothing is settled here either way: an admin still has to accept it.
+     */
+    public function uploadProof(PublicPaymentProofRequest $request, string $token): JsonResponse
+    {
+        $invoice = $this->resolve($token);
+
+        $proof = $this->bankTransfer->submitProof(
+            $invoice,
+            $request->file('file'),
+            $request->validated('note'),
+            $invoice->user,
+        );
+
+        return response()->json([
+            'proof_id' => $proof->id,
+            'status' => $proof->status->value,
+            'invoice_status' => $invoice->refresh()->status->value,
+        ], 201);
     }
 
     /** Unknown and expired tokens are indistinguishable: both 404. */

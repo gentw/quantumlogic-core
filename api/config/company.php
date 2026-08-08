@@ -33,4 +33,12 @@ return [
     'bic' => env('COMPANY_BIC', ''),
     'bank_name' => env('COMPANY_BANK_NAME', ''),
 
+    /*
+    | The EPC069-12 "Giro-Code". Switch it off while the beneficiary details
+    | above are still blank — a QR encoding an empty IBAN scans successfully
+    | and hands the payer a broken transfer, which is worse than no QR at all.
+    | Every surface that renders one hides it when this is false.
+    */
+    'epc_qr' => (bool) env('BILLING_EPC_QR', true),
+
 ];

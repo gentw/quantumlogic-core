@@ -66,7 +66,7 @@ onMounted(load)
             <div class="d-flex justify-space-between align-start flex-wrap gap-4 mb-6">
               <h6 class="text-h6">Invoice details</h6>
               <img
-                v-if="bankDetails"
+                v-if="bankDetails?.epc_qr_png"
                 :src="bankDetails.epc_qr_png"
                 alt="EPC QR — scan with your banking app"
                 width="96"

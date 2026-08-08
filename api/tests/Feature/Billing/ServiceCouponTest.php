@@ -5,6 +5,7 @@ namespace Tests\Feature\Billing;
 use App\Models\Service;
 use App\Models\ServiceCoupon;
 use App\Services\ServiceCatalogueService;
+use Illuminate\Support\Str;
 
 class ServiceCouponTest extends BillingTestCase
 {
@@ -43,10 +44,14 @@ class ServiceCouponTest extends BillingTestCase
     public function test_codes_are_matched_case_insensitively(): void
     {
         $service = Service::first();
-        $coupon = $this->makeCoupon(['code' => 'For-Eros-Sefa', 'service_id' => $service->id]);
 
-        $this->assertSame('for-eros-sefa', $coupon->code, 'codes normalise to lowercase');
-        $this->assertNotNull(app(ServiceCatalogueService::class)->couponFor('FOR-EROS-SEFA', $service));
+        // Generated, not a literal: `code` is globally unique, so a fixed
+        // string couples this test to every other one that names a code.
+        $mixedCase = 'For-'.Str::random(8);
+        $coupon = $this->makeCoupon(['code' => $mixedCase, 'service_id' => $service->id]);
+
+        $this->assertSame(mb_strtolower($mixedCase), $coupon->code, 'codes normalise to lowercase');
+        $this->assertNotNull(app(ServiceCatalogueService::class)->couponFor(mb_strtoupper($mixedCase), $service));
     }
 
     public function test_inactive_expired_and_exhausted_codes_are_all_refused(): void
