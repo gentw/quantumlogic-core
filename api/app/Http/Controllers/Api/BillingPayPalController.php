@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\InvoiceStatus;
 use App\Enums\PaymentProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PayPalOrderRequest;
@@ -27,7 +26,8 @@ class BillingPayPalController extends Controller
     /** Start a PayPal payment: pending payments row + order + approval URL. */
     public function createOrder(PayPalOrderRequest $request, Invoice $invoice): JsonResponse
     {
-        abort_unless(in_array($invoice->status, [InvoiceStatus::Sent, InvoiceStatus::Unpaid], true), 422, 'This invoice cannot be paid.');
+        abort_unless($invoice->status->isPayable(), 422, 'This invoice cannot be paid.');
+        abort_if((float) $invoice->amount_due <= 0, 422, 'This invoice is settled.');
 
         $amount = min(
             (float) ($request->validated('amount') ?? $invoice->amount_due),

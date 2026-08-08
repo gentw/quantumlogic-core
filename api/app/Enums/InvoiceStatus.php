@@ -26,4 +26,17 @@ enum InvoiceStatus: string
     {
         return in_array($this, [self::Paid, self::Cancelled], true);
     }
+
+    /**
+     * Whether money may still be taken against this invoice.
+     *
+     * AwaitingConfirmation counts: a pending bank-transfer proof settles
+     * nothing, so the client must stay free to pay by card or PayPal instead.
+     * Kept here rather than repeated per rail — the four call sites had already
+     * drifted, leaving the card rails refusing invoices the bank rail accepted.
+     */
+    public function isPayable(): bool
+    {
+        return in_array($this, [self::Sent, self::AwaitingConfirmation, self::Unpaid], true);
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\InvoiceStatus;
 use App\Enums\PaymentProvider;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
@@ -28,8 +27,7 @@ class PublicInvoiceController extends Controller
     {
         $invoice = $this->resolve($token);
 
-        $payable = in_array($invoice->status, [InvoiceStatus::Sent, InvoiceStatus::AwaitingConfirmation, InvoiceStatus::Unpaid], true)
-            && (float) $invoice->amount_due > 0;
+        $payable = $invoice->status->isPayable() && (float) $invoice->amount_due > 0;
 
         return response()->json([
             'invoice_number' => $invoice->invoice_number,
@@ -60,7 +58,7 @@ class PublicInvoiceController extends Controller
     {
         $invoice = $this->resolve($token);
 
-        abort_unless(in_array($invoice->status, [InvoiceStatus::Sent, InvoiceStatus::AwaitingConfirmation, InvoiceStatus::Unpaid], true), 422, 'This invoice cannot be paid.');
+        abort_unless($invoice->status->isPayable(), 422, 'This invoice cannot be paid.');
         abort_if((float) $invoice->amount_due <= 0, 422, 'This invoice is settled.');
 
         $payment = $this->payments->recordPending($invoice, PaymentProvider::Stripe, (float) $invoice->amount_due, [

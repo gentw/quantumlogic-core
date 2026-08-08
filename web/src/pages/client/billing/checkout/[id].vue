@@ -19,6 +19,13 @@ const amount = computed(() => {
   return requested > 0 && requested < due ? requested : due
 })
 
+// Nothing left to charge — a settled, cancelled or credit-noted invoice. Checked
+// before mounting anything: asking for a PaymentIntent here returns 422, which
+// surfaced as a bare "This invoice cannot be paid." over an empty card form.
+const isSettled = computed(() =>
+  !!invoice.value && (Number(invoice.value.amount_due) <= 0 || ['paid', 'cancelled'].includes(invoice.value.status)),
+)
+
 // Stripe Payment Element state
 let stripe = null
 let elements = null
@@ -81,6 +88,7 @@ const loadBankDetails = async () => {
 }
 
 watch(rail, async selected => {
+  if (isSettled.value) return
   errorMessage.value = ''
   if (selected === 'card' && !cardReady.value) await mountCard()
   if (selected === 'transfer' && !bankDetails.value) await loadBankDetails()
@@ -140,7 +148,7 @@ const submitProof = async () => {
 
 onMounted(async () => {
   await load()
-  if (invoice.value) await mountCard()
+  if (invoice.value && !isSettled.value) await mountCard()
 })
 </script>
 
@@ -189,6 +197,27 @@ onMounted(async () => {
 
       <!-- Rail chooser pane -->
       <VCol cols="12" md="7">
+        <!-- Nothing owed: say so plainly instead of offering rails that will refuse. -->
+        <template v-if="isSettled">
+          <h5 class="text-h5 mb-6">Nothing left to pay</h5>
+          <VAlert
+            :type="invoice.status === 'cancelled' ? 'info' : 'success'"
+            variant="tonal"
+            class="mb-6"
+          >
+            {{ invoice.status === 'cancelled'
+              ? 'This invoice was cancelled, so there is nothing to pay.'
+              : 'This invoice is settled in full. Thank you.' }}
+          </VAlert>
+          <VBtn :to="{ name: 'client-billing-invoices-id', params: { id: invoice.id } }" color="primary">
+            View invoice
+          </VBtn>
+          <VBtn :to="{ name: 'client-billing' }" variant="text" class="ms-2">
+            Back to billing
+          </VBtn>
+        </template>
+
+        <template v-else>
         <h5 class="text-h5 mb-6">Choose how to pay</h5>
 
         <VRadioGroup v-model="rail" class="mb-4">
@@ -301,6 +330,7 @@ onMounted(async () => {
           >
             Upload payment proof
           </VBtn>
+        </template>
         </template>
       </VCol>
     </VRow>
