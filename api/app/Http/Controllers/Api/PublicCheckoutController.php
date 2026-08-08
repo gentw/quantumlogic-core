@@ -7,10 +7,12 @@ use App\Enums\PaymentProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublicCheckoutRequest;
 use App\Models\Service;
+use App\Services\BankTransferService;
 use App\Services\BillingInvoiceService;
 use App\Services\BillingNotifier;
 use App\Services\ClientAccountService;
 use App\Services\PaymentService;
+use App\Services\ServiceCatalogueService;
 use App\Services\ServiceOrderService;
 use App\Services\StripeGateway;
 use App\Services\TaxService;
@@ -34,6 +36,8 @@ class PublicCheckoutController extends Controller
         private readonly StripeGateway $stripe,
         private readonly TaxService $tax,
         private readonly BillingNotifier $notifier,
+        private readonly ServiceCatalogueService $catalogue,
+        private readonly BankTransferService $bank,
     ) {}
 
     /** The publicly orderable catalogue. */
@@ -65,10 +69,12 @@ class PublicCheckoutController extends Controller
             'services.*.quantity' => ['nullable', 'numeric', 'min:0.01', 'max:999'],
             'country_code' => ['nullable', 'string', 'size:2'],
             'vat_id' => ['nullable', 'string', 'max:20'],
+            'coupon' => ['nullable', 'string', 'max:64'],
         ]);
 
-        $net = $vat = 0;
+        $net = $vat = $discount = 0;
         $lines = [];
+        $coupon = null;
 
         foreach ($validated['services'] as $selection) {
             $service = Service::publiclyOrderable()->find($selection['id']);
@@ -83,15 +89,23 @@ class PublicCheckoutController extends Controller
                 (float) $service->vat_rate,
             );
 
-            $lineNet = round((float) $service->default_price_net * $quantity, 2);
+            // A code scoped to another service simply does not apply to this line.
+            $lineCoupon = $this->catalogue->couponFor($validated['coupon'] ?? null, $service);
+            $coupon ??= $lineCoupon;
+            $discountPercent = $lineCoupon ? (float) $lineCoupon->discount_percent : 0.0;
+
+            $listNet = round((float) $service->default_price_net * $quantity, 2);
+            $lineNet = round($listNet * (1 - $discountPercent / 100), 2);
             $lineVat = round($lineNet * $resolution->rate / 100, 2);
 
-            $net += $lineNet;
+            $net += $listNet;
+            $discount += round($listNet - $lineNet, 2);
             $vat += $lineVat;
             $lines[] = [
                 'name' => $service->name,
                 'quantity' => $quantity,
                 'net' => $lineNet,
+                'discount_percent' => $discountPercent,
                 'vat_rate' => $resolution->rate,
                 'gross' => round($lineNet + $lineVat, 2),
             ];
@@ -102,10 +116,18 @@ class PublicCheckoutController extends Controller
 
         return response()->json([
             'lines' => $lines,
+            // subtotal is the list price before any coupon, so the buyer sees
+            // what was taken off rather than just a smaller number.
             'subtotal_net' => round($net, 2),
+            'discount_total' => round($discount, 2),
             'vat_total' => round($vat, 2),
-            'total_gross' => round($net + $vat, 2),
+            'total_gross' => round($net - $discount + $vat, 2),
             'deposit_percent' => $depositable ? 50 : 100,
+            'coupon' => $coupon ? [
+                'code' => $coupon->code,
+                'label' => $coupon->label,
+                'discount_percent' => (float) $coupon->discount_percent,
+            ] : null,
         ]);
     }
 
@@ -143,9 +165,25 @@ class PublicCheckoutController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $user, $created) {
+            $redeemed = null;
+
             $lines = collect($validated['services'])
-                ->filter(fn ($s) => Service::publiclyOrderable()->whereKey($s['id'])->exists())
-                ->map(fn ($s) => ['service_id' => $s['id'], 'quantity' => (float) ($s['quantity'] ?? 1)])
+                ->map(fn ($s) => [$s, Service::publiclyOrderable()->find($s['id'])])
+                ->filter(fn ($pair) => $pair[1] !== null)
+                ->map(function ($pair) use ($validated, &$redeemed) {
+                    [$selection, $service] = $pair;
+                    $coupon = $this->catalogue->couponFor($validated['coupon'] ?? null, $service);
+                    $redeemed ??= $coupon;
+
+                    return [
+                        'service_id' => $service->id,
+                        'quantity' => (float) ($selection['quantity'] ?? 1),
+                        // The coupon becomes an ordinary line discount, so it is
+                        // visible on the invoice and the existing cents-based
+                        // totals handle it — no parallel discount concept.
+                        'discount_percent' => $coupon ? (float) $coupon->discount_percent : 0.0,
+                    ];
+                })
                 ->values()->all();
 
             abort_if($lines === [], 422, 'Nothing orderable selected.');
@@ -162,6 +200,29 @@ class PublicCheckoutController extends Controller
                 'public_token_expires_at' => now()->addDays(30),
             ])->save();
 
+            // Counted here rather than at quote time, so pricing a basket never
+            // burns a single-use code.
+            if ($redeemed) {
+                $this->catalogue->redeemCoupon($redeemed);
+            }
+
+            // Bank transfer: the invoice is issued and the buyer gets the
+            // beneficiary details and the EPC QR. Nothing is paid until the
+            // transfer lands and an admin reconciles it, so the order stays in
+            // awaiting_payment — no card is involved at any point.
+            if (($validated['payment_method'] ?? 'card') === 'transfer') {
+                return response()->json([
+                    'order_number' => $order->order_number,
+                    'deposit_amount' => (float) $invoice->amount_due,
+                    'existing_account' => ! $created,
+                    'payment_method' => 'transfer',
+                    'invoice_number' => $invoice->invoice_number,
+                    'bank_details' => $this->bank->bankDetails($invoice),
+                    'client_secret' => null,
+                    'pay_token' => $created ? $invoice->public_token : null,
+                ], 201);
+            }
+
             // Both outcomes can pay inline: refusing an existing customer their
             // own purchase helped nobody. Paying does not expose the account —
             // no account data is returned, and the password is untouched, so
@@ -176,6 +237,7 @@ class PublicCheckoutController extends Controller
             ])->save();
 
             return response()->json([
+                'payment_method' => 'card',
                 'order_number' => $order->order_number,
                 'deposit_amount' => (float) $invoice->amount_due,
                 // The order joined an account that already existed, so the SPA

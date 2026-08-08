@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Service;
+use App\Models\ServiceCoupon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 
@@ -59,5 +60,38 @@ class ServiceCatalogueService
     public function vatRateFor(Service $service, ?float $override = null): float
     {
         return $override ?? (float) $service->vat_rate;
+    }
+
+    /**
+     * Resolve a coupon code for a service, or null if it cannot be redeemed.
+     *
+     * Deliberately silent about *why* it failed: unknown, expired, exhausted and
+     * wrong-service all return null, so a public form cannot be used to probe
+     * which codes exist.
+     */
+    public function couponFor(?string $code, ?Service $service = null): ?ServiceCoupon
+    {
+        if ($code === null || trim($code) === '') {
+            return null;
+        }
+
+        $coupon = ServiceCoupon::redeemable()
+            ->where('code', mb_strtolower(trim($code)))
+            ->first();
+
+        if ($coupon === null) {
+            return null;
+        }
+
+        return $service === null || $coupon->appliesTo($service) ? $coupon : null;
+    }
+
+    /**
+     * Count a redemption. Called once the order exists, not at quote time —
+     * pricing a basket must not burn a single-use code.
+     */
+    public function redeemCoupon(ServiceCoupon $coupon): void
+    {
+        $coupon->increment('used_count');
     }
 }

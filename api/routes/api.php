@@ -201,6 +201,11 @@ Route::group([
     Route::post('/admin/billing/services', [AdminServiceCatalogueController::class, 'store'])->middleware('admin');
     Route::patch('/admin/billing/services/{service}', [AdminServiceCatalogueController::class, 'update'])->middleware('admin');
     Route::post('/admin/billing/services/{service}/deactivate', [AdminServiceCatalogueController::class, 'deactivate'])->middleware('admin');
+    // Discount codes behind the personalised /order/{service}?coupon=... links.
+    Route::get('/admin/billing/services/{service}/coupons', [AdminServiceCatalogueController::class, 'coupons'])->middleware('admin');
+    Route::post('/admin/billing/services/{service}/coupons', [AdminServiceCatalogueController::class, 'storeCoupon'])->middleware('admin');
+    Route::patch('/admin/billing/coupons/{coupon}', [AdminServiceCatalogueController::class, 'updateCoupon'])->middleware('admin');
+    Route::post('/admin/billing/coupons/{coupon}/deactivate', [AdminServiceCatalogueController::class, 'deactivateCoupon'])->middleware('admin');
 
     // Billing & Payments — printable invoice document
     Route::get('/client/invoices/{invoice}/print', [InvoicePrintController::class, 'client'])->middleware('client');

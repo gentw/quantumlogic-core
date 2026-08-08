@@ -42,6 +42,11 @@ class Service extends Model
         return $this->hasMany(ServiceOrderItem::class);
     }
 
+    public function coupons()
+    {
+        return $this->hasMany(ServiceCoupon::class);
+    }
+
     public function recurringPlans()
     {
         return $this->hasMany(RecurringPlan::class);

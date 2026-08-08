@@ -26,6 +26,10 @@ class PublicCheckoutRequest extends FormRequest
             'services' => ['required', 'array', 'min:1'],
             'services.*.id' => ['required', 'integer'],
             'services.*.quantity' => ['nullable', 'numeric', 'min:0.01', 'max:999'],
+            'coupon' => ['nullable', 'string', 'max:64'],
+            // 'transfer' issues the invoice and returns bank details instead of
+            // a card secret — the buyer pays by SEPA and an admin reconciles.
+            'payment_method' => ['nullable', 'in:card,transfer'],
         ];
     }
 }
