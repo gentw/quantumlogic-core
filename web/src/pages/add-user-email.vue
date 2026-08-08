@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
 
 const registerClientEmail = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/register-client-email', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/register-client-email', {
       method: 'POST',
       body: {
         email: form.value.email,

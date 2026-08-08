@@ -9,8 +9,8 @@ class IncomingAlarm extends Model
 {
     use HasFactory;
 
-    protected $table = "alarm_incomings";
-    
+    protected $table = 'alarm_incomings';
+
     protected $fillable = [
         'signal_id',
         'user_id',
@@ -22,7 +22,7 @@ class IncomingAlarm extends Model
         'is_triggered',
         'is_closed',
         'status',
-        'base_notified'
+        'base_notified',
     ];
 
     public function alarm_logs()

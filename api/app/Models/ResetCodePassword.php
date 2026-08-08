@@ -10,12 +10,11 @@ class ResetCodePassword extends Model
     use HasFactory;
 
     protected $table = 'password_reset_tokens';
+
     const UPDATED_AT = null;
 
     protected $fillable = [
         'email',
         'token',
     ];
-    
-    
 }

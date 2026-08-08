@@ -10,15 +10,14 @@ class NotificationList extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 
-        'recipient_user_id', 
+        'user_id',
+        'recipient_user_id',
         'alarm_alert_id',
         'chat_id',
         'type',
         'message',
-        'read'
+        'read',
     ];
-
 
     public function alarm()
     {

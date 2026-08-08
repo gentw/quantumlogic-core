@@ -95,7 +95,7 @@ Added `withoutOverlapping(60)`, `onOneServer()`, `runInBackground()` to the dail
 Single source of truth for the device fingerprint that goes into the `X-Trial-Fingerprint` header. Reads from localStorage; lazily generates a `crypto.randomUUID()` if missing.
 
 **`web/src/pages/client/pricing.vue`** (rewritten)
-Hard-coded `https://api-ds.bitemybytes.com/...` URLs replaced with relative `/v1/...`. Uses the fingerprint composable. Surfaces the new `trial_blocked` error from the backend with a real toast instead of a generic message.
+Hard-coded `https://api.quantumlogic.at/...` URLs replaced with relative `/v1/...`. Uses the fingerprint composable. Surfaces the new `trial_blocked` error from the backend with a real toast instead of a generic message.
 
 **`web/src/pages/client/invoice/pay-now/[id].vue`** (rewritten)
 Same URL/fingerprint cleanup. The big new behaviour: when the user is on the trial flow and submits the credit-card modal, it now actually calls `POST /v1/client/sub/startTrial` with the (simulated) payment token, instead of just showing an `alert()`. Trial errors surface their `reason`/`message` from the backend.
@@ -107,7 +107,7 @@ URL + fingerprint cleanup only.
 Three fixes: relative URL via `$api`, response shape (was reading `res.data.X` against an unwrapped body), and a new `isEntitled()` helper that accepts trials (was hard-coded to `status === 'active'`, which would have redirected trial users to pricing).
 
 **`web/.env.example`** (new) + **`web/.env`** (new, gitignored)
-Documents `VITE_API_BASE_URL` so relative `/v1/...` paths in the SPA resolve to the correct backend domain (`https://api-ds.bitemybytes.com/api`).
+Documents `VITE_API_BASE_URL` so relative `/v1/...` paths in the SPA resolve to the correct backend domain (`https://api.quantumlogic.at/api`).
 
 ### Project metadata
 

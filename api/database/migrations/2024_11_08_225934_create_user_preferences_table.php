@@ -22,9 +22,8 @@ return new class extends Migration
             $table->integer('push_my_comments')->nullable()->default(0);
             $table->integer('push_reminders')->nullable()->default(0);
             $table->integer('push_invoices')->nullable()->default(0);
-            $table->unsignedBigInteger('user_id')->nullable(); 
-            
-            
+            $table->unsignedBigInteger('user_id')->nullable();
+
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');

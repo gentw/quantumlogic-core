@@ -12,6 +12,7 @@ declare module 'vue' {
     AddEditPermissionDialog: typeof import('./src/components/dialogs/AddEditPermissionDialog.vue')['default']
     AddEditRoleDialog: typeof import('./src/components/dialogs/AddEditRoleDialog.vue')['default']
     AddPaymentMethodDialog: typeof import('./src/components/dialogs/AddPaymentMethodDialog.vue')['default']
+    AdminClientBillingCard: typeof import('./src/components/billing/AdminClientBillingCard.vue')['default']
     AlarmTriggerDialog: typeof import('./src/components/dialogs/AlarmTriggerDialog.vue')['default']
     AppAutocomplete: typeof import('./src/@core/components/app-form-elements/AppAutocomplete.vue')['default']
     AppBarSearch: typeof import('./src/@core/components/AppBarSearch.vue')['default']

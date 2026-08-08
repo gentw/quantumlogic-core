@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Models\AgentQueue;
+use App\Models\ChatAgentClientOnLine;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\AgentQueue;
-use App\Models\User;
-use App\Models\ChatAgentClientOnLine;
 use Illuminate\Support\Facades\Log;
 
 class AssignAgentToClient implements ShouldQueue
@@ -28,12 +28,12 @@ class AssignAgentToClient implements ShouldQueue
         // Retrieve the next client in queue
         $queueEntry = AgentQueue::orderBy('created_at', 'asc')->first();
 
-        try{
+        try {
             if ($queueEntry) {
                 // Check for an available agent
                 $agent = User::where('id', $this->agentId)->where('is_busy', 0)->where('role', 'agent')->first();
 
-                if ($agent) {                    
+                if ($agent) {
                     // Assign agent to the client
                     $agent->is_busy = 1;
                     $agent->save();
@@ -41,8 +41,8 @@ class AssignAgentToClient implements ShouldQueue
                     ChatAgentClientOnLine::create(
                         [
                             'client_id' => $queueEntry->client_id,
-                            'agent_id'  => $this->agentId,
-                            'status'    => 1
+                            'agent_id' => $this->agentId,
+                            'status' => 1,
                         ]
                     );
                     $queueEntry->delete();

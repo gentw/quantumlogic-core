@@ -10,5 +10,6 @@ class AccountDetail extends Model
     use HasFactory;
 
     protected $table = 'vAccountDetails';
+
     protected $connection = 'sqlsrv';
 }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Carbon\Carbon;
 use App\Models\ChatAgentClientOnLine;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 // ka mu bo detach mas 2 ore qe ka pauzu komunikimi
 // updated_at mbet qaty ne 2 ore kur agjenti nuk kthen pergjigje per qato ore
@@ -40,7 +40,7 @@ class DetachAgentFromClientLineAfterTwoHours extends Command
                 // $record->chat->agent_id = null;
                 // $record->chat->save();
             }
-            
+
             $record->delete();
         }
     }

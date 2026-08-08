@@ -36,7 +36,7 @@ const user = ref('');
 
 const login = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/login', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/login', {
       method: 'POST',
       body: {
         phone: form.value.phone_number,

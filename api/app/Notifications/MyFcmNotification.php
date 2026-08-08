@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
@@ -13,9 +11,9 @@ use NotificationChannels\Fcm\Resources\Notification as FcmNotificationResource;
 class MyFcmNotification extends Notification
 {
     use Queueable;
+
     protected $message;
 
-    
     /**
      * Create a new notification instance.
      *
@@ -45,7 +43,7 @@ class MyFcmNotification extends Notification
      */
     public function toFcm($token)
     {
-        $notification = new FcmNotificationResource();
+        $notification = new FcmNotificationResource;
         $notification
             ->setTitle('QuantumLogic')
             ->setBody($this->message);

@@ -3,17 +3,20 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class SendUserRegisterConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
-    
-    public $name, $role, $username, $password;
+
+    public $name;
+
+    public $role;
+
+    public $username;
+
+    public $password;
 
     /**
      * Create a new message instance.

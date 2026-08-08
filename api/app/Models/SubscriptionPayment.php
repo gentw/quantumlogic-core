@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class SubscriptionPayment extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'subscription_id',
         'payment_method',
         'payment_token',
         'status',
         'amount',
-        'processed_at'
+        'processed_at',
     ];
 }

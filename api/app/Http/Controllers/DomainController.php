@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Domain;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -15,45 +15,43 @@ class DomainController extends Controller
         $perPage = $request['perPage'];
         $page = $request['page'];
         $sortBy = $request['sortBy'];
-        $sortDesc = $request['sortDesc']; 
+        $sortDesc = $request['sortDesc'];
         $rangePicker = $request['rangePicker'];
         $startDate = '';
         $endDate = '';
         $status = $request['status'];
-        
+
         $q = $request['q'];
 
         $status = $request['status'];
 
-        $q = $q ?? ''; 
+        $q = $q ?? '';
         $status = $status ?? '';
 
-        if(strlen($rangePicker)) {
+        if (strlen($rangePicker)) {
 
-            if (strpos($rangePicker, "to") !== false) {
+            if (strpos($rangePicker, 'to') !== false) {
                 $rangePicker = str_replace(' ', '', $rangePicker);
                 $rangePicker = explode('to', $rangePicker);
-                
-                $startDate =$rangePicker[0];
-                $endDate =$rangePicker[1];
-            }            
+
+                $startDate = $rangePicker[0];
+                $endDate = $rangePicker[1];
+            }
         }
 
-        $domains = Auth::user()->domains()->where(function ($query) use ($q, $status) {
-            $query->whereRaw('domain like ?', ['%' . $q . '%']);
+        $domains = Auth::user()->domains()->where(function ($query) use ($q) {
+            $query->whereRaw('domain like ?', ['%'.$q.'%']);
         });
 
-       
-                
-	    $domains = $domains->orderBy($sortBy, $sortDesc ? 'desc' : 'asc')
-                                ->paginate($perPage, ['*'], 'page', $page);
+        $domains = $domains->orderBy($sortBy, $sortDesc ? 'desc' : 'asc')
+            ->paginate($perPage, ['*'], 'page', $page);
 
         $total_rows = $domains->total();
-        $domains = $domains->items();  
+        $domains = $domains->items();
 
         return response()->json([
-            "domains" => $domains,
-            "total" => $total_rows
+            'domains' => $domains,
+            'total' => $total_rows,
         ]);
 
     }

@@ -92,7 +92,7 @@ const resetAvatar = () => {
 
 const fetchUserData = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/user/profile/'+clientId+'/showUserDataById', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/user/profile/'+clientId+'/showUserDataById', {
       method: 'POST',
       onResponseError({ response }) {
         // alert(1)
@@ -103,7 +103,7 @@ const fetchUserData = async () => {
     })
 
     if(res.update_request == 1) {
-      const rex = await $api('https://api-ds.bitemybytes.com/api/v1/user/profile/'+clientId+'/showUserRequestData', {
+      const rex = await $api('https://api.quantumlogic.at/api/v1/user/profile/'+clientId+'/showUserRequestData', {
         method: 'GET',
         onResponseError({ response }) {
           // alert(1)
@@ -124,7 +124,7 @@ const fetchUserData = async () => {
       if(rex.img == "/src/assets/images/avatars/avatar-1.png") {
         accountDataLocal.value.avatar_temp = avatar1;
       } else {
-        accountDataLocal.value.avatar_temp = 'https://api-ds.bitemybytes.com/' + rex.img;
+        accountDataLocal.value.avatar_temp = 'https://api.quantumlogic.at/' + rex.img;
       }
     } else {
       accountDataLocal.value.id = res.id;
@@ -143,7 +143,7 @@ const fetchUserData = async () => {
       if(res.img == "/src/assets/images/avatars/avatar-1.png") {
         accountDataLocal.value.avatar_temp = avatar1;
       } else {
-        accountDataLocal.value.avatar_temp = 'https://api-ds.bitemybytes.com/' + res.img;
+        accountDataLocal.value.avatar_temp = 'https://api.quantumlogic.at/' + res.img;
       }
     }
     // console.log("TEST", res.name);
@@ -157,7 +157,7 @@ const fetchUserData = async () => {
 
 const approveRequest = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/user/profile/'+clientId+'/approveUpdateUserRequest', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/user/profile/'+clientId+'/approveUpdateUserRequest', {
       method: 'POST',
       onResponseError({ response }) {
         $toast.error('Ndodhi nje gabim!');      
@@ -178,7 +178,7 @@ const approveRequest = async () => {
 
 const declineRequest = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/user/profile/'+clientId+'/declineUpdateUserRequest', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/user/profile/'+clientId+'/declineUpdateUserRequest', {
       method: 'POST',
       onResponseError({ response }) {
         $toast.error('Ndodhi nje gabim!');      
@@ -211,7 +211,7 @@ const storeUserData = async () => {
       }
     }
 
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/admin/updateClient/'+clientId, {
+    const res = await $api('https://api.quantumlogic.at/api/v1/admin/updateClient/'+clientId, {
       method: 'POST',
       body: formData,
       onResponseError({ response }) {
@@ -241,7 +241,7 @@ const storeUserData = async () => {
 
 const changePassword = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/admin/updateClientPassword/'+clientId, {
+    const res = await $api('https://api.quantumlogic.at/api/v1/admin/updateClientPassword/'+clientId, {
       method: 'POST',
       body: {
         password: newPassword.value,

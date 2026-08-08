@@ -26,7 +26,7 @@ class Domain extends Model
     // Generate a new verification token
     public static function generateToken(): string
     {
-        return 'sg_' . Str::random(32);
+        return 'sg_'.Str::random(32);
     }
 
     // Relationship: Domain belongs to User

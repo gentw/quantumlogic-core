@@ -32,7 +32,7 @@ Distilled from the standalone Vue/Vuexy repo's git history (≈86 commits, **202
 - Route guards (`web/src/plugins/1.router/guards.js`) added to **redirect users by role** (admin → `/admin`, agent → `/agent`, client → `/client`) and restrict access for unauthorized roles. Views split by role accordingly.
 - `guards adjustments for auto fetch client routes` — fine-tuned which routes auto-fetch vs. wait for the user.
 - **Subscription gate:** clients without an active subscription bounce to `/client/pricing` (`5b6bc85 Restrict access for unsubscribed clients`).
-- ⚠️ The guards file currently contains a **hard-coded API URL** (`https://api-ds.bitemybytes.com/...`). Parameterize with `VITE_API_BASE_URL` before any environment / domain rename.
+- ⚠️ The guards file currently contains a **hard-coded API URL** (`https://api.quantumlogic.at/...`). Parameterize with `VITE_API_BASE_URL` before any environment / domain rename.
 
 ## Real-time alarms
 

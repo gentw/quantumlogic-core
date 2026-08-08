@@ -37,7 +37,7 @@ const user = ref('');
 
 const sendPasswordResetLink = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/password/email', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/password/email', {
       method: 'POST',
       body: {
         email: form.value.email,

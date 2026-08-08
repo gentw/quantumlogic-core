@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::table('invoices', function (Blueprint $table) {
             //
             $table->foreignId('user_id')
-            ->nullable()
-            ->constrained()
-            ->cascadeOnDelete();
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
         });
     }
 

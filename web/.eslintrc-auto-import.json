@@ -363,6 +363,16 @@
     "useTrialFingerprint": true,
     "SECURITY_ROUTE_PREFIXES": true,
     "appFeatures": true,
-    "isDisabledModuleRoute": true
+    "isDisabledModuleRoute": true,
+    "SUBSCRIPTION_ROUTE_PREFIXES": true,
+    "formatMoney": true,
+    "invoiceStatusChip": true,
+    "invoiceTypeLabel": true,
+    "loadStripe": true,
+    "useBillingApi": true,
+    "COUNTRIES": true,
+    "EU_COUNTRIES": true,
+    "countryOptions": true,
+    "isEuCountry": true
   }
 }

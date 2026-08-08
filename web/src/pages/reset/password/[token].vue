@@ -51,7 +51,7 @@ const token = ref('');
 const user = ref(''); 
 const checkTokenValidity = async () => {
   try {
-    const response = await $api(`https://api-ds.bitemybytes.com/api/v1/password/token/check`, {
+    const response = await $api(`https://api.quantumlogic.at/api/v1/password/token/check`, {
       method: 'POST',
       body: {
         token: route.params.token, // Send the token in the request body
@@ -77,7 +77,7 @@ onMounted(() => {
 
 const resetPassword = async () => {
   try {
-    const res = await $api('https://api-ds.bitemybytes.com/api/v1/password/reset', {
+    const res = await $api('https://api.quantumlogic.at/api/v1/password/reset', {
       method: 'POST',
       body: {
         token: route.params.token,

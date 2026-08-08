@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('alarm_id');
             $table->string('event_type', 50);
-            $table->unsignedBigInteger('user_id')->nullable(); 
-          
+            $table->unsignedBigInteger('user_id')->nullable();
+
             $table->json('details')->nullable();
 
             // Foreign key constraints
@@ -28,7 +28,7 @@ return new class extends Migration
 
     /*******************
      * Details json samples for every event_type:
-     * 
+     *
      * event_type: "Alarm Triggered"
         {
         "alarm_location": {

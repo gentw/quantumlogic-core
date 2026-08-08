@@ -10,6 +10,6 @@ class RegisteredClients extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'surname', 'email', 'phone', 'img', 'password'
+        'name', 'surname', 'email', 'phone', 'img', 'password',
     ];
 }

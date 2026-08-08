@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('subscription_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('subscription_id')
-                    ->nullable()
-                    ->constrained()
-                    ->cascadeOnDelete();
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
             $table->enum('payment_method', ['cc', 'paypal', 'bank_transfer']);
             $table->string('payment_token'); // token from gateway
             $table->enum('status', ['pending', 'success', 'failed'])->default('pending');

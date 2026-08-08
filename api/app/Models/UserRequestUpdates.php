@@ -18,6 +18,6 @@ class UserRequestUpdates extends Model
         'city',
         'postal_code',
         'img',
-        'user_id'
+        'user_id',
     ];
 }

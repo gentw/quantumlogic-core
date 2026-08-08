@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class AlarmIncomingLog extends Model
 {
@@ -31,5 +31,4 @@ class AlarmIncomingLog extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
-
 }

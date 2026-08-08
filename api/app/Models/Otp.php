@@ -10,6 +10,6 @@ class Otp extends Model
     use HasFactory;
 
     protected $fillable = [
-        'email', 'phone', 'otp', 'expires_at'
+        'email', 'phone', 'otp', 'expires_at',
     ];
 }

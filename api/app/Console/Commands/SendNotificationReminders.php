@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\NotificationReminder;
-use Carbon\Carbon;
-use Pusher\Pusher;
 use App\Http\Traits\MessengerTrait;
+use App\Models\NotificationReminder;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Pusher\Pusher;
 
 class SendNotificationReminders extends Command
 {
-
     use MessengerTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,8 +26,11 @@ class SendNotificationReminders extends Command
      * @var string
      */
     protected $description = 'Send notification reminders';
+
     protected $pusher;
-    public function __construct() {
+
+    public function __construct()
+    {
         parent::__construct();
         $this->pusher = new Pusher(
             config('broadcasting.connections.pusher.key'),
@@ -36,6 +39,7 @@ class SendNotificationReminders extends Command
             config('broadcasting.connections.pusher.options', [])
         );
     }
+
     /**
      * Execute the console command.
      */
@@ -44,12 +48,12 @@ class SendNotificationReminders extends Command
         //
         $reminders = NotificationReminder::where('execute_time', '<=', Carbon::now())->orWhere('delivery_schedule', 'menjehere')->get();
 
-        foreach($reminders as $reminder) {
+        foreach ($reminders as $reminder) {
             try {
-                if($reminder->system == 1) {
+                if ($reminder->system == 1) {
                     $recipients = User::whereIn('role', ['agent', 'admin'])->get();
 
-                    foreach($recipients as $recipient) {
+                    foreach ($recipients as $recipient) {
                         $this->addGeneralNotification(
                             $reminder->user_id,
                             $recipient->id,
@@ -57,19 +61,19 @@ class SendNotificationReminders extends Command
                             null,
                             $reminder->type,
                             $reminder->subject
-                        );            
+                        );
                         $notif = $this->fetchNotification($reminder->user_id, $recipient->id, $reminder->type);
-                        
+
                         $data = [
-                            "user_id" => $recipient->id,
-                            'user_name' => $recipient->name
+                            'user_id' => $recipient->id,
+                            'user_name' => $recipient->name,
                         ];
-                
+
                         $notifData = [
                             'notification_data' => $notif,
-                            'user_name'         => $data['user_name'],
+                            'user_name' => $data['user_name'],
                         ];
-                
+
                         $this->pusher->trigger("notification.{$recipient->role}.{$recipient->id}", 'Notification', $notifData);
                     }
                 } else {
@@ -80,19 +84,19 @@ class SendNotificationReminders extends Command
                         null,
                         $reminder->type,
                         $reminder->subject
-                    );            
+                    );
                     $notif = $this->fetchNotification($reminder->user_id, $reminder->recipient_id, $reminder->type);
-                    
+
                     $data = [
-                        "user_id" => $reminder->recipient_id,
-                        'user_name' => $reminder->recipient->name
+                        'user_id' => $reminder->recipient_id,
+                        'user_name' => $reminder->recipient->name,
                     ];
-            
+
                     $notifData = [
                         'notification_data' => $notif,
-                        'user_name'         => $data['user_name'],
+                        'user_name' => $data['user_name'],
                     ];
-            
+
                     $this->pusher->trigger("notification.{$reminder->recipient->role}.{$reminder->recipient_id}", 'Notification', $notifData);
                 }
 

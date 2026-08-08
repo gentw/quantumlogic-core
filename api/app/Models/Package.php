@@ -9,9 +9,10 @@ class Package extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','description','price_monthly','price_yearly','features','active'];
+    protected $fillable = ['name', 'description', 'price_monthly', 'price_yearly', 'features', 'active'];
+
     protected $casts = [
         'features' => 'array',
-        'active' => 'boolean'
+        'active' => 'boolean',
     ];
 }

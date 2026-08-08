@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Otp;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Hash;
 use App\Mail\OtpMail;
 use App\Mail\RegisterWelcomeMail;
 use App\Mail\UserJoinWaitListWeb;
+use App\Models\Otp;
+use App\Models\User;
 use Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AuthenticationController extends Controller
 {
-
-    public function test() {
-        return response()->json("TEST");
+    public function test()
+    {
+        return response()->json('TEST');
     }
 
     //
@@ -26,31 +26,38 @@ class AuthenticationController extends Controller
      *     path="/api/v1/login",
      *     summary="Login user and generate OTP (Admins and agents use emails in the phone field, clients use phone numbers)",
      *     tags={"Auth"},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"phone", "password"},
+     *
      *             @OA\Property(
-     *                 property="phone", 
-     *                 type="string", 
-     *                 example="044123456", 
+     *                 property="phone",
+     *                 type="string",
+     *                 example="044123456",
      *                 description="Phone number (clients) or email (admins/agents)"
      *             ),
      *             @OA\Property(
-     *                 property="password", 
-     *                 type="string", 
-     *                 format="password", 
+     *                 property="password",
+     *                 type="string",
+     *                 format="password",
      *                 description="User's password"
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Login successful. OTP generated and sent.",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="redirect", type="string", description="Next step URL or checkpoint")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Invalid credentials"
@@ -59,27 +66,26 @@ class AuthenticationController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $request->validate([
             'phone' => [
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^\d{8,}$/', $value)) {
+                    if (! filter_var($value, FILTER_VALIDATE_EMAIL) && ! preg_match('/^\d{8,}$/', $value)) {
                         $fail('Ketu mund te perdoret Numri telefonit ose Email');
                     }
-                }
+                },
             ],
-            'password' => 'required|string|min:6'
+            'password' => 'required|string|min:6',
         ]);
-        
+
         if (filter_var(request('phone'), FILTER_VALIDATE_EMAIL)) {
 
-                       
             $userPhone = User::where('phone', request('phone'))->where('role', '!=', 'client')->first();
-            
-            if($userPhone) { // is not client
-                if($userPhone->blocked || $userPhone->deactivated) {
+
+            if ($userPhone) { // is not client
+                if ($userPhone->blocked || $userPhone->deactivated) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Failed to authenticate.',
@@ -90,21 +96,21 @@ class AuthenticationController extends Controller
                     // successfull authentication
                     $user = User::find(Auth::user()->id);
 
-                    if($user->role != 'client') {
+                    if ($user->role != 'client') {
                         $user = User::where('phone', request('phone'))->first();
-                        if($user->first_time == 1) {
+                        if ($user->first_time == 1) {
                             User::where('id', $user->id)->where('phone', $user->phone)->where('first_time', 1)->update([
-                                'first_time' => 0
-                            ]);    
+                                'first_time' => 0,
+                            ]);
                         }
                         $user_token['token'] = $user->createToken('appToken')->accessToken;
 
                         return response()->json([
                             'success' => true,
                             'token' => $user_token,
-                            'user' => $user                    
+                            'user' => $user,
                         ], 200);
-                    } 
+                    }
                 } else {
                     return response()->json([
                         'success' => false,
@@ -114,7 +120,7 @@ class AuthenticationController extends Controller
             } else { // for client
 
                 $user = User::where('email', request('phone'))->where('role', 'client')->first();
-                if($user->blocked || $user->deactivated) {
+                if ($user->blocked || $user->deactivated) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Failed to authenticate.',
@@ -123,24 +129,24 @@ class AuthenticationController extends Controller
 
                 if (Auth::attempt(['email' => request('phone'), 'password' => request('password')])) {
                     $user = User::find(Auth::user()->id);
-                    if($user->first_time == 1) {
+                    if ($user->first_time == 1) {
                         User::where('id', $user->id)->where('phone', $user->phone)->where('first_time', 1)->update([
-                            'first_time' => 0
-                        ]);    
+                            'first_time' => 0,
+                        ]);
                     }
 
                     $otp = rand(100000, 999999);
                     $expiresAt = now()->addMinutes(10);
-                    
+
                     Otp::updateOrCreate(
                         [
-                            'phone' => request('phone')  // Use 'phone' to find the record
+                            'phone' => request('phone'),  // Use 'phone' to find the record
                         ],
                         [
-                            'otp' => $otp, 
-                            'expires_at' => $expiresAt
+                            'otp' => $otp,
+                            'expires_at' => $expiresAt,
                         ]
-                    );            
+                    );
                     // Send OTP via email
                     Mail::to(request('phone'))->send(new OtpMail($otp, $expiresAt));
 
@@ -155,54 +161,54 @@ class AuthenticationController extends Controller
             }
         } else {
             $user = User::where('phone', request('phone'))->first();
-            
-            if($user->blocked || $user->deactivated) {
+
+            if ($user->blocked || $user->deactivated) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to authenticate.',
                 ], 401);
             }
 
-            if (!Hash::check($user->phone, $user->password) && $user->first_time == 1) {
+            if (! Hash::check($user->phone, $user->password) && $user->first_time == 1) {
                 User::where('id', $user->id)->where('phone', $user->phone)->where('first_time', 1)->update([
                     'password' => Hash::make($user->phone),
-                    'first_time' => 0
-                ]);                
+                    'first_time' => 0,
+                ]);
             }
 
             if (Auth::attempt(['phone' => request('phone'), 'password' => request('password')])) {
                 // successfull authentication
                 $user = Auth::user();
                 $existsEmail = ($user->email === null ? 'add-user-email' : 'checkpoint');
-                
-                if($user->first_time == 1) {
+
+                if ($user->first_time == 1) {
                     User::where('id', $user->id)->where('phone', $user->phone)->where('first_time', 1)->update([
-                        'first_time' => 0
-                    ]);    
+                        'first_time' => 0,
+                    ]);
                 }
-                
-                if($existsEmail == 'checkpoint') {
+
+                if ($existsEmail == 'checkpoint') {
                     $otp = rand(100000, 999999);
                     $expiresAt = now()->addMinutes(10);
-        
+
                     Otp::updateOrCreate(
                         [
-                            'phone' => request('phone')  // Use 'phone' to find the record
+                            'phone' => request('phone'),  // Use 'phone' to find the record
                         ],
                         [
-                            'otp' => $otp, 
-                            'expires_at' => $expiresAt
+                            'otp' => $otp,
+                            'expires_at' => $expiresAt,
                         ]
-                    );            
+                    );
                     // Send OTP via email
                     Mail::to($user->email)->send(new OtpMail($otp, $expiresAt));
-                } 
-                
+                }
+
                 // Send OTP via email
                 // Mail::to($request->email)->send(new OtpMail($otp));
                 // return response()->json(['message' => 'OTP sent to your email.']);
                 return response()->json(['redirect' => $existsEmail]);
-    
+
             } else {
                 // failure to authenticate
                 return response()->json([
@@ -212,7 +218,6 @@ class AuthenticationController extends Controller
             }
         }
 
-        
     }
 
     /**
@@ -221,18 +226,24 @@ class AuthenticationController extends Controller
      *     summary="Logout user",
      *     tags={"Auth"},
      *     security={{"passport": {}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Successfully logged out",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Logged out successfully")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=false),
      *             @OA\Property(property="message", type="string", example="Unauthorized")
      *         )
@@ -256,18 +267,24 @@ class AuthenticationController extends Controller
      *     path="/api/v1/verify-otp",
      *     summary="Verify OTP for user authentication using received OTP code",
      *     tags={"Auth"},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"phone", "otp"},
+     *
      *             @OA\Property(property="phone", type="string", format="phone"),
      *             @OA\Property(property="otp", type="string", format="digits", example="123456")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="OTP verified successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="token", type="object",
      *                 @OA\Property(property="token", type="string", example="your_generated_token_here")
@@ -279,10 +296,13 @@ class AuthenticationController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Invalid or expired OTP",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Invalid or expired OTP.")
      *         )
      *     )
@@ -296,9 +316,9 @@ class AuthenticationController extends Controller
         ]);
 
         $otp = Otp::where('phone', $request->phone)
-                ->where('otp', $request->otp)
-                ->where('expires_at', '>', now())
-                ->first();
+            ->where('otp', $request->otp)
+            ->where('expires_at', '>', now())
+            ->first();
 
         if ($otp) {
             if (filter_var($request->phone, FILTER_VALIDATE_EMAIL)) {
@@ -306,7 +326,7 @@ class AuthenticationController extends Controller
             } else {
                 $user = User::where('phone', $request->phone)->first();
             }
-            
+
             $user_token['token'] = $user->createToken('appToken')->accessToken;
 
             $otp->delete();
@@ -321,14 +341,15 @@ class AuthenticationController extends Controller
         return response()->json(['message' => 'Invalid or expired OTP.'], 401);
     }
 
-    public function registerClientEmail(Request $request) {
+    public function registerClientEmail(Request $request)
+    {
         $request->validate([
             'email' => 'required|email|unique:users,email',
-            'phone' => 'required|'
+            'phone' => 'required|',
         ]);
 
         $changeEmail = User::where('phone', $request->phone)->where('role', 'client')->update([
-            'email' => $request->email
+            'email' => $request->email,
         ]
         );
 
@@ -340,13 +361,13 @@ class AuthenticationController extends Controller
 
             Otp::updateOrCreate(
                 [
-                    'phone' => request('phone')  // Use 'phone' to find the record
+                    'phone' => request('phone'),  // Use 'phone' to find the record
                 ],
                 [
-                    'otp' => $otp, 
-                    'expires_at' => $expiresAt
+                    'otp' => $otp,
+                    'expires_at' => $expiresAt,
                 ]
-            );            
+            );
             // Send OTP via email
             Mail::to($user->email)->send(new OtpMail($otp, $expiresAt));
 
@@ -362,10 +383,13 @@ class AuthenticationController extends Controller
      *     path="/api/v1/register-new-client",
      *     summary="Register a new client",
      *     tags={"Auth"},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"name", "surname", "email", "phone", "password"},
+     *
      *             @OA\Property(property="name", type="string", example="John", description="Client's first name"),
      *             @OA\Property(property="surname", type="string", example="Doe", description="Client's surname"),
      *             @OA\Property(property="email", type="string", example="john.doe@example.com", description="Client's email address"),
@@ -373,12 +397,15 @@ class AuthenticationController extends Controller
      *             @OA\Property(property="password", type="string", format="password", description="Client's password")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Client registered successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true, description="Indicates success"),
-     *             @OA\Property(property="user", type="object", 
+     *             @OA\Property(property="user", type="object",
      *                 @OA\Property(property="id", type="integer", description="Client ID"),
      *                 @OA\Property(property="name", type="string", description="Client's name"),
      *                 @OA\Property(property="surname", type="string", description="Client's surname"),
@@ -389,17 +416,21 @@ class AuthenticationController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation errors",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=false, description="Indicates failure"),
      *             @OA\Property(property="errors", type="object", description="Validation error messages")
      *         )
      *     )
      * )
      */
-    public function registerNewClient(Request $request) {
+    public function registerNewClient(Request $request)
+    {
         $request->validate([
             'name' => 'required|string',
             'surname' => 'required|string',
@@ -414,16 +445,17 @@ class AuthenticationController extends Controller
             'surname' => $request->surname,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
         ]);
-    
+
         return response()->json([
             'success' => true,
             'user' => $newClient,
         ], 200);
-    }  
+    }
 
-    public function registerNewClientFromWeb(Request $request) {
+    public function registerNewClientFromWeb(Request $request)
+    {
         $request->validate([
             'name' => 'required|string',
             'surname' => 'required|string',
@@ -440,19 +472,19 @@ class AuthenticationController extends Controller
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
             'blocked' => 1,
-            'deactivated' => 1
+            'deactivated' => 1,
         ]);
 
         Mail::to($request->email)->send(new UserJoinWaitListWeb($request->name));
-    
+
         return response()->json([
             'success' => true,
             'user' => $newClient,
         ], 200);
-    } 
+    }
 
-
-    public function registerClient(Request $request) {
+    public function registerClient(Request $request)
+    {
         $request->validate([
             'name' => 'required|string',
             'surname' => 'required|string',
@@ -466,51 +498,50 @@ class AuthenticationController extends Controller
             'surname' => $request->surname,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
         ]);
 
-       
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = User::find($newClient->id);
-            
-            if($user->first_time == 1) {
+
+            if ($user->first_time == 1) {
                 User::where('id', $user->id)->where('phone', $user->phone)->where('first_time', 1)->update([
-                    'first_time' => 0
-                ]);    
+                    'first_time' => 0,
+                ]);
             }
 
             $user_token['token'] = $user->createToken('appToken')->accessToken;
-            
+
             $name = $user->name;
             Mail::to($request->email)->send(new RegisterWelcomeMail($name, $otp, $expiresAt));
 
             return response()->json([
                 'success' => true,
                 'token' => $user_token,
-                'user' => $user                    
+                'user' => $user,
             ], 200);
 
             // $otp = rand(100000, 999999);
             // $expiresAt = now()->addMinutes(10);
-            
+
             // Otp::updateOrCreate(
             //     [
             //         'phone' => $request->email  // Use 'phone' to find the record
             //     ],
             //     [
-            //         'otp' => $otp, 
+            //         'otp' => $otp,
             //         'expires_at' => $expiresAt
             //     ]
-            // );            
+            // );
             // Send OTP via email
-            
-      
+
         }
+
         return response()->json(['redirect' => 'checkpoint']);
-    
+
         // return response()->json([
         //     'success' => true,
         //     'user' => $newClient,
         // ], 200);
-    }  
+    }
 }

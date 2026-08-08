@@ -6,7 +6,7 @@ export const domainStore = defineStore('DomainStore', {
   actions: {
     fetchDomains(queryParams) {
         return new Promise((resolve, reject) => {
-            useApi(createUrl('https://api-ds.bitemybytes.com/api/v1/client/fetchDomains', queryParams))
+            useApi(createUrl('https://api.quantumlogic.at/api/v1/client/fetchDomains', queryParams))
             .then(response => resolve(response))
             .catch(error => reject(error));
         });
@@ -14,7 +14,7 @@ export const domainStore = defineStore('DomainStore', {
 
     addDomain(formData) {
       return new Promise((resolve, reject) => {
-        $api('https://api-ds.bitemybytes.com/api/v1/client/addDomain', {
+        $api('https://api.quantumlogic.at/api/v1/client/addDomain', {
           method: 'POST',
           body: formData,
         }).then(response => resolve(response))

@@ -18,12 +18,11 @@ class NotificationReminder extends Model
         'delivery_schedule',
         'execute_time',
         'system',
-        'notif_reminder_group_id'
+        'notif_reminder_group_id',
     ];
 
     public function recipient()
     {
         return $this->belongsTo(User::class, 'recipient_id');
     }
-
 }

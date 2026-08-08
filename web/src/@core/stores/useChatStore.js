@@ -31,7 +31,7 @@ export const useChatStore = defineStore('chat', () => {
     const fetchClientMessages = async () => {
 
       try {
-        const response = await $api('https://api-ds.bitemybytes.com/api/v1/chat/fetchMessagesByClient', {
+        const response = await $api('https://api.quantumlogic.at/api/v1/chat/fetchMessagesByClient', {
           method: 'POST',
           body: {},
           headers: {

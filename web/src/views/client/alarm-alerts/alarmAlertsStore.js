@@ -6,7 +6,7 @@ export const alarmAlertsStore = defineStore('ClientAlarms', {
   actions: {
     fetchAlarmLogs(alarmId) {
         return new Promise(async(resolve, reject) => {
-            await $api('https://api-ds.bitemybytes.com/api/v1/client/alarm/'+alarmId+'/logs', 
+            await $api('https://api.quantumlogic.at/api/v1/client/alarm/'+alarmId+'/logs', 
             {
                 method: 'POST'
             }
@@ -18,7 +18,7 @@ export const alarmAlertsStore = defineStore('ClientAlarms', {
 
     fetchAlarms(queryParams) {
         return new Promise((resolve, reject) => {
-            useApi(createUrl('https://api-ds.bitemybytes.com/api/v1/fetchAlarms', queryParams))
+            useApi(createUrl('https://api.quantumlogic.at/api/v1/fetchAlarms', queryParams))
             .then(response => resolve(response))
             .catch(error => reject(error));
         });
@@ -26,7 +26,7 @@ export const alarmAlertsStore = defineStore('ClientAlarms', {
 
     async respondToAlarm(alarmId, bodyReq) {
         return new Promise(async(resolve, reject) => {
-            await $api('https://api-ds.bitemybytes.com/api/v1/alarm/'+alarmId+'/respondToAlarm', 
+            await $api('https://api.quantumlogic.at/api/v1/alarm/'+alarmId+'/respondToAlarm', 
             {
                 method: 'POST',
                 body: bodyReq

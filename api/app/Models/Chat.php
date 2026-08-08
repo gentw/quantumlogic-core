@@ -10,7 +10,7 @@ class Chat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'client_id', 'agent_id', 'active', 'live_2'
+        'client_id', 'agent_id', 'active', 'live_2',
     ];
 
     // Define a one-to-many relationship with the Message model

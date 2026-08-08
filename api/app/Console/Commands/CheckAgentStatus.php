@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\User;
 use App\Jobs\AssignAgentToClient;
+use App\Models\User;
+use Illuminate\Console\Command;
 
 class CheckAgentStatus extends Command
 {
     protected $signature = 'check:agent-status';
+
     protected $description = 'Check if any agents are free for chat and dispatch the job';
 
     public function handle()

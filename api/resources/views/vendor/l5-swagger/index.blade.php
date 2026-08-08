@@ -124,7 +124,7 @@
         const ui = SwaggerUIBundle({
             dom_id: '#swagger-ui',
             //url: "{!! $urlToDocs !!}",
-            url: "https://api-ds.bitemybytes.com/docs/api-docs.json",
+            url: "https://api.quantumlogic.at/docs/api-docs.json",
             operationsSorter: {!! isset($operationsSorter) ? '"' . $operationsSorter . '"' : 'null' !!},
             configUrl: {!! isset($configUrl) ? '"' . $configUrl . '"' : 'null' !!},
             validatorUrl: {!! isset($validatorUrl) ? '"' . $validatorUrl . '"' : 'null' !!},
