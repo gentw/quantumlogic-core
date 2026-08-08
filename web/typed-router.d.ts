@@ -94,7 +94,7 @@ declare module 'vue-router/auto/routes' {
     'client-services': RouteRecordInfo<'client-services', '/client/services', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
     'not-authorized': RouteRecordInfo<'not-authorized', '/not-authorized', Record<never, never>, Record<never, never>>,
-    'order': RouteRecordInfo<'order', '/order', Record<never, never>, Record<never, never>>,
+    'order-service?': RouteRecordInfo<'order-service?', '/order/:service?', { service?: ParamValueZeroOrOne<true> }, { service?: ParamValueZeroOrOne<false> }>,
     'order-success': RouteRecordInfo<'order-success', '/order/success', Record<never, never>, Record<never, never>>,
     'pay-token': RouteRecordInfo<'pay-token', '/pay/:token', { token: ParamValue<true> }, { token: ParamValue<false> }>,
     'register': RouteRecordInfo<'register', '/register', Record<never, never>, Record<never, never>>,

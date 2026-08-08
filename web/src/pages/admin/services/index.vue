@@ -1,4 +1,6 @@
 <script setup>
+import ServiceCouponsDialog from '@/components/billing/ServiceCouponsDialog.vue';
+
 const services = ref([])
 const loading = ref(false)
 const working = ref(false)
@@ -51,6 +53,16 @@ const openEdit = service => {
   editing.value = service
   form.value = { ...service }
   dialog.value = true
+}
+
+// Discount codes live in their own dialog — they are per-service but have
+// nothing to do with editing the service itself.
+const couponsDialog = ref(false)
+const couponsService = ref(null)
+
+const openCoupons = service => {
+  couponsService.value = service
+  couponsDialog.value = true
 }
 
 const save = async () => {
@@ -130,6 +142,10 @@ const deactivate = async service => {
             </VChip>
           </td>
           <td class="text-end">
+            <VBtn icon size="small" variant="text" @click="openCoupons(service)">
+              <VIcon icon="tabler-ticket" />
+              <VTooltip activator="parent" location="top">Discount codes</VTooltip>
+            </VBtn>
             <VBtn icon="tabler-pencil" size="small" variant="text" @click="openEdit(service)" />
             <VBtn
               v-if="service.active"
@@ -200,6 +216,8 @@ const deactivate = async service => {
         </VCardActions>
       </VCard>
     </VDialog>
+
+    <ServiceCouponsDialog v-model="couponsDialog" :service="couponsService" />
 
     <VSnackbar v-model="snackbar.show" :color="snackbar.color" location="top end">
       {{ snackbar.text }}

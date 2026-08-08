@@ -28,10 +28,10 @@ in `api/storage/logs/laravel.log`*. Never switch to smtp while 5000+ real client
 | 6 | Set country **DE**, no UID | Back to 20% (B2C) |
 | 7 | Set country **US** | 0%, export note |
 | 8 | UID from the wrong country (`ATU…` with DE) | Stays 20% — no reverse charge |
-| 9 | Submit with a **new** email → pay the 50% deposit | Redirect to `/order/success`, set-password prompt |
+| 9 | Submit with a **new** email → pay the 50% deposit | Redirect to `/order/success`; the welcome mail carries the password they chose |
 | 10 | Check the DB/log after 9 | Account created `origin=guest_checkout`, order `active`, deposit invoice `paid`, welcome mail rendered |
-| 11 | Follow the set-password link | Password set, lands logged in as a client |
-| 12 | Submit with an **existing** client email | Must **not** show a card form or a pay link — asks you to log in instead |
+| 11 | Log in with the password typed at checkout | Works immediately — no set-password step |
+| 12 | Submit with an **existing** client email | Order attaches to that account and is payable inline; "you already have an account" notice; the typed password is **ignored** and no `pay_token` is returned |
 | 13 | Submit 12+ times rapidly | Throttled (429) after ~10 |
 | 14 | Deposit amount shown | Exactly 50% of gross; balance stated as due later |
 | 15 | Refresh mid-checkout | No duplicate order, no duplicate account |
@@ -54,6 +54,38 @@ in `api/storage/logs/laravel.log`*. Never switch to smtp while 5000+ real client
 | 24 | Already-settled invoice link | Clear terminal state, no payment form |
 | 25 | Rotate the link in admin, retry the old one | Old token 404s |
 | 26 | 20 rapid requests | Throttled |
+
+### A4. Personalised order link — `/order/{slug}?coupon={code}`
+
+Create the code first in `/admin/services` → ticket icon → **Create code**, then copy
+its link. Browse it **logged out** — the role guard bounces logged-in users out of
+`/order` to their own dashboard.
+
+| # | Scenario | Expect |
+|---|---|---|
+| 26a | Open the copied link | Only that one service is shown, pre-selected; heading is the service name |
+| 26b | Quote pane | "Discount" row with the code as a chip; Net is the **list** price, the discount is subtracted below it |
+| 26c | VAT | Charged on the **discounted** net, not the list price |
+| 26d | Complete the purchase | Invoice line carries `discount_percent`; deposit is 50% of the discounted gross |
+| 26e | Reuse a `max_uses = 1` code | Second visit prices at full list, warning banner names the code |
+| 26f | Expired code, deactivated code, typo'd code | All behave identically — no hint which one it was |
+| 26g | Code from service A used on service B's link | Ignored, full price, warning banner |
+| 26h | Code in the wrong case (`FOR-EROS-SEFA`) | Applies — codes are case-insensitive |
+| 26i | `/order/{slug}` with no coupon | Works as a plain single-service order at list price |
+| 26j | `/order/unknown-slug` | Warning banner, falls back to the full catalogue |
+| 26k | Deactivated service's link | Same fallback — a dead link must never quietly sell something else |
+
+### A5. Manual payment — `/order/{slug}?manual-payment`
+
+| # | Scenario | Expect |
+|---|---|---|
+| 26l | Open the link | Copy says "by bank transfer"; the CTA reads **Place the order** |
+| 26m | Place the order | **No Stripe element ever loads.** IBAN, BIC, reference, amount and EPC QR shown inline |
+| 26n | Reference | The invoice number — that is what reconciliation matches on |
+| 26o | New email | Button opens `/pay/{token}` to upload the transfer receipt |
+| 26p | Existing email | No token; button sends them to sign in instead |
+| 26q | State afterwards | Invoice issued and payable, order stays `awaiting_payment` — nothing is settled until an admin reconciles |
+| 26r | Combine with `?coupon=` | Both apply; discount visible in the quote and on the invoice |
 
 ---
 
@@ -208,6 +240,18 @@ in `api/storage/logs/laravel.log`*. Never switch to smtp while 5000+ real client
 124. Edit price/VAT → reflected on **new** orders only, never on issued invoices.
 125. Toggle `is_publicly_orderable` → appears/disappears from `/order`.
 126. **Deactivate** → hidden from new orders; **no Delete option exists**.
+
+**Discount codes** — ticket icon on each row:
+
+126a. Dialog lists this service's codes with the resulting price beside each percentage.
+126b. Create a code → appears immediately with a ready-made `/order/{slug}?coupon={code}` link.
+126c. Link icon copies that URL; the tooltip shows it in full.
+126d. A duplicate code is refused — codes are unique across the whole catalogue, not per service.
+126e. **Valid through** means end of that day, not midnight at its start.
+126f. Status chip distinguishes live / inactive / expired / used up.
+126g. **Deactivate**, never delete — a redeemed code is the record of why an order was discounted.
+126h. On a service that is not publicly orderable, the dialog warns the link will not resolve.
+126i. `used_count` rises only when an order is **placed**, never when a quote is priced.
 
 ### C7. Orders — `/admin/orders` and `/admin/orders/{id}`
 

@@ -5,7 +5,17 @@ definePage({
   meta: { layout: 'blank', public: true },
 })
 
+const route = useRoute()
+
+// `/order/{slug}` is a personalised order link: one service, optionally at a
+// price only the holder of `?coupon=` gets. `/order` on its own is the normal
+// catalogue. `?manual-payment` drops the card rail and bills by transfer.
+const slug = computed(() => route.params.service || '')
+const couponCode = computed(() => route.query.coupon || '')
+const transferOnly = computed(() => 'manual-payment' in route.query)
+
 const services = ref([])
+const catalogueLoaded = ref(false)
 const selected = ref({}) // id -> quantity
 const buyer = ref({
   name: '', email: '', company: '', vat_id: '', country_code: 'AT',
@@ -45,6 +55,9 @@ let stripe = null
 let elements = null
 const cardReady = ref(false)
 const orderNumber = ref('')
+const bankDetails = ref(null)
+const invoiceNumber = ref('')
+const payToken = ref(null)
 
 const selectedLines = computed(() =>
   Object.entries(selected.value)
@@ -52,11 +65,26 @@ const selectedLines = computed(() =>
     .map(([id, quantity]) => ({ id: Number(id), quantity })),
 )
 
+/** The deep-linked service, once the catalogue has arrived. */
+const linkedService = computed(() =>
+  slug.value ? services.value.find(s => s.slug === slug.value) ?? null : null)
+
+// A link to a service that is no longer orderable must not silently sell
+// something else — say so and fall back to the open catalogue.
+const linkBroken = computed(() => catalogueLoaded.value && !!slug.value && !linkedService.value)
+
+// A personalised link shows only what it was sent for; the discount attached to
+// it applies to that service alone, so a fuller list would misprice itself.
+const visibleServices = computed(() => linkedService.value ? [linkedService.value] : services.value)
+
 const load = async () => {
   try {
     services.value = (await $api('/v1/public/services')).data
+    if (linkedService.value) selected.value[linkedService.value.id] = 1
   } catch (err) {
     console.error('Failed to load the catalogue:', err)
+  } finally {
+    catalogueLoaded.value = true
   }
 }
 
@@ -81,12 +109,18 @@ const refreshQuote = async () => {
         services: selectedLines.value,
         country_code: buyer.value.country_code || undefined,
         vat_id: buyer.value.vat_id || undefined,
+        coupon: couponCode.value || undefined,
       },
     })
   } catch (err) {
     console.error('Failed to price the selection:', err)
   }
 }
+
+// The server is deliberately silent about *why* a code failed, so all we can
+// tell the buyer is that this one is not being applied — better than letting
+// them reach the payment step still expecting a discount.
+const couponRejected = computed(() => !!couponCode.value && !!quote.value && !quote.value.coupon)
 
 watch([selectedLines, () => buyer.value.country_code, () => buyer.value.vat_id], refreshQuote, { deep: true })
 
@@ -96,7 +130,12 @@ const start = async () => {
   try {
     const res = await $api('/v1/public/checkout/start', {
       method: 'POST',
-      body: { ...buyer.value, services: selectedLines.value },
+      body: {
+        ...buyer.value,
+        services: selectedLines.value,
+        coupon: couponCode.value || undefined,
+        payment_method: transferOnly.value ? 'transfer' : 'card',
+      },
     })
 
     orderNumber.value = res.order_number
@@ -105,6 +144,17 @@ const start = async () => {
     // right here, but the password typed above was ignored — they sign in with
     // the one they already have.
     existingAccount.value = !!res.existing_account
+
+    // Transfer: the invoice is issued and payable, but nothing is charged here.
+    // No card is loaded at all, so there is no Stripe step to reach.
+    if (res.payment_method === 'transfer') {
+      bankDetails.value = res.bank_details
+      invoiceNumber.value = res.invoice_number
+      payToken.value = res.pay_token
+      step.value = 'transfer'
+
+      return
+    }
 
     const stripeInstance = await loadStripe()
 
@@ -156,15 +206,32 @@ const pay = async () => {
     <VRow>
       <!-- Catalogue + form -->
       <VCol cols="12" md="7">
-        <template v-if="step !== 'pay'">
-          <h4 class="text-h4 mb-2">Order services</h4>
+        <template v-if="step === 'pick'">
+          <h4 class="text-h4 mb-2">{{ linkedService ? linkedService.name : 'Order services' }}</h4>
           <p class="text-body-1 mb-6">
-            Pick what you need, pay a 50% deposit by card, and we get to work.
+            <template v-if="linkedService">
+              This is a personalised offer prepared for you.
+            </template>
+            <template v-else>
+              Pick what you need,
+            </template>
+            pay a 50% deposit
+            {{ transferOnly ? 'by bank transfer' : 'by card' }}, and we get to work.
             Your client account is created along the way.
           </p>
 
+          <VAlert v-if="linkBroken" type="warning" variant="tonal" class="mb-6">
+            That offer link is no longer available, so here is the full catalogue instead.
+          </VAlert>
+
+          <VAlert v-if="couponRejected" type="warning" variant="tonal" class="mb-6">
+            The discount code <strong>{{ couponCode }}</strong> is not valid for this
+            order — it may have expired or already been used. The prices below are the
+            standard ones.
+          </VAlert>
+
           <VCard
-            v-for="service in services"
+            v-for="service in visibleServices"
             :key="service.id"
             variant="outlined"
             class="mb-3"
@@ -240,6 +307,68 @@ const pay = async () => {
           </VExpandTransition>
         </template>
 
+        <!-- SEPA transfer: the invoice is issued, nothing is charged here -->
+        <template v-else-if="step === 'transfer'">
+          <h4 class="text-h4 mb-2">Transfer the deposit</h4>
+          <p class="text-body-1 mb-6">
+            Order {{ orderNumber }} is placed and invoice {{ invoiceNumber }} is on its
+            way to you by email. Transfer the deposit using the details below — quote the
+            reference so we can match it — and we start as soon as it lands.
+          </p>
+
+          <VCard v-if="bankDetails" variant="outlined" class="mb-4">
+            <VCardText>
+              <div class="d-flex flex-wrap gap-6">
+                <div class="flex-grow-1">
+                  <div class="mb-3">
+                    <div class="text-body-2">Account holder</div>
+                    <div class="font-weight-medium">{{ bankDetails.account_holder }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="text-body-2">IBAN</div>
+                    <div class="font-weight-medium">{{ bankDetails.iban }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="text-body-2">BIC</div>
+                    <div class="font-weight-medium">{{ bankDetails.bic }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="text-body-2">Reference — please include it</div>
+                    <div class="font-weight-medium">{{ bankDetails.reference }}</div>
+                  </div>
+                  <div>
+                    <div class="text-body-2">Amount</div>
+                    <div class="font-weight-medium">{{ formatMoney(bankDetails.amount) }}</div>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <img
+                    :src="bankDetails.epc_qr_png"
+                    alt="EPC QR — scan with your banking app"
+                    width="160"
+                    height="160"
+                  >
+                  <div class="text-body-2 mt-1">Scan with your banking app</div>
+                </div>
+              </div>
+            </VCardText>
+          </VCard>
+
+          <!-- Upload proof without signing in first; new accounts only, since an
+               existing client already has the invoice in their portal. -->
+          <VBtn
+            v-if="payToken"
+            block
+            color="primary"
+            :to="`/pay/${payToken}`"
+          >
+            Open the invoice / upload your transfer receipt
+          </VBtn>
+          <VBtn v-else block color="primary" :to="{ name: 'login' }">
+            Sign in to follow this invoice
+          </VBtn>
+        </template>
+
         <template v-else>
           <h4 class="text-h4 mb-2">Pay the deposit</h4>
           <p class="text-body-1 mb-6">Order {{ orderNumber }} — the balance is due on delivery.</p>
@@ -260,7 +389,7 @@ const pay = async () => {
 
         <VAlert v-if="existingAccount" type="info" variant="tonal" class="mt-4">
           You already have an account with this email, so order {{ orderNumber }}
-          has been added to it. Pay below as usual — then
+          has been added to it. Settle it as usual — then
           <RouterLink :to="{ name: 'login' }">sign in</RouterLink> with your
           existing password to follow it. (The password you entered above was
           not applied.)
@@ -280,6 +409,15 @@ const pay = async () => {
             <div class="d-flex justify-space-between mb-1">
               <span>Net</span><span>{{ formatMoney(quote.subtotal_net) }}</span>
             </div>
+            <!-- Shown against the list price, so the buyer sees what came off
+                 rather than just a smaller number. -->
+            <div v-if="quote.coupon" class="d-flex justify-space-between mb-1 text-success">
+              <span>
+                Discount
+                <VChip size="x-small" label class="ms-1">{{ quote.coupon.code }}</VChip>
+              </span>
+              <span>−{{ formatMoney(quote.discount_total) }}</span>
+            </div>
             <div class="d-flex justify-space-between mb-1">
               <span>VAT</span><span>{{ formatMoney(quote.vat_total) }}</span>
             </div>
@@ -287,9 +425,9 @@ const pay = async () => {
               <span>Total</span><span>{{ formatMoney(quote.total_gross) }}</span>
             </div>
             <VAlert type="info" variant="tonal" density="compact">
-              {{ quote.deposit_percent }}% deposit now
-              ({{ formatMoney(quote.total_gross * quote.deposit_percent / 100) }}),
-              the rest on delivery.
+              {{ quote.deposit_percent }}% deposit
+              ({{ formatMoney(quote.total_gross * quote.deposit_percent / 100) }})
+              {{ transferOnly ? 'by bank transfer' : 'now' }}, the rest on delivery.
             </VAlert>
 
             <VBtn
@@ -301,7 +439,7 @@ const pay = async () => {
               :disabled="!detailsComplete"
               @click="start"
             >
-              Continue to payment
+              {{ transferOnly ? 'Place the order' : 'Continue to payment' }}
             </VBtn>
           </VCardText>
         </VCard>

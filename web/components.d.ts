@@ -55,6 +55,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollToTop: typeof import('./src/@core/components/ScrollToTop.vue')['default']
+    ServiceCouponsDialog: typeof import('./src/components/billing/ServiceCouponsDialog.vue')['default']
     Shortcuts: typeof import('./src/@core/components/Shortcuts.vue')['default']
     TablePagination: typeof import('./src/@core/components/TablePagination.vue')['default']
     TheCustomizer: typeof import('./src/@core/components/TheCustomizer.vue')['default']

@@ -46,12 +46,17 @@ class AdminServiceCatalogueController extends Controller
     public function coupons(Service $service): JsonResponse
     {
         return response()->json([
-            'data' => $service->coupons()->latest('id')->get()->map($this->shapeCoupon(...)),
+            'data' => $service->coupons()->with('service')->latest('id')->get()->map($this->shapeCoupon(...)),
         ]);
     }
 
     public function storeCoupon(Request $request, Service $service): JsonResponse
     {
+        // Normalise before the unique check: the model lowercases on save, so a
+        // case-sensitive collation would let "FOR-EROS" past a rule comparing
+        // against the stored "for-eros" and then fail on the DB constraint.
+        $request->merge(['code' => mb_strtolower(trim((string) $request->input('code')))]);
+
         $validated = $request->validate([
             'code' => ['required', 'string', 'max:64', 'unique:service_coupons,code'],
             'label' => ['nullable', 'string', 'max:255'],
@@ -65,7 +70,7 @@ class AdminServiceCatalogueController extends Controller
             'created_by_user_id' => $request->user()->id,
         ]);
 
-        return response()->json(['data' => $this->shapeCoupon($coupon)], 201);
+        return response()->json(['data' => $this->shapeCoupon($coupon->setRelation('service', $service))], 201);
     }
 
     public function updateCoupon(Request $request, ServiceCoupon $coupon): JsonResponse
