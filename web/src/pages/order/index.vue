@@ -5,13 +5,19 @@ definePage({
   meta: { layout: 'blank', public: true },
 })
 
-const router = useRouter()
-
 const services = ref([])
 const selected = ref({}) // id -> quantity
 const buyer = ref({ name: '', email: '', company: '', vat_id: '', country_code: 'AT' })
 const quote = ref(null)
 const step = ref('pick') // pick -> details -> pay
+
+// EU members first — they decide VAT treatment and are the common case here.
+const countryItems = countryOptions()
+
+// A UID only changes the tax outcome inside the EU (reverse charge); outside it
+// the sale is zero-rated regardless, so don't imply the field matters.
+const showsVatIdHint = computed(() => isEuCountry(buyer.value.country_code) && buyer.value.country_code !== 'AT')
+const vatIdPlaceholder = computed(() => `${buyer.value.country_code || 'AT'}123456789`)
 const working = ref(false)
 const errorMessage = ref('')
 const requiresLogin = ref(false)
@@ -173,10 +179,23 @@ const pay = async () => {
                 </VCol>
                 <VCol cols="12" sm="6">
                   <VTextField v-model="buyer.company" label="Company (optional)" class="mb-3" />
-                  <div class="d-flex gap-3">
-                    <VTextField v-model="buyer.country_code" label="Country" placeholder="AT" style="inline-size: 6rem;" />
-                    <VTextField v-model="buyer.vat_id" label="UID (optional)" class="flex-grow-1" />
-                  </div>
+                  <!-- Country decides VAT treatment, so it is a fixed list: a typo
+                       here would silently change the tax on the invoice. -->
+                  <VAutocomplete
+                    v-model="buyer.country_code"
+                    :items="countryItems"
+                    label="Country"
+                    placeholder="Start typing…"
+                    auto-select-first
+                    class="mb-3"
+                  />
+                  <VTextField
+                    v-model="buyer.vat_id"
+                    label="UID (optional)"
+                    :placeholder="vatIdPlaceholder"
+                    :hint="showsVatIdHint ? 'With a valid EU VAT ID this sale is reverse-charged at 0% VAT.' : undefined"
+                    persistent-hint
+                  />
                 </VCol>
               </VRow>
             </div>
