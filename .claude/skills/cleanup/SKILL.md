@@ -12,8 +12,21 @@ Review the codebase for cleanup tasks:
 4. Check for stale TODO/FIXME/XXX comments in `api/app/` and `web/src/`
 5. Find orphaned/unused files in `web/src/` (components, composables, views, utils not referenced anywhere) and `api/app/` (controllers/models/jobs not referenced by routes, schedules, or other code)
 6. Check that context files (CLAUDE.md, context/project-overview.md, context/backend-history.md, context/frontend-history.md) match actual project state — flag drift, not minor wording
-7. Check that `api/.env.example` lists every key present in `api/.env` (values may differ — only flag missing keys). `web/` has no env files committed; skip unless one is added.
+7. Check that `api/.env.example` lists every key present in `api/.env`, and that `web/.env.example` lists every `VITE_*` key present in `web/.env` (values may differ — only flag missing keys)
 8. Find `eslint-disable` / `eslint-disable-next-line` comments in `web/src/` and `@phpstan-ignore` / `@phpcs:ignore` comments in `api/app/` that may be stale
+9. Find pre-pivot brand names. This codebase was *SentriGate* and, before that, carried
+   *Delta Connect* copy — the product is **QuantumLogic** and neither name should appear:
+
+   ```bash
+   grep -rniE "delta ?connect|sentri ?gate|sentrigate" web/src api/app api/resources api/config
+   ```
+
+   The wordmark also appears split across HTML in the email templates
+   (`Sentri <span …>Gate</span>`), which the pattern above will not catch — grep `Sentri`
+   on its own in `api/resources/views/` as well. **Two exclusions:** the dormant security
+   module owns `sentrigate.txt` in `DomainController.php`, which is a real external filename
+   and out of scope per `context/ai-interaction.md`; and `context/`, `docs/` and `history/`
+   legitimately record the old names as history.
 
 **Mode: $ARGUMENTS**
 

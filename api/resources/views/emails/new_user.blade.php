@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DELTA CONNECT - Reset password</title>
+    <title>Welcome to QuantumLogic</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f8f9fa; color: #000000;">
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -12,7 +12,7 @@
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td align="center" style="font-size: 24px; font-weight: bold;">
-                            Sentri <span style="color: #301068;">Gate</span>
+                            Quantum<span style="color: #301068;">Logic</span>
                         </td>
                     </tr>
                 </table>

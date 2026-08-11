@@ -12,7 +12,7 @@
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td align="center" style="font-size: 24px; font-weight: bold;">
-                            Sentri<span style="color: #301068;">Gate</span>
+                            Quantum<span style="color: #301068;">Logic</span>
                         </td>
                     </tr>
                 </table>

@@ -23,7 +23,7 @@ const notificationsEmail = ref([
   {
     logo: 'asana',
     name: 'Tips and tutorials',
-    subtitle: 'Tips on getting more out of Delta Connect.',
+    subtitle: 'Tips on getting more out of QuantumLogic.',
     type: 'email',
     field_name: 'email_tips_and_tutorials',
     connected: false,
