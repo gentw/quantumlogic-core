@@ -8,13 +8,22 @@ export default [
     role: 'client',
     class: '',
   },
-  {
-    title: 'My Tickets',
-    to: { name: 'second-page' },
-    icon: 'check-square',
-    role: 'client',
-    class: '',
-  },
+
+  // Tickets (not built) — no model, migration or API behind these yet. The client
+  // entry points at the `second-page` placeholder; the agent and admin entries below
+  // have no destination at all. Flagged off so the nav only offers what works.
+  ...(appFeatures.tickets
+    ? [
+      {
+        title: 'My Tickets',
+        to: { name: 'second-page' },
+        icon: 'check-square',
+        role: 'client',
+        class: '',
+      },
+    ]
+    : []),
+
   {
     title: 'My Services',
     to: { name: 'client-services' },
@@ -91,13 +100,18 @@ export default [
     ]
     : []),
 
-  {
-    title: 'My Tickets',
-    // to: { name: 'agent-tickets' },
-    icon: 'check-square',
-    role: 'agent',
-    class: '',
-  },
+  // Tickets (not built) — see the client entry above.
+  ...(appFeatures.tickets
+    ? [
+      {
+        title: 'My Tickets',
+        to: { name: 'agent-tickets' },
+        icon: 'check-square',
+        role: 'agent',
+        class: '',
+      },
+    ]
+    : []),
 
   {
     title: 'Notifications',
@@ -157,13 +171,18 @@ export default [
     class: '',
   },
 
-  {
-    title: 'Tickets',
-    // to: { name: 'admin-tickets' },
-    icon: 'check-square',
-    role: 'admin',
-    class: '',
-  },
+  // Tickets (not built) — see the client entry above.
+  ...(appFeatures.tickets
+    ? [
+      {
+        title: 'Tickets',
+        to: { name: 'admin-tickets' },
+        icon: 'check-square',
+        role: 'admin',
+        class: '',
+      },
+    ]
+    : []),
   {
     title: 'Invoices',
     to: { name: 'admin-invoices' },

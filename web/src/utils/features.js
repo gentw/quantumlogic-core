@@ -3,8 +3,9 @@
  *
  * Mirrors `api/config/features.php` — keep the two in sync, since hiding the UI
  * without disabling the API (or the reverse) leaves a half-available module.
+ * `tickets` is the one exception; see its note below.
  *
- * @type {{ security: boolean, subscriptionPlans: boolean }}
+ * @type {{ security: boolean, subscriptionPlans: boolean, tickets: boolean }}
  */
 export const appFeatures = {
   /**
@@ -19,6 +20,16 @@ export const appFeatures = {
    * See docs/modules/subscriptions/README.md before switching it on.
    */
   subscriptionPlans: import.meta.env.VITE_FEATURE_SUBSCRIPTION_PLANS === 'true',
+
+  /**
+   * Tickets: client ticket raising, agent queue, admin oversight. Not built —
+   * there is no model, migration or endpoint behind the nav entries yet.
+   *
+   * Frontend-only by design: module flags normally mirror `config/features.php`,
+   * but there are no ticket routes to gate, so an API-side key would gate
+   * nothing. Add it there alongside the first ticket endpoint.
+   */
+  tickets: import.meta.env.VITE_FEATURE_TICKETS === 'true',
 }
 
 /**
