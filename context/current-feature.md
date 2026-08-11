@@ -1,4 +1,4 @@
-# Current Feature: Billing & Payments
+# Current Feature: General Client Fixes
 
 <!-- Feature Name -->
 
@@ -12,56 +12,89 @@ In Progress
 
 <!-- Goals & requirements -->
 
-- **Retire the SaaS subscription module** behind `FEATURE_SUBSCRIPTION_PLANS` / `VITE_FEATURE_SUBSCRIPTION_PLANS`, mirroring the security-module pattern. Clients must no longer be locked out of the portal for lacking a plan. Code stays on disk; recovery guide at `docs/modules/subscriptions/README.md`.
-- **Model what the agency actually sells**: `Service` catalogue (Website, SEO, Hosting, Maintenance, Consulting) → `ServiceOrder` + `ServiceOrderItem` → `Invoice` + `InvoiceItem` → `Payment`. Recurring revenue moves to a per-service `RecurringPlan`, not an account tier.
-- **Support all three money shapes**: 50% deposit + balance on delivery, one-off, and recurring (hosting / SEO retainers). Milestone invoices fall out of the same model.
-- **Three payment rails**: Stripe (Payment Element, SCA/3DS, saved cards), PayPal (rebuilt against invoices), and SEPA bank transfer with EPC QR + client proof upload + admin reconciliation. Cash-in-person from the source screenshots is dropped.
-- **Webhooks are the source of truth** for both Stripe and PayPal — payment application must be idempotent under a simultaneous webhook and browser redirect. Today a closed tab loses a PayPal payment.
-- **Guest checkout**: a prospect buys from the public site with no account — card details plus a real 50% deposit are the identity check. The account is created as a by-product via `ClientAccountService`, **not** a fifth signup endpoint. Plus public `/pay/{token}` links for clients who never log in.
-- **Full Client ↔ Admin lifecycle**: admin issues → client notified (email + in-app + FCM) → client pays or uploads proof → admin confirms → receipt → dunning at 3/7/14 days → credit note and refund on dispute. Every transition written to an append-only audit trail.
-- **Austrian invoicing compliance**: gapless sequential numbering allocated under lock at issue time, immutability after issue (corrections via credit note only), 20% VAT with EU B2B reverse charge and non-EU zero-rating, full legal footer from `config/company.php`, soft-delete-only 7-year retention.
-- **Client UI** built from the screenshots: billing list with KPI strip, invoice detail (EPC QR replacing the decorative barcode), split-pane checkout, pay-balance/selected/custom-amount page, saved payment methods, and a My Services view.
-- **Admin UI** built from the screenshots: invoice list with status filter drawer, invoice detail with the reminder + client rails, a restructured create-invoice flow, plus the screens the mocks were missing — bank transfer reconciliation queue, payments list, service catalogue, and orders.
-- **Tests + docs**: concurrency test on invoice numbering, VAT and deposit-split correctness, webhook replay safety, guest-checkout account safety, invoice immutability. `.claude/agents/*` and module docs updated in the same change per `context/ai-interaction.md`.
+- **Hide the retired Plans & Billing link** from the avatar menu. It points at
+  `/client/plans-billing`, which `isDisabledModuleRoute` already blocks — a dead link today.
+  Gated behind `appFeatures.subscriptionPlans`, not deleted, per the flag-off pattern.
+- **Hide the unbuilt Tickets entries** from the client nav behind a new `appFeatures.tickets`
+  flag; the client entry currently targets an 11-line placeholder page. Agent and admin
+  Tickets items have no `to:` at all and get the same treatment.
+- **Rebuild the client dashboard on real billing data.** Replace the three hardcoded widgets
+  (`25.00` / `01-03-26` / `150.00`) and the dead "Pay now" button with a next-invoice-due card,
+  a KPI strip, recent invoices and active services. Requires extending
+  `ClientBillingController::summary()` to expose the oldest unpaid invoice's id, number and
+  amount — it computes that invoice today but only returns its date.
+- **Make logout actually end the session.** Eight recorded defects: hard-coded API host,
+  cookies assigned `false` when `useCookie` only deletes on `null`, `localStorage`
+  user/subscription/trial_fp left behind, and teardown skipped entirely when the request 401s.
+  Session teardown moves into one shared `clearSession()` helper.
+- **Protect admin and agent routes.** The guard's `protectedRoutes` list auto-expands only for
+  `client-*`, so a logged-out visitor can mount `/admin/invoices`. Logged-out users must land
+  on the login page; the protected list becomes generic rather than hand-maintained.
+- **Make the app multilingual** — `de` (Austrian), `en` (fallback), `sq` — across views,
+  emails and validation. `vue-i18n` is installed and the navbar switcher is already mounted,
+  but no plugin is registered and no locale files exist, so `$t` throws today. Active language
+  resolved backend-side from the request IP (`CF-IPCountry`, else bundled GeoLite2), persisted
+  to `users.locale` so cron-dispatched dunning mail can address recipients correctly.
+- **Make 2FA OTP optional**, disabled by default, re-enabled by the user from account settings
+  behind a current-password confirmation. Login currently never issues a token at all — it
+  always defers to `verify-otp` — so `store()` gains the token-minting path the SPA already
+  knows how to handle.
+- **Scrub pre-pivot branding.** All six transactional emails still render a "Sentri Gate"
+  wordmark; the older name survives in four more files. The product is QuantumLogic.
 
 ## Notes
 
 <!-- Any extra notes -->
 
-Full spec: [`features/billing-and-payments.md`](features/billing-and-payments.md) — phased 0–7, with the
-data model, the Austrian legal constraints, per-screenshot deviations and their reasoning, the
-Client ↔ Admin lifecycle diagram, out-of-scope list, and risk table.
+Full spec: [`fixes/general-client-fixes.md`](fixes/general-client-fixes.md) — seven fixes with
+file:line anchors, the phase → commit table, out-of-scope list and open questions.
 
-**Naming.** "Subscription" is retired as a product concept. The module is **Billing & Payments**;
-the domain nouns are Service / Service Order / Invoice / Payment / Payment Method / Recurring Plan.
-Client nav gets *Billing* and *My Services*; admin nav gets *Invoices*, *Payments*, *Services*, *Orders*.
+**Branch.** `general-client`, cut from `feature/billing-and-payments` (not from `main`) — these
+fixes sit on top of the billing work and must merge back there, **not** into `main`.
 
-**Source screenshots** live in `screenshots/{client,admin}/subscription/` and were built for a
-Kosovan security company in Albanian. Everything is rebuilt in English for an Austrian agency.
-Deliberate deviations, each justified in the spec: the four hardcoded local banks → Stripe Payment
-Element; barcode → EPC QR (Giro-Code); cash-in-person +€2 fee → dropped; VAT 18% → 20%; NET 7 →
-NET 14; "delete invoice" → cancel or credit note (legal retention); free editing of issued invoices
-→ draft-only editing; client-side pagination → server-side.
+**Ordering.** Fix 7 (branding) lands before the 5.2/5.4 translation phases so string extraction
+captures final English rather than text that changes again. Fix 6 (2FA) is independent of 1–5
+and can be pulled forward; it shares only `pages/client/account.vue` with fix 5.4.
 
 **Constraints carried in from `CLAUDE.md` / `context/`:**
-- Do **not** add a fifth signup endpoint — guest checkout routes through a shared internal service,
-  and should shrink the existing four rather than add to them
-- Do not touch the dormant security module
-- Thin controllers, logic in `app/Services/`; FormRequests for validation; API Resources for responses
+- Do not touch the dormant security module — this includes the `sentrigate.txt` reference in
+  `DomainController.php`, which fix 7's grep will match and must skip
+- Thin controllers, logic in `app/Services/`; FormRequests for validation; API Resources
 - SPA is JavaScript, Vue 3 + Vuetify 3 + Vuexy; light **and** dark parity required
-- `check-subscription` keeps its 403 JSON shape — the flag is the switch, not a rewrite
-- New migrations only; never edit historical ones
+- `check-subscription` keeps its 403 JSON shape; `guards.js` keeps exactly one `next()`
+- New migrations only (`users.locale`, `users.two_factor_enabled`); never edit historical ones
+- Do not add a fifth signup endpoint — fix 5b touches all four only to set `locale`
 
-**Commit cadence.** One detailed commit per phase, in spec order, gates before each — the
-phase → commit map is the `## Commit plan` table in
-[`features/billing-and-payments.md`](features/billing-and-payments.md), the message format is in
+**Agent/skill sync required in the same change** (per `context/ai-interaction.md`): fix 6 →
+`.claude/agents/auth-auditor.md`; fix 5 → `code-scanner.md` + `refactor-scanner.md`; fixes 2–3
+→ `ui-reviewer.md`; fix 7 → `.claude/skills/cleanup/SKILL.md`.
+
+**Commit cadence.** One detailed commit per fix, in the order of the `## Commit plan` table in
+[`fixes/general-client-fixes.md`](fixes/general-client-fixes.md); message format in
 [`../.claude/skills/feature/actions/commit.md`](../.claude/skills/feature/actions/commit.md).
+⚠️ Per project memory: use `php8.3` explicitly, and `pnpm`/`eslint` may be unavailable — if a
+gate cannot run, say so in the `Verified:` line rather than implying it passed.
 
 **Open items to settle during implementation:**
+- **Blocking fix 6:** should 2FA stay enforced for admins? As specified it defaults off for
+  every role, so admin accounts with full client, invoice and payment access lose their second
+  factor on migrate. Recommendation: off by default for clients, forced on for `admin`.
+- Should an admin be able to reset a locked-out user's 2FA? Without it, a user who enables 2FA
+  and loses email access has no recovery path.
+- Should the invoice PDF follow the customer's locale, or always render German for AT
+  customers? Needs the accountant, alongside the reverse-charge wording already pending below.
+- Does `sq` need a Kosovo (`XK`) vs Albania (`AL`) split, or is one Albanian locale enough?
+
+**⏸️ Parked: Billing & Payments (In Progress).** This slot held that feature before the fixes
+were loaded. Spec and phase plan are intact in
+[`features/billing-and-payments.md`](features/billing-and-payments.md); work is committed on
+`feature/billing-and-payments` through `657a3b4`. Its open items, which lived only here:
 - Confirm VAT treatment and the reverse-charge wording with the accountant before go-live
 - Decide whether VIES UID validation is live-checked or admin-entered
 - Confirm whether any live beta `Subscription` rows need migrating to `RecurringPlan`
 - Populate the real `COMPANY_*` values (UID, Firmenbuchnummer, register court, IBAN/BIC)
+
+Reload it with `/feature load billing-and-payments` once the fixes merge back.
 
 ## History
 

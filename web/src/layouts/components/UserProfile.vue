@@ -1,5 +1,6 @@
 <script setup>
 // import avatar1 from '@images/avatars/avatar-1.png';
+import { appFeatures } from '@/utils/features';
 
 const avatar1 = useCookie('userData').value.img;
 
@@ -93,8 +94,14 @@ onBeforeMount(() => {
             <VListItemTitle>Profile</VListItemTitle>
           </VListItem>
 
-          <!-- Settings -->
-          <VListItem link :to="'/client/plans-billing'">
+          <!-- Plans & Billing — retired subscription-plans module. The route guard
+               blocks client-plans-billing while the flag is off, so showing the item
+               would be a dead link. Kept behind the flag rather than deleted. -->
+          <VListItem
+            v-if="appFeatures.subscriptionPlans"
+            link
+            :to="'/client/plans-billing'"
+          >
             <template #prepend>
               <VIcon class="me-2" icon="tabler-file-invoice" size="22" />
             </template>
