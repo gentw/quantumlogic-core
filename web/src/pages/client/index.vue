@@ -1,12 +1,11 @@
 <script>
-import TicketsStatisticsWidget from '@/views/client/dashboard/TicketsStatisticsWidgets.vue';
+import BillingOverview from '@/views/client/dashboard/BillingOverview.vue';
 import { useChatStore } from '@core/stores/useChatStore';
-import * as feather from 'feather-icons';
 import { ref } from 'vue';
 import { accessState } from '@/@core/stores/access';
 export default {
   components: {
-    TicketsStatisticsWidget
+    BillingOverview
   },
   setup() {
     const chatStore = useChatStore();
@@ -381,31 +380,10 @@ const participants = ref([]);
 
     //next aprt
 
-    const widgetData = ref([
-      {
-        title: 'Latest Invoice',
-        value: '25.00',
-        icon: 'file-text',
-      },
-      {
-        title: 'Payment Due Date',
-        value: '01-03-26',
-        icon: 'calendar'
-      },
-      {
-        title: 'Balance',
-        value: '150.00',
-        icon: 'credit-card'
-      },
-    ]);
+    // Billing figures live in BillingOverview.vue, which fetches them itself.
 
-    const renderFeatherIcon = (iconName) => {
-      if (feather.icons[iconName]) {
-        return feather.icons[iconName].toSvg();
-      }
-      // Return default or fallback icon if necessary
-      return feather.icons['alert-circle'].toSvg(); // Default fallback icon
-    };
+    // Greeting only — optional chaining because the cookie is gone after logout.
+    const clientName = useCookie('userData').value?.name ?? '';
 
     
 
@@ -432,10 +410,9 @@ const participants = ref([]);
       editMessage,
       icons,
       chatStore,
-      widgetData,
-      renderFeatherIcon,
       accessState,
       showPaymentSnackbar,
+      clientName,
 
     };
   },
@@ -446,82 +423,16 @@ const participants = ref([]);
 <template>
   <div class="home-page" v-if="accessState.showPage">
     <div class="header">
-      <VCard
-      class="mb-6"
-      title="Welcome"
-    >
-      <VCardText>QuantumLogic</VCardText>
-      
+      <VCard class="mb-6">
+        <VCardItem>
+          <VCardTitle>Welcome back{{ clientName ? `, ${clientName}` : '' }}</VCardTitle>
+          <VCardSubtitle>Here's where your billing and services stand.</VCardSubtitle>
+        </VCardItem>
       </VCard>
     </div>
 
     <div class="content">
-      <VCard class="mb-6">
-        <VCardText class="px-3">
-          <VRow class="d-flex" style="align-items: center;">
-            <template
-              v-for="(data, id) in widgetData"
-              :key="id"
-            >
-              <VCol
-                cols="12"
-                sm="6"
-                md="3"
-                class="px-6"
-              >
-                <div
-                  class="d-flex justify-flex-start"
-                  :class="$vuetify.display.xs
-                    ? id !== widgetData.length - 1 ? 'border-b pb-4' : ''
-                    : $vuetify.display.sm
-                      ? id < (widgetData.length / 2) ? 'border-b pb-4' : ''
-                      : ''"
-                >
-                  <VAvatar
-                    variant="tonal"
-                    rounded
-                    size="44"
-                    class="mr-4"
-                  >
-                     <i v-if="data.icon" v-html="renderFeatherIcon(data.icon)" />
-                  </VAvatar>
-
-                  <div class="d-flex flex-column">
-                    <div class="text-body-1 text-capitalize font-weight-bold">
-                      {{ data.title }}
-                    </div>
-
-                    <h4 class="text-h4">
-                      {{ data.value }}
-                    </h4>
-
-                  </div>
-                  
-                </div>
-                
-              </VCol>
-              
-            </template>
-            <div>
-            <VBtn
-            height="45"
-            class="pay-online"
-            >
-              Pay now
-
-              <VIcon
-                icon="tabler-arrow-right"
-                end
-                class="flip-in-rtl"
-              />
-            </VBtn>
-          </div>
-          </VRow>
-        </VCardText>
-        
-      </VCard>
-
-      <TicketsStatisticsWidget/>
+      <BillingOverview />
     </div>
 
     <VSnackbar
@@ -530,7 +441,7 @@ const participants = ref([]);
       location="top"
       :timeout="6000"
     >
-      Payment processed successfully! Your subscription is now active.
+      Payment received — thank you. Your invoice has been updated.
       <template #actions>
         <VBtn variant="text" @click="showPaymentSnackbar = false">Close</VBtn>
       </template>

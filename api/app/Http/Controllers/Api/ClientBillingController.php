@@ -34,7 +34,10 @@ class ClientBillingController extends Controller
         $nextDue = (clone $base)
             ->whereIn('status', [InvoiceStatus::Sent->value, InvoiceStatus::AwaitingConfirmation->value])
             ->where('amount_due', '>', 0)
-            ->orderBy('due_at')
+            // due_at is nullable, and MySQL sorts NULLs first — an undated invoice
+            // would otherwise outrank a genuinely overdue one. Eloquent has no
+            // portable NULLS LAST, hence the raw fragment; it takes no input.
+            ->orderByRaw('due_at IS NULL, due_at')
             ->first();
 
         return response()->json([
@@ -43,6 +46,20 @@ class ClientBillingController extends Controller
             'next_due_at' => $nextDue?->due_at?->toDateString(),
             'outstanding_balance' => (float) (clone $base)->sum('amount_due'),
             'open_invoices' => (clone $base)->where('amount_due', '>', 0)->count(),
+
+            // The invoice the client actually has to pay next. last_invoice_* above
+            // describes the most recently *sent* invoice, which is often already
+            // paid — the dashboard needs this one to render and link a payment.
+            'next_due' => $nextDue ? [
+                'id' => $nextDue->id,
+                'invoice_number' => $nextDue->invoice_number,
+                'currency' => $nextDue->currency,
+                'total_gross' => (float) $nextDue->total_gross,
+                'amount_due' => (float) $nextDue->amount_due,
+                'due_at' => $nextDue->due_at?->toDateString(),
+                'status' => $nextDue->status->value,
+                'is_overdue' => $nextDue->is_overdue,
+            ] : null,
         ]);
     }
 

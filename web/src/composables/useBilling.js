@@ -91,4 +91,53 @@ export const useBillingApi = () => ({
   paypalCreate: (id, amount) => $api(`/v1/client/invoices/${id}/paypal/create`, { method: 'POST', body: amount ? { amount } : {} }),
 
   paymentStatus: id => $api(`/v1/client/payments/${id}/status`),
+
+  /**
+   * The client's orders and recurring plans — "My Services", and the services
+   * card on the dashboard.
+   *
+   * @returns {Promise<{ orders: object[], recurring_plans: object[] }>}
+   */
+  services: () => $api('/v1/client/services'),
 })
+
+/**
+ * Whole days from today until an ISO date. Negative once the date has passed.
+ * Both sides are floored to midnight so "today" is 0 rather than a fraction.
+ *
+ * @param {string|null|undefined} value ISO date
+ * @returns {number|null} null when there is no date to measure against
+ */
+export const daysUntil = value => {
+  if (!value) return null
+
+  const target = new Date(value)
+  if (Number.isNaN(target.getTime())) return null
+
+  target.setHours(0, 0, 0, 0)
+
+  const today = new Date()
+
+  today.setHours(0, 0, 0, 0)
+
+  return Math.round((target - today) / 86400000)
+}
+
+/**
+ * Due-date wording for the next invoice: "Due in 5 days", "Due today",
+ * "12 days overdue".
+ *
+ * @param {string|null|undefined} dueAt ISO date
+ * @returns {string}
+ */
+export const dueLabel = dueAt => {
+  const days = daysUntil(dueAt)
+
+  if (days === null) return 'No due date'
+  if (days === 0) return 'Due today'
+  if (days === 1) return 'Due tomorrow'
+  if (days > 1) return `Due in ${days} days`
+  if (days === -1) return '1 day overdue'
+
+  return `${Math.abs(days)} days overdue`
+}

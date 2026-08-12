@@ -373,6 +373,8 @@
     "COUNTRIES": true,
     "EU_COUNTRIES": true,
     "countryOptions": true,
-    "isEuCountry": true
+    "isEuCountry": true,
+    "daysUntil": true,
+    "dueLabel": true
   }
 }
