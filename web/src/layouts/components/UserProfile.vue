@@ -2,37 +2,28 @@
 // import avatar1 from '@images/avatars/avatar-1.png';
 import { appFeatures } from '@/utils/features';
 
-const avatar1 = useCookie('userData').value.img;
+const userData = computed(() => useCookie('userData').value ?? {});
+const avatar1 = computed(() => userData.value.img);
 
-const route = useRoute();
-const router = useRouter();
+/**
+ * End the session. Revoking the token server-side is best-effort — an expired
+ * or already-revoked token answers 401, and that must not leave the user signed
+ * in on this device, so the local teardown runs in `finally`.
+ *
+ * Leaves via a full document navigation rather than the router: that discards
+ * Pinia state and the open Pusher subscription along with the cookies, and
+ * `replace` keeps the dashboard out of the back-button history.
+ */
 const logoutUser = async () => {
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/logout', {
-      method: 'POST',
-    });
-
-    // const { token, user } = res;
-
-    useCookie('isOtp').value = false;
-    useCookie('accessToken').value = false;
-    useCookie('phoneNo').value = false;
-    useCookie('userData').value = false;
-
-
-    useCookie('chatClientId').value = false
-    useCookie('chatChatId').value = false
-    location.reload(); 
-  } catch (err) {
-    console.error(err);
+    await $api('/v1/logout', { method: 'POST' });
+  } catch {
+    // Nothing to recover: the session ends locally either way.
+  } finally {
+    clearSession();
+    window.location.replace('/login');
   }
 };
-
-
-onBeforeMount(() => {
-  // clientData();
-  
-})
 </script>
 
 <template>
@@ -56,7 +47,7 @@ onBeforeMount(() => {
       
       <!-- User name -->
       <div class="d-none d-sm-block" style="margin-block-start: 8px;">
-        <p class="text-default">{{ useCookie('userData').value.name }}</p>
+        <p class="text-default">{{ userData.name }}</p>
       </div>
 
       <!-- Menu Triggered by Avatar and Name -->
@@ -81,13 +72,13 @@ onBeforeMount(() => {
               </VListItemAction>
             </template>
             <VListItemTitle class="font-weight-semibold">
-              {{ useCookie('userData').value.name }}
+              {{ userData.name }}
             </VListItemTitle>
-            <VListItemSubtitle>{{ useCookie('userData').value.role }}</VListItemSubtitle>
+            <VListItemSubtitle>{{ userData.role }}</VListItemSubtitle>
           </VListItem>
           <VDivider class="my-2 d-sm-none d-block" />
           <!-- Profile -->
-          <VListItem link :to="'/'+useCookie('userData').value.role + '/account'">
+          <VListItem link :to="`/${userData.role}/account`">
             <template #prepend>
               <VIcon class="me-2" icon="tabler-user" size="22" />
             </template>

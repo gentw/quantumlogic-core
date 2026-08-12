@@ -12,6 +12,7 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Passport\RefreshToken;
 
 class AuthenticationController extends Controller
 {
@@ -252,14 +253,29 @@ class AuthenticationController extends Controller
      */
     public function destroy(Request $request)
     {
-        if (Auth::user()) {
-            $request->user()->token()->revoke();
+        $token = $request->user()?->token();
 
+        // No token to revoke is the same outcome the caller wanted, so answer 200
+        // rather than falling off the end with an empty body. The SPA discards the
+        // session either way and must not be left guessing.
+        if (! $token) {
             return response()->json([
                 'success' => true,
                 'message' => 'Logged out successfully',
             ], 200);
         }
+
+        // Revoking the access token alone leaves its refresh token usable until it
+        // expires, so /v1/token/refresh could mint a new access token for a session
+        // the user just ended.
+        RefreshToken::where('access_token_id', $token->id)->update(['revoked' => true]);
+
+        $token->revoke();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully',
+        ], 200);
     }
 
     /**

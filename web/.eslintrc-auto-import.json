@@ -375,6 +375,8 @@
     "countryOptions": true,
     "isEuCountry": true,
     "daysUntil": true,
-    "dueLabel": true
+    "dueLabel": true,
+    "clearSession": true,
+    "hasSession": true
   }
 }

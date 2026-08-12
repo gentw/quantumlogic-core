@@ -1,6 +1,5 @@
 import { accessState } from '@/@core/stores/access';
 import { appFeatures, isDisabledModuleRoute } from '@/utils/features';
-const router = useRouter();
 const ENTITLED_STATES = ['active', 'trial_active'];
 
 const isEntitled = subscription => {
@@ -16,44 +15,31 @@ const isEntitled = subscription => {
   return true;
 };
 
-const fetchClientProfile = async () => {
-  try {
-    const res = await $api('/v1/client/profile', { method: 'POST' });
-    const { user, subscription } = res;
+/**
+ * Every route behind the login. Derived from the route name rather than a
+ * hand-kept list: the previous version only auto-expanded `client-*`, so
+ * `admin-*` and `agent-*` pages mounted for signed-out visitors and failed
+ * later, one 401 at a time, instead of redirecting to the login page.
+ *
+ * @param {string|symbol|null|undefined} routeName - `to.name` from a navigation.
+ * @returns {boolean}
+ */
+const requiresAuth = routeName => {
+    const name = routeName?.toString() ?? '';
 
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('subscription', JSON.stringify(subscription));
+    if (!name) return false;
 
-    return subscription;
-  } catch (err) {
-    if (err.response && err.response.status === 403) {
-      window.location = '/client/pricing';
-      return null;
-    }
+    const roleRoots = ['client', 'agent', 'admin', 'root', 'second-page'];
 
-    console.error('Error fetching client profile:', err);
-    return null;
-  }
+    return roleRoots.includes(name)
+        || ['client-', 'agent-', 'admin-'].some(prefix => name.startsWith(prefix));
 };
 
 export const setupGuards = router => {
 
-    const protectedRoutes = [
-        'second-page', 'root', 'client', 'agent', 'admin'
-    ]; // Add route names that require authentication
-
-    // const clientRoutes = protectedRoutes.filter(route => route.startsWith('client-'));
-    const clientRoutes = router.getRoutes()
-    .filter((route) => route.name?.toString().startsWith('client-'))
-    .map((route) => route.name?.toString());
-  
-    protectedRoutes.push(...clientRoutes);
-
-    
-
     router.beforeEach( async(to, from, next) => {
-        
-        const isLoggedIn = !!(useCookie('userData').value && useCookie('accessToken').value);
+
+        const isLoggedIn = hasSession();
         const isOtp = !!(useCookie('isOtp').value);
         const userRole = useCookie('userData').value?.role;
 
@@ -87,11 +73,13 @@ export const setupGuards = router => {
             return next({ name: 'login' });
         }
 
-        if (protectedRoutes.includes(to.name) && !isLoggedIn) {
+        if (requiresAuth(to.name) && !isLoggedIn) {
             return next({ name: 'login' });
         }
         if (to.name === 'login' && isLoggedIn) {
-            return next({ name: 'second-page' });
+            // Their own dashboard, not `second-page` — that is the tickets
+            // placeholder, and it is hidden while the tickets flag is off.
+            return next({ name: userRole ?? 'root' });
         }
 
         // 🔐 Subscription gate (clients only). Pricing & invoice pages are unguarded.
