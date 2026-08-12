@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 const orders = ref([])
 const total = ref(0)
 const loading = ref(false)
@@ -8,13 +9,13 @@ const perPage = ref(10)
 const status = ref('')
 const search = ref('')
 
-const headers = [
-  { title: 'Order', key: 'order_number' },
-  { title: 'Client', key: 'client', sortable: false },
-  { title: 'Status', key: 'status', sortable: false },
-  { title: 'Created', key: 'created_at' },
-  { title: 'Total', key: 'total_gross', align: 'end' },
-]
+const headers = computed(() => [
+  { title: t('invoice.order'), key: 'order_number' },
+  { title: t('common.client'), key: 'client', sortable: false },
+  { title: t('common.status'), key: 'status', sortable: false },
+  { title: t('common.created'), key: 'created_at' },
+  { title: t('common.total'), key: 'total_gross', align: 'end' },
+])
 
 const load = async () => {
   loading.value = true
@@ -53,7 +54,7 @@ watch(search, () => {
 <template>
   <VCard>
     <VCardItem>
-      <VCardTitle>Service orders</VCardTitle>
+      <VCardTitle>{{ $t('orders.title') }}</VCardTitle>
     </VCardItem>
 
     <VCardText class="d-flex flex-wrap gap-4">
@@ -70,14 +71,14 @@ watch(search, () => {
         ]"
         density="compact"
         style="max-inline-size: 13rem;"
-        label="Status"
+        :label="$t('common.status')"
       />
       <VSpacer />
       <VTextField
         v-model="search"
         density="compact"
         prepend-inner-icon="tabler-search"
-        placeholder="Order number or client"
+        :placeholder="$t('orders.search')"
         style="max-inline-size: 16rem;"
       />
     </VCardText>

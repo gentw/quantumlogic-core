@@ -93,8 +93,8 @@ const amountMismatch = proof =>
   <section>
     <VCard>
       <VCardItem>
-        <VCardTitle>Bank transfer reconciliation</VCardTitle>
-        <VCardSubtitle>Uploaded proofs waiting for review — the invoice is not paid until accepted</VCardSubtitle>
+        <VCardTitle>{{ $t('reconciliation.title') }}</VCardTitle>
+        <VCardSubtitle>{{ $t('reconciliation.subtitle') }}</VCardSubtitle>
         <template #append>
           <VSelect
             v-model="statusFilter"
@@ -115,7 +115,7 @@ const amountMismatch = proof =>
       </VCardText>
 
       <VCardText v-else-if="!proofs.length">
-        <VAlert type="info" variant="tonal">Nothing to review.</VAlert>
+        <VAlert type="info" variant="tonal">{{ $t('reconciliation.empty') }}</VAlert>
       </VCardText>
 
       <template v-else>
@@ -146,7 +146,7 @@ const amountMismatch = proof =>
                 prepend-icon="tabler-file-search"
                 @click="openSlip(proof)"
               >
-                Slip
+                {{ $t('reconciliation.slip') }}
               </VBtn>
               <template v-if="proof.status === 'pending'">
                 <VBtn
@@ -156,7 +156,7 @@ const amountMismatch = proof =>
                   :loading="working"
                   @click="accept(proof)"
                 >
-                  Accept
+                  {{ $t('reconciliation.accept') }}
                 </VBtn>
                 <VBtn
                   size="small"
@@ -165,7 +165,7 @@ const amountMismatch = proof =>
                   :loading="working"
                   @click="openReject(proof)"
                 >
-                  Reject
+                  {{ $t('reconciliation.reject') }}
                 </VBtn>
               </template>
             </template>
@@ -180,18 +180,17 @@ const amountMismatch = proof =>
 
     <!-- Reject dialog -->
     <VDialog v-model="rejectDialog" max-width="440">
-      <VCard title="Reject proof">
+      <VCard :title="$t('reconciliation.rejectTitle')">
         <VCardText>
           <p class="text-body-2 mb-4">
-            The client is notified with this reason and the invoice reopens
-            for payment.
+            {{ $t('reconciliation.rejectNote') }}
           </p>
-          <VTextarea v-model="rejectReason" label="Reason" rows="2" autofocus />
+          <VTextarea v-model="rejectReason" :label="$t('reconciliation.reason')" rows="2" autofocus />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn variant="text" color="secondary" @click="rejectDialog = false">Cancel</VBtn>
-          <VBtn color="error" :disabled="!rejectReason" :loading="working" @click="reject">Reject</VBtn>
+          <VBtn variant="text" color="secondary" @click="rejectDialog = false">{{ $t('common.cancel') }}</VBtn>
+          <VBtn color="error" :disabled="!rejectReason" :loading="working" @click="reject">{{ $t('reconciliation.reject') }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

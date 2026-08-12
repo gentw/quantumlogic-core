@@ -1,4 +1,11 @@
 <script setup>
+const { t } = useI18n()
+
+/** Stepper labels — computed so they follow a language change. */
+const stepperItems = computed(() => [
+  t('common.client'), t('invoice.order'), t('invoice.type'),
+  t('adminInvoices.details'), t('adminInvoices.preview'),
+])
 const router = useRouter()
 
 const step = ref(1)
@@ -164,9 +171,9 @@ const finish = async issueNow => {
 </script>
 
 <template>
-  <VCard title="New invoice">
+  <VCard :title="$t('adminInvoices.new')">
     <VCardText>
-      <VStepper v-model="step" :items="['Client', 'Order', 'Type', 'Details', 'Preview']" hide-actions>
+      <VStepper v-model="step" :items="stepperItems" hide-actions>
         <!-- 1: pick a client -->
         <template #item.1>
           <VAutocomplete
@@ -174,23 +181,25 @@ const finish = async issueNow => {
             :items="clientOptions"
             item-title="name"
             return-object
-            label="Search clients by name"
+            :label="$t('adminInvoices.searchClients')"
             no-filter
             class="mb-4"
             @update:model-value="pickClient"
           />
           <p class="text-body-2">
-            New client? Create them under
-            <RouterLink :to="{ name: 'admin-clients-add-client' }">Clients</RouterLink>
-            first — guest checkout accounts also land there.
+            <i18n-t keypath="adminInvoices.newClientHint" tag="span">
+              <template #clients>
+                <RouterLink :to="{ name: 'admin-clients-add-client' }">{{ $t('nav.clients') }}</RouterLink>
+              </template>
+            </i18n-t>
           </p>
         </template>
 
         <!-- 2: pick or build an order -->
         <template #item.2>
           <VRadioGroup v-model="orderMode" inline class="mb-4">
-            <VRadio value="existing" label="Existing order" :disabled="!clientOrders.length" />
-            <VRadio value="new" label="New order from the catalogue" />
+            <VRadio value="existing" :label="$t('adminInvoices.existingOrder')" :disabled="!clientOrders.length" />
+            <VRadio value="new" :label="$t('adminInvoices.newOrder')" />
           </VRadioGroup>
 
           <VSelect
@@ -199,7 +208,7 @@ const finish = async issueNow => {
             :items="clientOrders"
             :item-title="order => `${order.order_number} — ${formatMoney(order.total_gross)} (${order.status})`"
             item-value="id"
-            label="Order"
+            :label="$t('invoice.order')"
             class="mb-4"
           />
 
@@ -210,35 +219,35 @@ const finish = async issueNow => {
                 :items="services"
                 item-title="name"
                 item-value="id"
-                label="Service"
+                :label="$t('services.service')"
                 density="compact"
                 style="min-inline-size: 14rem;"
                 @update:model-value="onServicePicked(line)"
               />
-              <VTextField v-model="line.description" label="Description" density="compact" style="min-inline-size: 14rem;" />
-              <VTextField v-model.number="line.quantity" label="Qty" type="number" min="0.01" density="compact" style="inline-size: 6rem;" />
-              <VTextField v-model.number="line.unit_price_net" label="Unit net" type="number" density="compact" suffix="EUR" style="inline-size: 9rem;" />
-              <VTextField v-model.number="line.discount_percent" label="Disc %" type="number" density="compact" style="inline-size: 6rem;" />
+              <VTextField v-model="line.description" :label="$t('invoice.description')" density="compact" style="min-inline-size: 14rem;" />
+              <VTextField v-model.number="line.quantity" :label="$t('services.qty')" type="number" min="0.01" density="compact" style="inline-size: 6rem;" />
+              <VTextField v-model.number="line.unit_price_net" :label="$t('adminInvoices.unitNet')" type="number" density="compact" suffix="EUR" style="inline-size: 9rem;" />
+              <VTextField v-model.number="line.discount_percent" :label="$t('adminInvoices.discPercent')" type="number" density="compact" style="inline-size: 6rem;" />
               <VBtn icon="tabler-trash" size="small" variant="text" color="error" :disabled="lines.length === 1" @click="lines.splice(index, 1)" />
             </div>
             <VBtn variant="tonal" size="small" prepend-icon="tabler-plus" @click="addLine">
-              Add line
+              {{ $t('adminInvoices.addLine') }}
             </VBtn>
           </template>
 
           <div class="d-flex justify-space-between mt-6">
-            <VBtn variant="text" color="secondary" @click="step = 1">Back</VBtn>
-            <VBtn color="primary" :loading="working" @click="resolveOrder">Continue</VBtn>
+            <VBtn variant="text" color="secondary" @click="step = 1">{{ $t('common.back') }}</VBtn>
+            <VBtn color="primary" :loading="working" @click="resolveOrder">{{ $t('common.continue') }}</VBtn>
           </div>
         </template>
 
         <!-- 3: invoice type -->
         <template #item.3>
-          <VSelect v-model="invoiceType" :items="typeOptions" label="Invoice type" class="mb-4" />
+          <VSelect v-model="invoiceType" :items="typeOptions" :label="$t('adminInvoices.invoiceType')" class="mb-4" />
           <VTextField
             v-if="invoiceType === 'deposit'"
             v-model.number="depositFraction"
-            label="Deposit percent"
+            :label="$t('adminInvoices.depositPercent')"
             type="number"
             min="1"
             max="100"
@@ -247,12 +256,11 @@ const finish = async issueNow => {
             class="mb-4"
           />
           <p v-if="invoiceType === 'balance'" class="text-body-2">
-            The balance invoice takes exactly what the order's other invoices
-            haven't billed yet.
+            {{ $t('adminInvoices.balanceNote') }}
           </p>
           <div class="d-flex justify-space-between mt-6">
-            <VBtn variant="text" color="secondary" @click="step = 2">Back</VBtn>
-            <VBtn color="primary" @click="step = 4">Continue</VBtn>
+            <VBtn variant="text" color="secondary" @click="step = 2">{{ $t('common.back') }}</VBtn>
+            <VBtn color="primary" @click="step = 4">{{ $t('common.continue') }}</VBtn>
           </div>
         </template>
 
@@ -260,17 +268,17 @@ const finish = async issueNow => {
         <template #item.4>
           <VRow>
             <VCol cols="12" sm="6">
-              <VTextField v-model="details.due_at" label="Due date (defaults to NET 14)" type="date" class="mb-4" />
-              <VTextField v-model="details.reference" label="Reference" class="mb-4" />
+              <VTextField v-model="details.due_at" :label="$t('adminInvoices.dueDateHint')" type="date" class="mb-4" />
+              <VTextField v-model="details.reference" :label="$t('billing.reference')" class="mb-4" />
             </VCol>
             <VCol cols="12" sm="6">
-              <VTextarea v-model="details.terms" label="Terms" rows="2" class="mb-4" />
-              <VTextarea v-model="details.notes" label="Notes" rows="2" />
+              <VTextarea v-model="details.terms" :label="$t('invoice.terms')" rows="2" class="mb-4" />
+              <VTextarea v-model="details.notes" :label="$t('adminInvoices.notes')" rows="2" />
             </VCol>
           </VRow>
           <div class="d-flex justify-space-between mt-2">
-            <VBtn variant="text" color="secondary" @click="step = 3">Back</VBtn>
-            <VBtn color="primary" :loading="working" @click="createDraft">Preview</VBtn>
+            <VBtn variant="text" color="secondary" @click="step = 3">{{ $t('common.back') }}</VBtn>
+            <VBtn color="primary" :loading="working" @click="createDraft">{{ $t('adminInvoices.preview') }}</VBtn>
           </div>
         </template>
 
@@ -279,21 +287,21 @@ const finish = async issueNow => {
           <template v-if="draft">
             <VTable class="border rounded mb-4">
               <tbody>
-                <tr><td>Type</td><td class="text-end">{{ invoiceTypeLabel(draft.type) }}</td></tr>
-                <tr><td>Net</td><td class="text-end">{{ formatMoney(draft.subtotal_net) }}</td></tr>
-                <tr><td>VAT</td><td class="text-end">{{ formatMoney(draft.vat_total) }}</td></tr>
-                <tr class="font-weight-medium"><td>Gross</td><td class="text-end">{{ formatMoney(draft.total_gross) }}</td></tr>
+                <tr><td>{{ $t('invoice.type') }}</td><td class="text-end">{{ invoiceTypeLabel(draft.type) }}</td></tr>
+                <tr><td>{{ $t('order.net') }}</td><td class="text-end">{{ formatMoney(draft.subtotal_net) }}</td></tr>
+                <tr><td>{{ $t('invoice.vat') }}</td><td class="text-end">{{ formatMoney(draft.vat_total) }}</td></tr>
+                <tr class="font-weight-medium"><td>{{ $t('adminInvoices.gross') }}</td><td class="text-end">{{ formatMoney(draft.total_gross) }}</td></tr>
               </tbody>
             </VTable>
             <VAlert v-if="draft.reverse_charge" type="info" variant="tonal" density="compact" class="mb-4">
-              Reverse charge applies — 0% VAT with the Art. 196 note.
+              {{ $t('adminInvoices.reverseChargeNote') }}
             </VAlert>
             <div class="d-flex justify-end gap-3">
               <VBtn variant="tonal" color="secondary" :loading="working" @click="finish(false)">
-                Save as draft
+                {{ $t('adminInvoices.saveDraft') }}
               </VBtn>
               <VBtn color="primary" :loading="working" @click="finish(true)">
-                Issue now
+                {{ $t('adminInvoices.issueNow') }}
               </VBtn>
             </div>
           </template>

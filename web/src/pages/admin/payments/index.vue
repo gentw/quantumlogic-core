@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 const payments = ref([])
 const total = ref(0)
 const loading = ref(false)
@@ -9,15 +10,15 @@ const provider = ref('')
 const status = ref('')
 const search = ref('')
 
-const headers = [
-  { title: 'Invoice', key: 'invoice_number' },
-  { title: 'Client', key: 'client', sortable: false },
-  { title: 'Provider', key: 'provider', sortable: false },
-  { title: 'Status', key: 'status', sortable: false },
-  { title: 'Method', key: 'method', sortable: false },
-  { title: 'Date', key: 'paid_at' },
-  { title: 'Amount', key: 'amount', align: 'end' },
-]
+const headers = computed(() => [
+  { title: t('nav.invoices'), key: 'invoice_number' },
+  { title: t('common.client'), key: 'client', sortable: false },
+  { title: t('payments.provider'), key: 'provider', sortable: false },
+  { title: t('common.status'), key: 'status', sortable: false },
+  { title: t('payments.method'), key: 'method', sortable: false },
+  { title: t('common.date'), key: 'paid_at' },
+  { title: t('common.amount'), key: 'amount', align: 'end' },
+])
 
 const statusColor = {
   pending: 'secondary',
@@ -85,11 +86,11 @@ const exportCsv = () => {
 <template>
   <VCard>
     <VCardItem>
-      <VCardTitle>Payments</VCardTitle>
-      <VCardSubtitle>Every money movement across all clients</VCardSubtitle>
+      <VCardTitle>{{ $t('nav.payments') }}</VCardTitle>
+      <VCardSubtitle>{{ $t('payments.subtitle') }}</VCardSubtitle>
       <template #append>
         <VBtn variant="tonal" color="secondary" prepend-icon="tabler-download" @click="exportCsv">
-          Export CSV
+          {{ $t('payments.exportCsv') }}
         </VBtn>
       </template>
     </VCardItem>
@@ -106,7 +107,7 @@ const exportCsv = () => {
         ]"
         density="compact"
         style="max-inline-size: 11rem;"
-        label="Provider"
+        :label="$t('payments.provider')"
       />
       <VSelect
         v-model="status"
@@ -120,14 +121,14 @@ const exportCsv = () => {
         ]"
         density="compact"
         style="max-inline-size: 13rem;"
-        label="Status"
+        :label="$t('common.status')"
       />
       <VSpacer />
       <VTextField
         v-model="search"
         density="compact"
         prepend-inner-icon="tabler-search"
-        placeholder="Invoice, client or provider id"
+        :placeholder="$t('payments.search')"
         style="max-inline-size: 18rem;"
       />
     </VCardText>

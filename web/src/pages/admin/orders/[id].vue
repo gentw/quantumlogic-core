@@ -77,19 +77,19 @@ const transition = async action => {
         :loading="working"
         @click="transition('cancel')"
       >
-        Cancel order
+        {{ $t('orders.cancelOrder') }}
       </VBtn>
     </div>
 
     <VRow>
       <VCol cols="12" md="8">
-        <VCard class="mb-6" title="Lines">
+        <VCard class="mb-6" :title="$t('orders.lines')">
           <VTable class="text-no-wrap">
             <thead>
               <tr>
-                <th>Service</th>
-                <th class="text-end">Qty</th>
-                <th class="text-end">Total</th>
+                <th>{{ $t('services.service') }}</th>
+                <th class="text-end">{{ $t('services.qty') }}</th>
+                <th class="text-end">{{ $t('common.total') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -108,19 +108,19 @@ const transition = async action => {
           </VTable>
         </VCard>
 
-        <VCard title="Invoices">
+        <VCard :title="$t('nav.invoices')">
           <VCardText v-if="!order.invoices?.length" class="text-body-2">
-            Nothing invoiced yet — draft one from
-            <RouterLink :to="{ name: 'admin-invoices-add-invoice' }">New invoice</RouterLink>.
+            {{ $t('orders.nothingInvoiced') }}
+            <RouterLink :to="{ name: 'admin-invoices-add-invoice' }">{{ $t('adminInvoices.new') }}</RouterLink>.
           </VCardText>
           <VTable v-else class="text-no-wrap">
             <thead>
               <tr>
-                <th>NR</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th class="text-end">Amount</th>
-                <th class="text-end">Outstanding</th>
+                <th>{{ $t('common.nr') }}</th>
+                <th>{{ $t('invoice.type') }}</th>
+                <th>{{ $t('common.status') }}</th>
+                <th class="text-end">{{ $t('common.amount') }}</th>
+                <th class="text-end">{{ $t('dashboard.outstanding') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -148,21 +148,21 @@ const transition = async action => {
       </VCol>
 
       <VCol cols="12" md="4">
-        <VCard class="mb-6" title="Client">
+        <VCard class="mb-6" :title="$t('common.client')">
           <VCardText v-if="client">
             <div class="font-weight-medium">{{ client.name }} {{ client.surname }}</div>
             <div class="text-body-2">{{ client.email }}</div>
           </VCardText>
         </VCard>
 
-        <VCard v-if="depositSplit" title="Deposit split">
+        <VCard v-if="depositSplit" :title="$t('orders.depositSplit')">
           <VCardText>
             <div class="d-flex justify-space-between mb-2">
               <span>Deposit ({{ order.deposit_percent ?? 50 }}%)</span>
               <span class="font-weight-medium">{{ formatMoney(depositSplit.deposit) }}</span>
             </div>
             <div class="d-flex justify-space-between">
-              <span>Balance</span>
+              <span>{{ $t('orders.balance') }}</span>
               <span class="font-weight-medium">{{ formatMoney(depositSplit.balance) }}</span>
             </div>
           </VCardText>

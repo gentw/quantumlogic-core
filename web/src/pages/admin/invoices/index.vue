@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 const invoices = ref([])
 const total = ref(0)
 const loading = ref(false)
@@ -19,18 +20,18 @@ const allStatuses = [
 const visibleStatuses = ref([])
 const activeFilterCount = computed(() => visibleStatuses.value.length)
 
-const headers = [
-  { title: 'NR', key: 'invoice_number' },
-  { title: 'Status', key: 'status', sortable: false },
+const headers = computed(() => [
+  { title: t('common.nr'), key: 'invoice_number' },
+  { title: t('common.status'), key: 'status', sortable: false },
   { title: 'Billed to', key: 'billed_to', sortable: false },
   { title: 'Manager', key: 'account_manager', sortable: false },
   { title: 'Issued', key: 'issued_at' },
   { title: 'Due', key: 'due_at' },
-  { title: 'Amount', key: 'total_gross', align: 'end' },
+  { title: t('common.amount'), key: 'total_gross', align: 'end' },
   { title: 'Paid', key: 'amount_paid', align: 'end' },
-  { title: 'Outstanding', key: 'amount_due', align: 'end' },
+  { title: t('dashboard.outstanding'), key: 'amount_due', align: 'end' },
   { title: '', key: 'actions', sortable: false, align: 'end' },
-]
+])
 
 const load = async () => {
   loading.value = true
@@ -109,18 +110,18 @@ const rowAction = async (invoice, action) => {
   <section>
     <VCard>
       <VCardItem>
-        <VCardTitle>Invoices</VCardTitle>
-        <VCardSubtitle>All invoices, drafts included</VCardSubtitle>
+        <VCardTitle>{{ $t('nav.invoices') }}</VCardTitle>
+        <VCardSubtitle>{{ $t('adminInvoices.subtitle') }}</VCardSubtitle>
         <template #append>
           <VBtn color="primary" prepend-icon="tabler-plus" :to="{ name: 'admin-invoices-add-invoice' }">
-            New invoice
+            {{ $t('adminInvoices.new') }}
           </VBtn>
         </template>
       </VCardItem>
 
       <VCardText class="d-flex flex-wrap gap-4">
         <VBtn variant="tonal" color="secondary" prepend-icon="tabler-filter" @click="filterDrawer = true">
-          Filter
+          {{ $t('common.filter') }}
           <VBadge
             v-if="activeFilterCount"
             :content="activeFilterCount"
@@ -134,7 +135,7 @@ const rowAction = async (invoice, action) => {
           v-model="search"
           density="compact"
           prepend-inner-icon="tabler-search"
-          placeholder="Search number, reference or client"
+          :placeholder="$t('adminInvoices.search')"
           style="max-inline-size: 20rem;"
         />
       </VCardText>
@@ -204,23 +205,23 @@ const rowAction = async (invoice, action) => {
             </template>
             <VList density="compact">
               <VListItem v-if="item.status === 'draft'" @click="rowAction(item, 'issue')">
-                <VListItemTitle>Issue</VListItemTitle>
+                <VListItemTitle>{{ $t('adminInvoices.issue') }}</VListItemTitle>
               </VListItem>
               <!-- Legal retention: no delete. Drafts cancel, issued get a credit note. -->
               <VListItem v-if="item.status === 'draft'" @click="rowAction(item, 'cancel')">
-                <VListItemTitle>Cancel</VListItemTitle>
+                <VListItemTitle>{{ $t('common.cancel') }}</VListItemTitle>
               </VListItem>
               <VListItem
                 v-if="['sent', 'awaiting_confirmation', 'paid'].includes(item.status)"
                 @click="rowAction(item, 'credit-note')"
               >
-                <VListItemTitle>Issue credit note</VListItemTitle>
+                <VListItemTitle>{{ $t('adminInvoices.creditNote') }}</VListItemTitle>
               </VListItem>
               <VListItem :to="{ name: 'admin-invoices-id', params: { id: item.id }, query: { action: 'payment' } }">
-                <VListItemTitle>Record manual payment</VListItemTitle>
+                <VListItemTitle>{{ $t('adminInvoices.manualPayment') }}</VListItemTitle>
               </VListItem>
               <VListItem :to="{ name: 'admin-invoices-id', params: { id: item.id }, query: { action: 'reminder' } }">
-                <VListItemTitle>Send reminder</VListItemTitle>
+                <VListItemTitle>{{ $t('adminInvoices.sendReminder') }}</VListItemTitle>
               </VListItem>
             </VList>
           </VMenu>
@@ -237,11 +238,11 @@ const rowAction = async (invoice, action) => {
     >
       <div class="pa-6">
         <div class="d-flex justify-space-between align-center mb-6">
-          <h6 class="text-h6">Filter invoices</h6>
+          <h6 class="text-h6">{{ $t('adminInvoices.filterTitle') }}</h6>
           <VBtn icon="tabler-x" variant="text" size="small" @click="filterDrawer = false" />
         </div>
 
-        <div class="text-body-2 mb-3">Show or hide statuses</div>
+        <div class="text-body-2 mb-3">{{ $t('adminInvoices.filterHint') }}</div>
         <VCheckbox
           v-for="status in allStatuses"
           :key="status.value"
@@ -259,10 +260,10 @@ const rowAction = async (invoice, action) => {
 
         <div class="d-flex gap-3 mt-8">
           <VBtn variant="tonal" color="secondary" block @click="visibleStatuses = []; applyFilters()">
-            Reset
+            {{ $t('common.reset') }}
           </VBtn>
           <VBtn color="primary" block @click="applyFilters">
-            Apply
+            {{ $t('common.apply') }}
           </VBtn>
         </div>
       </div>

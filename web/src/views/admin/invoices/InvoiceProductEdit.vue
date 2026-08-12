@@ -80,7 +80,7 @@ watch(totalPrice, () => {
         md="6"
       >
         <h6 class="text-h6">
-          Item
+          {{ $t('adminInvoices.item') }}
         </h6>
       </VCol>
       <VCol
@@ -88,7 +88,7 @@ watch(totalPrice, () => {
         md="2"
       >
         <h6 class="text-h6 ps-2">
-          Cost
+          {{ $t('adminInvoices.cost') }}
         </h6>
       </VCol>
       <VCol
@@ -96,7 +96,7 @@ watch(totalPrice, () => {
         md="2"
       >
         <h6 class="text-h6 ps-2">
-          Hours
+          {{ $t('adminInvoices.hours') }}
         </h6>
       </VCol>
       <VCol
@@ -104,7 +104,7 @@ watch(totalPrice, () => {
         md="2"
       >
         <h6 class="text-h6">
-          Price
+          {{ $t('services.price') }}
         </h6>
       </VCol>
     </VRow>
@@ -127,14 +127,14 @@ watch(totalPrice, () => {
             :items="itemsOptions"
             item-title="title"
             item-value="title"
-            placeholder="Select Item"
+            :placeholder="$t('adminInvoices.selectItem')"
             class="mb-6"
           />
 
           <AppTextarea
             v-model="localProductData.description"
             rows="2"
-            placeholder="Item description"
+            :placeholder="$t('adminInvoices.itemDescription')"
             persistent-placeholder
           />
         </VCol>
@@ -152,7 +152,7 @@ watch(totalPrice, () => {
 
           <div class="text-high-emphasis text-no-wrap mt-4">
             <p class="mb-1">
-              Discount
+              {{ $t('invoice.discount') }}
             </p>
             <span>0%</span>
             <span class="mx-2">
@@ -182,7 +182,7 @@ watch(totalPrice, () => {
           sm="4"
         >
           <p class="my-2">
-            <span class="d-inline d-md-none">Price: </span>
+            <span class="d-inline d-md-none">{{ $t('adminInvoices.priceLabel') }} </span>
             <span class="text-high-emphasis">${{ totalPrice }}</span>
           </p>
         </VCol>

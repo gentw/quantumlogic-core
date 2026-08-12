@@ -101,11 +101,11 @@ const deactivate = async service => {
 <template>
   <VCard>
     <VCardItem>
-      <VCardTitle>Service catalogue</VCardTitle>
-      <VCardSubtitle>What the agency sells — orders and guest checkout build on these</VCardSubtitle>
+      <VCardTitle>{{ $t('adminServices.title') }}</VCardTitle>
+      <VCardSubtitle>{{ $t('adminServices.subtitle') }}</VCardSubtitle>
       <template #append>
         <VBtn color="primary" prepend-icon="tabler-plus" @click="openCreate">
-          New service
+          {{ $t('adminServices.new') }}
         </VBtn>
       </template>
     </VCardItem>
@@ -113,14 +113,14 @@ const deactivate = async service => {
     <VTable class="text-no-wrap">
       <thead>
         <tr>
-          <th>Service</th>
-          <th>Billing</th>
-          <th class="text-end">Net price</th>
-          <th class="text-end">VAT %</th>
-          <th>Deposit</th>
-          <th>Public</th>
-          <th>Active</th>
-          <th class="text-end">Actions</th>
+          <th>{{ $t('services.service') }}</th>
+          <th>{{ $t('nav.billing') }}</th>
+          <th class="text-end">{{ $t('adminServices.netPrice') }}</th>
+          <th class="text-end">{{ $t('invoice.vatPercent') }}</th>
+          <th>{{ $t('adminServices.deposit') }}</th>
+          <th>{{ $t('adminServices.public') }}</th>
+          <th>{{ $t('common.active') }}</th>
+          <th class="text-end">{{ $t('common.actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -144,7 +144,7 @@ const deactivate = async service => {
           <td class="text-end">
             <VBtn icon size="small" variant="text" @click="openCoupons(service)">
               <VIcon icon="tabler-ticket" />
-              <VTooltip activator="parent" location="top">Discount codes</VTooltip>
+              <VTooltip activator="parent" location="top">{{ $t('adminServices.discountCodes') }}</VTooltip>
             </VBtn>
             <VBtn icon="tabler-pencil" size="small" variant="text" @click="openEdit(service)" />
             <VBtn
@@ -167,8 +167,8 @@ const deactivate = async service => {
         <VCardText>
           <VRow dense>
             <VCol cols="12" sm="6">
-              <VTextField v-model="form.name" label="Name" class="mb-3" />
-              <VTextField v-model="form.category" label="Category" class="mb-3" />
+              <VTextField v-model="form.name" :label="$t('billing.name')" class="mb-3" />
+              <VTextField v-model="form.category" :label="$t('adminServices.category')" class="mb-3" />
               <VSelect
                 v-model="form.billing_type"
                 :items="[
@@ -176,7 +176,7 @@ const deactivate = async service => {
                   { title: 'Recurring', value: 'recurring' },
                   { title: 'Milestone', value: 'milestone' },
                 ]"
-                label="Billing type"
+                :label="$t('adminServices.billingType')"
                 class="mb-3"
               />
               <VSelect
@@ -186,33 +186,33 @@ const deactivate = async service => {
                   { title: 'Monthly', value: 'monthly' },
                   { title: 'Yearly', value: 'yearly' },
                 ]"
-                label="Interval"
+                :label="$t('adminServices.interval')"
                 class="mb-3"
               />
             </VCol>
             <VCol cols="12" sm="6">
-              <VTextField v-model.number="form.default_price_net" label="Default net price" type="number" suffix="EUR" class="mb-3" />
-              <VTextField v-model.number="form.vat_rate" label="VAT %" type="number" class="mb-3" />
-              <VSwitch v-model="form.supports_deposit" label="Supports deposit" class="mb-1" />
+              <VTextField v-model.number="form.default_price_net" :label="$t('adminServices.defaultNetPrice')" type="number" suffix="EUR" class="mb-3" />
+              <VTextField v-model.number="form.vat_rate" :label="$t('invoice.vatPercent')" type="number" class="mb-3" />
+              <VSwitch v-model="form.supports_deposit" :label="$t('adminServices.supportsDeposit')" class="mb-1" />
               <VTextField
                 v-if="form.supports_deposit"
                 v-model.number="form.default_deposit_percent"
-                label="Default deposit %"
+                :label="$t('adminServices.defaultDepositPercent')"
                 type="number"
                 class="mb-3"
               />
-              <VSwitch v-model="form.is_publicly_orderable" label="Publicly orderable" class="mb-1" />
-              <VSwitch v-model="form.active" label="Active" />
+              <VSwitch v-model="form.is_publicly_orderable" :label="$t('adminServices.publiclyOrderable')" class="mb-1" />
+              <VSwitch v-model="form.active" :label="$t('common.active')" />
             </VCol>
             <VCol cols="12">
-              <VTextarea v-model="form.description" label="Description" rows="2" />
+              <VTextarea v-model="form.description" :label="$t('invoice.description')" rows="2" />
             </VCol>
           </VRow>
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn variant="text" color="secondary" @click="dialog = false">Cancel</VBtn>
-          <VBtn color="primary" :loading="working" :disabled="!form.name" @click="save">Save</VBtn>
+          <VBtn variant="text" color="secondary" @click="dialog = false">{{ $t('common.cancel') }}</VBtn>
+          <VBtn color="primary" :loading="working" :disabled="!form.name" @click="save">{{ $t('common.save') }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

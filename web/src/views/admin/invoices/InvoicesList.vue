@@ -172,17 +172,17 @@ const handleMenuClick = (item) => {
   <!-- <section v-if="clients"> -->
     <section>
     <VCard id="clients-list"
-      title="Faturat"
+      :title="$t('nav.invoices')"
 
     >
       <RouterLink :to="{ name: 'admin-agents-add-agent'}">
-        <VBtn type="button" class="add-user-btn">Shto Fature te re</VBtn>
+        <VBtn type="button" class="add-user-btn">{{ $t('adminInvoices.new') }}</VBtn>
       </RouterLink>
       <VCardText class="pb-0">
-        <div>Lista e të gjitha faturave</div>
+        <div>{{ $t('adminInvoices.subtitle') }}</div>
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <!-- <span>Show</span>
+            <!-- <span>{{ $t('common.show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -201,7 +201,7 @@ const handleMenuClick = (item) => {
             prepend-icon="tabler-plus"
             :to="{ name: 'apps-invoice-add' }"
           >
-            Create invoice
+            {{ $t('adminInvoices.create') }}
           </VBtn> -->
         </div>
 
@@ -218,7 +218,7 @@ const handleMenuClick = (item) => {
                       <div class="position-relative filterSection">
                         <AppTextField
                           v-model="searchQuery"
-                          placeholder="Kerko ..."
+                          :placeholder="$t('common.search')"
                           append-inner-icon="tabler-search"
                           single-line
                           hide-details
@@ -228,7 +228,7 @@ const handleMenuClick = (item) => {
                         />
                         <!-- <AppSelect
                           :items="filterOptions"
-                          placeholder="Filter"
+                          :placeholder="$t('common.filter')"
                           v-model="selectedFilter"
                           clearable
                           clear-icon="tabler-x"
@@ -242,7 +242,7 @@ const handleMenuClick = (item) => {
                     >
                       <!-- <AppTextField
                         v-model="searchQuery"
-                        placeholder="Search ..."
+                        :placeholder="$t('common.search')"
                         append-inner-icon="tabler-search"
                         single-line
                         hide-details
@@ -351,7 +351,7 @@ const handleMenuClick = (item) => {
               size="small"
               variant="tonal"
             >
-              Review / Mark Paid
+              {{ $t('adminInvoices.reviewMarkPaid') }}
             </VBtn>
 
             <VBtn
@@ -359,7 +359,7 @@ const handleMenuClick = (item) => {
               variant="outlined"
               :to="`/admin/billing/${item.id}`"
             >
-              View
+              {{ $t('common.view') }}
             </VBtn>
           </div>
         </template>
@@ -369,7 +369,7 @@ const handleMenuClick = (item) => {
             <div class="d-flex flex-wrap justify-center justify-sm-space-between gap-y-2 mt-2">
               <!-- <VTextField
                 v-model="options.itemsPerPage"
-                label="Rows per page:"
+                :label="$t('common.rowsPerPage')"
                 type="number"
                 min="-1"
                 max="15"
@@ -398,7 +398,7 @@ const handleMenuClick = (item) => {
   </section>
   <!-- <section v-else>
     <VCard>
-      <VCardTitle>Nuk u gjet asnje klient!</VCardTitle>
+      <VCardTitle>{{ $t('adminInvoices.noClients') }}</VCardTitle>
     </VCard>
   </section> -->
 </template>
