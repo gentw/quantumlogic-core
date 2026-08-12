@@ -138,7 +138,7 @@ class BillingNotifier
         }
 
         if (in_array($channel, ['email', 'both'], true)) {
-            Mail::to($user->email)->queue(new \App\Mail\InvoiceReminderMail(
+            Mail::to($user)->queue(new \App\Mail\InvoiceReminderMail(
                 $user->name,
                 $invoice->invoice_number,
                 (float) $invoice->amount_due,
@@ -154,7 +154,7 @@ class BillingNotifier
 
     private function send(User $user, BillingMail $mail, string $inAppMessage): void
     {
-        Mail::to($user->email)->queue($mail);
+        Mail::to($user)->queue($mail);
         $this->inApp($user, $inAppMessage);
     }
 

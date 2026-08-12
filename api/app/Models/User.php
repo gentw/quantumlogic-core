@@ -4,14 +4,26 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Carbon\Carbon;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * Laravel reads this whenever a User is the mail or notification recipient,
+     * including for queued sends, where the job runs long after the request
+     * that created it and `App::getLocale()` would be the queue worker's
+     * default. Returning null leaves the app locale in place.
+     */
+    public function preferredLocale(): ?string
+    {
+        return $this->locale;
+    }
 
     protected $primaryKey = 'id';
 

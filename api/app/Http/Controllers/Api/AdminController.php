@@ -45,7 +45,7 @@ class AdminController extends Controller
         ]);
 
         if ($request->sendMail) {
-            Mail::to($request->email)->send(new SendUserRegisterConfirmation($request->name, 'administrator', $request->email, $request->password));
+            Mail::to($request->email)->send(new SendUserRegisterConfirmation($request->name, 'admin', $request->email, $request->password));
         }
 
         return response()->json([

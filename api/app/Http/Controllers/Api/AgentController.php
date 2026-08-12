@@ -48,7 +48,7 @@ class AgentController extends Controller
         ]);
 
         if ($request->sendMail) {
-            Mail::to($request->email)->send(new SendUserRegisterConfirmation($request->name, 'agjent', $request->email, $request->password));
+            Mail::to($request->email)->send(new SendUserRegisterConfirmation($request->name, 'agent', $request->email, $request->password));
         }
 
         return response()->json([

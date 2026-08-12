@@ -167,7 +167,7 @@ class PayPalController extends Controller
         });
 
         try {
-            Mail::to($user->email)->send(new PaymentConfirmationMail(
+            Mail::to($user)->send(new PaymentConfirmationMail(
                 userName: $user->name,
                 packageName: $package->name,
                 amount: (float) $amount,

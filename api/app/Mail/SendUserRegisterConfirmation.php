@@ -31,6 +31,6 @@ class SendUserRegisterConfirmation extends Mailable
 
     public function build()
     {
-        return $this->markdown('emails.new_user')->subject('Mirë se vini në QuantumLogic');
+        return $this->markdown('emails.new_user')->subject(__('mail.new_user.subject'));
     }
 }

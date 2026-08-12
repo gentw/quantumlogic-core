@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to QuantumLogic</title>
+    <title>{{ __('mail.new_user.title') }}</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f8f9fa; color: #000000;">
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -23,27 +23,25 @@
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px; background-color: #ffffff; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
                     <tr>
                         <td align="center" style="padding: 20px;">
-                            <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #000000;">Mirë se vini në QuantumLogic</h2>
-                            
-                            <p style="margin: 0 0 20px 0; line-height: 1.5; color: #6c757d;">Përshëndetje {{$name}},<br><br>
-                            Regjistrimi juaj si {{$role}} në platformën tonë është konfirmuar me sukses. 
-                            Më poshtë janë të dhënat tuaja të hyrjes:</p>
+                            <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #000000;">{{ __('mail.new_user.heading') }}</h2>
 
-                            <p style="margin: 0 0 20px 0; line-height: 1.5; color: #6c757d;">Ju lutemi përdorni këto të dhëna për të hyrë në llogarinë tuaj. Për arsye sigurie, 
-                            ju rekomandojmë të ndryshoni fjalëkalimin tuaj pas hyrjes së parë.</p>
+                            <p style="margin: 0 0 20px 0; line-height: 1.5; color: #6c757d;">{{ __('mail.new_user.greeting', ['name' => $name]) }}<br><br>
+                            {{ __('mail.new_user.confirmed', ['role' => __('mail.roles.'.$role)]) }}</p>
+
+                            <p style="margin: 0 0 20px 0; line-height: 1.5; color: #6c757d;">{{ __('mail.new_user.advice') }}</p>
 
                             <table border="0" cellpadding="10" cellspacing="0" width="100%" style="max-width: 400px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 20px;">
                                 <tr>
-                                    <td align="left"><strong>Emri i përdoruesit:</strong> {{$username}}</td>
+                                    <td align="left"><strong>{{ __('mail.new_user.username') }}:</strong> {{$username}}</td>
                                 </tr>
                                 <tr>
-                                    <td align="left"><strong>Fjalëkalimi:</strong> {{$password}}</td>
+                                    <td align="left"><strong>{{ __('mail.new_user.password') }}:</strong> {{$password}}</td>
                                 </tr>
                             </table>
-                            
-                            <a href="https://ds-web.bitemybytes.com" style="display: inline-block; background-color: #301068; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px;">Hyni në llogarinë tuaj</a>
-                            
-                            <p style="margin: 0; font-size: 14px; color: #6c757d;">Nëse nuk keni kërkuar të regjistroheni si {{$role}}, ju lutemi injoroni këtë email dhe kontaktoni ekipin tonë të mbështetjes menjëherë.</p>
+
+                            <a href="{{ config('app.frontend_url') }}" style="display: inline-block; background-color: #301068; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px;">{{ __('mail.new_user.cta') }}</a>
+
+                            <p style="margin: 0; font-size: 14px; color: #6c757d;">{{ __('mail.new_user.ignore', ['role' => __('mail.roles.'.$role)]) }}</p>
                         </td>
                     </tr>
                 </table>
@@ -51,7 +49,7 @@
         </tr>
         <tr>
             <td align="center" style="padding: 20px;">
-                <p style="margin: 0; font-size: 14px; color: #6c757d; text-align: center;">&copy;2026 QuantumLogic. Të gjitha të drejtat e rezervuara.</p>
+                <p style="margin: 0; font-size: 14px; color: #6c757d; text-align: center;">{{ __('mail.common.rights', ['year' => date('Y')]) }}</p>
             </td>
         </tr>
     </table>

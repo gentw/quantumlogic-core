@@ -25,6 +25,6 @@ class OtpMail extends Mailable
 
     public function build()
     {
-        return $this->markdown('emails.send_otp')->subject('OTP Code');
+        return $this->markdown('emails.send_otp')->subject(__('mail.otp.subject'));
     }
 }

@@ -23,6 +23,6 @@ class UserJoinWaitListWeb extends Mailable
 
     public function build()
     {
-        return $this->markdown('emails.join_waitlist')->subject('Welcome to QuantumLogic - Beta Access & Waiting List');
+        return $this->markdown('emails.join_waitlist')->subject(__('mail.waitlist.subject'));
     }
 }

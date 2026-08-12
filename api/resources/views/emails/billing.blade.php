@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,7 +40,7 @@
                                 </p>
                             @endif
 
-                            <p style="margin: 0; font-size: 14px; color: #6c757d;">If you have any questions, just reply to this email.</p>
+                            <p style="margin: 0; font-size: 14px; color: #6c757d;">{{ __('mail.common.reply') }}</p>
                         </td>
                     </tr>
                 </table>

@@ -45,7 +45,7 @@ class ClientController extends Controller
         ]);
 
         if ($request->sendMail) {
-            Mail::to($request->email)->send(new SendUserRegisterConfirmation($request->name, 'klient', $request->email, $request->password));
+            Mail::to($request->email)->send(new SendUserRegisterConfirmation($request->name, 'client', $request->email, $request->password));
         }
 
         return response()->json([

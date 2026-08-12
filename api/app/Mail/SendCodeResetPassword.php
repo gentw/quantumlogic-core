@@ -22,6 +22,6 @@ class SendCodeResetPassword extends Mailable
 
     public function build()
     {
-        return $this->markdown('emails.reset_password')->subject('Reseto Fjalekalimin');
+        return $this->markdown('emails.reset_password')->subject(__('mail.reset.subject'));
     }
 }
