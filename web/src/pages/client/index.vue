@@ -98,7 +98,7 @@ const participants = ref([]);
      
 
       try {
-        const response = await $api('https://api.quantumlogic.at/api/v1/chat/fetchMessagesByClient', {
+        const response = await $api('/v1/chat/fetchMessagesByClient', {
           method: 'POST',
           body: {},
           headers: {
@@ -131,7 +131,7 @@ const participants = ref([]);
 
     const clientSwitchLiveOff = async (message) => {
         try {
-          const response = await $api('https://api.quantumlogic.at/api/v1/chat/clientSwitchLiveOff', {
+          const response = await $api('/v1/chat/clientSwitchLiveOff', {
             method: 'POST',
             body: {},
             headers: {
@@ -154,7 +154,7 @@ const participants = ref([]);
       const xmessage = ref(message.data.text);
 
       try {
-        const response = await $api('https://api.quantumlogic.at/api/v1/chat/sendMessage', {
+        const response = await $api('/v1/chat/sendMessage', {
           method: 'POST',
           body: JSON.stringify({
             message: xmessage.value            
@@ -184,7 +184,7 @@ const participants = ref([]);
 
       // try {
       //     // alert(1111)
-      //     const res = await $api("https://api.quantumlogic.at/api/v1/chat/checkAgentStatus", {
+      //     const res = await $api("/v1/chat/checkAgentStatus", {
       //       method: "POST",
       //       body: {},
       //       onResponseError({ response }) {
@@ -210,7 +210,7 @@ const participants = ref([]);
       //   }
       // try {
       //     // alert(1111)
-      //     const res = await $api("https://api.quantumlogic.at/api/v1/chat/checkAgentStatus", {
+      //     const res = await $api("/v1/chat/checkAgentStatus", {
       //       method: "POST",
       //       body: {},
       //       onResponseError({ response }) {
@@ -228,7 +228,7 @@ const participants = ref([]);
       //       addParticipant(agent_data);
 
       //       try {
-      //         const response = await $api('https://api.quantumlogic.at/api/v1/chat/sendMessage', {
+      //         const response = await $api('/v1/chat/sendMessage', {
       //           method: 'POST',
       //           body: JSON.stringify({
       //             message: xmessage.value,

@@ -92,7 +92,7 @@ onMounted(()=>{
       const xmessage = ref(message.data.text);
 
       try {
-          const response = await $api('https://api.quantumlogic.at/api/v1/chat/sendMessage', {
+          const response = await $api('/v1/chat/sendMessage', {
             method: 'POST',
             body: JSON.stringify({
               message: xmessage.value,

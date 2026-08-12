@@ -91,7 +91,7 @@ const notificationsEmail = ref([
 
 const fetchUserPreferences = async () => {
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/user/preferences/fetch', {
+    const res = await $api('/v1/user/preferences/fetch', {
       method: 'GET',
       onResponseError({ response }) {
         
@@ -125,7 +125,7 @@ const onSwitchChange = async (item) => {
   }, {});
 
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/user/preferences/store', {
+    const res = await $api('/v1/user/preferences/store', {
       method: 'POST',
       body: jsonObject,
       onResponseError({ response }) {

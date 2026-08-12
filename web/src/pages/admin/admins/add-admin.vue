@@ -98,7 +98,7 @@ const storeUserData = async () => {
       }
     }
 
-    const res = await $api('https://api.quantumlogic.at/api/v1/user/profile/updateUserRequest', {
+    const res = await $api('/v1/user/profile/updateUserRequest', {
       method: 'POST',
       body: formData,
       onResponseError({ response }) {
@@ -125,7 +125,7 @@ const storeUserData = async () => {
 
 const changePassword = async () => {
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/user/profile/updatePassword', {
+    const res = await $api('/v1/user/profile/updatePassword', {
       method: 'POST',
       body: {
         old_password: currentPassword.value,

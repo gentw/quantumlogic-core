@@ -73,7 +73,7 @@ const totalUnseenNotifications = computed(() => {
 
 const clickNotification = async (notification) => {
   try {
-    const response = await $api('https://api.quantumlogic.at/api/v1/notifications/readUnread', {
+    const response = await $api('/v1/notifications/readUnread', {
       method: 'POST',
       body: {
         'id': notification.id,
@@ -126,7 +126,7 @@ const clickNotification = async (notification) => {
 
 const assignAgentToClient = async (client_id, chat_id) => {
   try {
-    const response = await $api('https://api.quantumlogic.at/api/v1/chat/assignAgentToClient', {
+    const response = await $api('/v1/chat/assignAgentToClient', {
       method: 'POST',
       body: {
         'client_id': client_id,
@@ -151,7 +151,7 @@ const assignAgentToClient = async (client_id, chat_id) => {
 
 const fetchMessagesByChatIdAndClient = async (client_id, chat_id) => {
   try {
-    const response = await $api('https://api.quantumlogic.at/api/v1/chat/fetchMessagesByChatIdAndClient', {
+    const response = await $api('/v1/chat/fetchMessagesByChatIdAndClient', {
       method: 'POST',
       body: {
         'client_id': client_id,
@@ -218,7 +218,7 @@ const toggleReadUnread = async (read, Id) => {
   if (read)
     // emit('unread', [Id])
     try {
-      const response = await $api('https://api.quantumlogic.at/api/v1/notifications/readUnread', {
+      const response = await $api('/v1/notifications/readUnread', {
         method: 'POST',
         body: {
           'id': Id,
@@ -239,7 +239,7 @@ const toggleReadUnread = async (read, Id) => {
   else
     // emit('read', [Id])
     try {
-      const response = await $api('https://api.quantumlogic.at/api/v1/notifications/readUnread', {
+      const response = await $api('/v1/notifications/readUnread', {
         method: 'POST',
         body: {
           'id': Id,
@@ -270,7 +270,7 @@ const toggleOverlay = (value) => {
 
 const fetchNotifications = async () => {
   try {
-      const response = await $api('https://api.quantumlogic.at/api/v1/notifications/fetch', {
+      const response = await $api('/v1/notifications/fetch', {
         method: 'POST',
         body: {},
         headers: {

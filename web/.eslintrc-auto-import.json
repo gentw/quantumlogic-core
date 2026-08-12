@@ -377,6 +377,7 @@
     "daysUntil": true,
     "dueLabel": true,
     "clearSession": true,
-    "hasSession": true
+    "hasSession": true,
+    "assetUrl": true
   }
 }

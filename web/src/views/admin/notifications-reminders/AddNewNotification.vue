@@ -108,7 +108,7 @@ const fetchUsers = async (e) => {
 
   // / api/v1/admin/notifReminders/findUserByName
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/admin/notifReminders/findUserByName', {
+    const res = await $api('/v1/admin/notifReminders/findUserByName', {
       method: 'POST',
       body: { user: e.target.value },
       onResponseError({ response }) {
@@ -134,7 +134,7 @@ const fetchUsers = async (e) => {
 }
 
 const storeNotificationReminder = async () => {
-  const res = await $api('https://api.quantumlogic.at/api/v1/admin/notifReminders/create', {
+  const res = await $api('/v1/admin/notifReminders/create', {
       method: 'POST',
       body: data.value,
       onResponseError({ response }) {
