@@ -166,7 +166,7 @@ onMounted(async () => {
           <AppLogo />
         </div>
 
-        <div class="text-body-1 mb-1">Total to pay</div>
+        <div class="text-body-1 mb-1">{{ $t('checkout.totalToPay') }}</div>
         <h3 class="text-h3 mb-6">{{ formatMoney(amount) }}</h3>
 
         <VCard variant="outlined">
@@ -176,19 +176,19 @@ onMounted(async () => {
               <span class="font-weight-medium">{{ invoice.invoice_number }}</span>
             </div>
             <div class="d-flex justify-space-between mb-3">
-              <span>Amount due</span>
+              <span>{{ $t('billing.amountDue') }}</span>
               <span class="font-weight-medium">{{ formatMoney(invoice.amount_due) }}</span>
             </div>
             <div v-if="amount < invoice.amount_due" class="d-flex justify-space-between mb-3">
-              <span>Paying now</span>
+              <span>{{ $t('checkout.payingNow') }}</span>
               <span class="font-weight-medium">{{ formatMoney(amount) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-3">
-              <span>Due date</span>
+              <span>{{ $t('billing.dueDate') }}</span>
               <span class="font-weight-medium">{{ formatDate(invoice.due_at) }}</span>
             </div>
             <div v-if="invoice.reference" class="d-flex justify-space-between">
-              <span>Reference</span>
+              <span>{{ $t('billing.reference') }}</span>
               <span class="font-weight-medium">{{ invoice.reference }}</span>
             </div>
           </VCardText>
@@ -199,7 +199,7 @@ onMounted(async () => {
       <VCol cols="12" md="7">
         <!-- Nothing owed: say so plainly instead of offering rails that will refuse. -->
         <template v-if="isSettled">
-          <h5 class="text-h5 mb-6">Nothing left to pay</h5>
+          <h5 class="text-h5 mb-6">{{ $t('checkout.nothingLeft') }}</h5>
           <VAlert
             :type="invoice.status === 'cancelled' ? 'info' : 'success'"
             variant="tonal"
@@ -210,15 +210,15 @@ onMounted(async () => {
               : 'This invoice is settled in full. Thank you.' }}
           </VAlert>
           <VBtn :to="{ name: 'client-billing-invoices-id', params: { id: invoice.id } }" color="primary">
-            View invoice
+            {{ $t('dashboard.viewInvoice') }}
           </VBtn>
           <VBtn :to="{ name: 'client-billing' }" variant="text" class="ms-2">
-            Back to billing
+            {{ $t('checkout.backToBilling') }}
           </VBtn>
         </template>
 
         <template v-else>
-        <h5 class="text-h5 mb-6">Choose how to pay</h5>
+        <h5 class="text-h5 mb-6">{{ $t('checkout.chooseMethod') }}</h5>
 
         <VRadioGroup v-model="rail" class="mb-4">
           <VRadio
@@ -267,12 +267,11 @@ onMounted(async () => {
         <template v-else-if="rail === 'paypal'">
           <VCard variant="outlined" class="mb-4">
             <VCardText>
-              You will be redirected to PayPal to approve the payment, then
-              brought back here.
+              {{ $t('checkout.paypalNote') }}
             </VCardText>
           </VCard>
           <VBtn block color="primary" :loading="working" @click="payWithPayPal">
-            Continue to PayPal
+            {{ $t('checkout.continuePaypal') }}
           </VBtn>
         </template>
 
@@ -283,7 +282,7 @@ onMounted(async () => {
               <div class="d-flex flex-wrap gap-6">
                 <div class="flex-grow-1">
                   <div class="mb-3">
-                    <div class="text-body-2">Account holder</div>
+                    <div class="text-body-2">{{ $t('checkout.accountHolder') }}</div>
                     <div class="font-weight-medium">{{ bankDetails.account_holder }}</div>
                   </div>
                   <div class="mb-3">
@@ -295,7 +294,7 @@ onMounted(async () => {
                     <div class="font-weight-medium">{{ bankDetails.bic }}</div>
                   </div>
                   <div class="mb-3">
-                    <div class="text-body-2">Reference — please include it</div>
+                    <div class="text-body-2">{{ $t('checkout.referenceNote') }}</div>
                     <div class="font-weight-medium">{{ bankDetails.reference }}</div>
                   </div>
                 </div>
@@ -306,19 +305,18 @@ onMounted(async () => {
                     width="160"
                     height="160"
                   >
-                  <div class="text-body-2 mt-1">Scan with your banking app</div>
+                  <div class="text-body-2 mt-1">{{ $t('checkout.scanQr') }}</div>
                 </div>
               </div>
 
               <VAlert type="info" variant="tonal" density="compact" class="mt-2">
-                The invoice stays open until we receive the transfer or your
-                proof of payment is accepted.
+                {{ $t('checkout.transferNote') }}
               </VAlert>
             </VCardText>
           </VCard>
 
           <VAlert v-if="proofDone" type="success" variant="tonal" class="mb-4">
-            Proof received — we will confirm the payment shortly.
+            {{ $t('checkout.proofReceived') }}
           </VAlert>
           <VBtn
             v-else
@@ -328,7 +326,7 @@ onMounted(async () => {
             prepend-icon="tabler-upload"
             @click="proofDialog = true"
           >
-            Upload payment proof
+            {{ $t('checkout.uploadProof') }}
           </VBtn>
         </template>
         </template>
@@ -341,14 +339,14 @@ onMounted(async () => {
         <VCardText>
           <VFileInput
             v-model="proofFile"
-            label="Bank slip (PDF, JPG or PNG, max 10 MB)"
+            :label="$t('checkout.bankSlip')"
             accept="application/pdf,image/jpeg,image/png"
             prepend-icon="tabler-paperclip"
             class="mb-4"
           />
           <VTextarea
             v-model="proofNote"
-            label="Note (optional)"
+            :label="$t('checkout.noteOptional')"
             rows="2"
             auto-grow
           />
@@ -356,10 +354,10 @@ onMounted(async () => {
         <VCardActions>
           <VSpacer />
           <VBtn variant="text" color="secondary" @click="proofDialog = false">
-            Cancel
+            {{ $t('common.cancel') }}
           </VBtn>
           <VBtn color="primary" :loading="working" :disabled="!proofFile" @click="submitProof">
-            Submit
+            {{ $t('common.submit') }}
           </VBtn>
         </VCardActions>
       </VCard>

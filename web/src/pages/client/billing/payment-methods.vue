@@ -102,10 +102,10 @@ onMounted(loadMethods)
 <template>
   <VCard>
     <VCardItem>
-      <VCardTitle>Saved payment methods</VCardTitle>
+      <VCardTitle>{{ $t('billing.savedMethods') }}</VCardTitle>
       <template #append>
         <VBtn prepend-icon="tabler-plus" @click="openAddDialog">
-          Add card
+          {{ $t('billing.addCard') }}
         </VBtn>
       </template>
     </VCardItem>
@@ -125,7 +125,7 @@ onMounted(loadMethods)
             <VListItemTitle class="text-capitalize">
               {{ method.brand ?? method.provider }} •••• {{ method.last4 }}
               <VChip v-if="method.is_default" size="x-small" color="primary" label class="ms-2">
-                Default
+                {{ $t('billing.default') }}
               </VChip>
             </VListItemTitle>
             <VListItemSubtitle v-if="method.exp_month">
@@ -140,7 +140,7 @@ onMounted(loadMethods)
                 :disabled="working"
                 @click="makeDefault(method)"
               >
-                Make default
+                {{ $t('billing.makeDefault') }}
               </VBtn>
               <VBtn
                 size="small"
@@ -156,15 +156,14 @@ onMounted(loadMethods)
       </template>
 
       <VAlert v-else type="info" variant="tonal">
-        No saved payment methods yet. Cards saved during checkout or added
-        here can be used for recurring services.
+        {{ $t('billing.noMethods') }}
       </VAlert>
     </VCardText>
   </VCard>
 
   <!-- Add card dialog -->
   <VDialog v-model="addDialog" max-width="480">
-    <VCard title="Add a card">
+    <VCard :title="$t('billing.addACard')">
       <VCardText>
         <VAlert
           v-if="errorMessage"
@@ -181,10 +180,10 @@ onMounted(loadMethods)
       <VCardActions>
         <VSpacer />
         <VBtn variant="text" color="secondary" @click="addDialog = false">
-          Cancel
+          {{ $t('common.cancel') }}
         </VBtn>
         <VBtn color="primary" :loading="working" :disabled="!elementReady" @click="confirmSetup">
-          Save card
+          {{ $t('billing.saveCard') }}
         </VBtn>
       </VCardActions>
     </VCard>

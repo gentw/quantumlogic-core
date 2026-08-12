@@ -44,7 +44,12 @@
     "amount": "Shuma",
     "language": "Gjuha",
     "confirm": "Konfirmo",
-    "continue": "Vazhdo"
+    "continue": "Vazhdo",
+    "reset": "Rivendos",
+    "view": "Shiko",
+    "filter": "Filtro",
+    "submit": "Dërgo",
+    "total": "Totali"
   },
   "dashboard": {
     "welcomeBack": "Mirë se u ktheve",
@@ -146,5 +151,126 @@
   "errors": {
     "notAuthorized": "Nuk jeni i autorizuar!",
     "backHome": "Kthehu në ballinë"
+  },
+  "account": {
+    "personalDetails": "Të dhënat personale",
+    "emailNote": "Përdorni një adresë të përhershme ku mund të pranoni email.",
+    "changePhoto": "Ndrysho foton",
+    "photoHint": "JPG, GIF ose PNG. Madhësia maksimale 800 KB.",
+    "sendRequest": "Dërgo kërkesën",
+    "editRequestPending": "Kërkesë për ndryshim në pritje",
+    "changePassword": "Ndrysho fjalëkalimin",
+    "yourEmail": "Adresa juaj e emailit",
+    "emailPlaceholder": "email@shembull.at",
+    "phone": "Numri i telefonit",
+    "address": "Adresa",
+    "city": "Qyteti",
+    "postalCode": "Kodi postar",
+    "newPassword": "Fjalëkalimi i ri",
+    "confirmPassword": "Konfirmo fjalëkalimin",
+    "passwordsMustMatch": "Fjalëkalimet duhet të përputhen.",
+    "confirmRequired": "Ju lutemi konfirmoni fjalëkalimin."
+  },
+  "preferences": {
+    "emailTitle": "Njoftimet me email",
+    "emailSubtitle": "Merrni email për çfarë ndodh kur nuk jeni online. Mund t'i çaktivizoni në çdo kohë.",
+    "pushTitle": "Njoftimet push",
+    "pushSubtitle": "Merrni njoftime në shiritin e njoftimeve edhe kur aplikacioni është i mbyllur.",
+    "items": {
+      "newsUpdates": {
+        "name": "Lajme dhe përditësime",
+        "subtitle": "Lajme rreth shërbimeve tona."
+      },
+      "tips": {
+        "name": "Këshilla dhe udhëzues",
+        "subtitle": "Këshilla për të përfituar më shumë nga QuantumLogic."
+      },
+      "tickets": {
+        "name": "Tiketat e mia",
+        "subtitle": "Përditësime për tiketat tuaja."
+      },
+      "invoices": {
+        "name": "Faturat",
+        "subtitle": "Njoftim kur lëshohet një faturë e re."
+      },
+      "reminders": {
+        "name": "Kujtesat",
+        "subtitle": "Kujtesa për pagesa dhe takime."
+      },
+      "comments": {
+        "name": "Komentet",
+        "subtitle": "Përgjigje dhe komente në tiketat tuaja."
+      }
+    }
+  },
+  "billing": {
+    "lastInvoice": "Fatura e fundit",
+    "nextDueDate": "Skadimi i radhës",
+    "payOnline": "Paguaj online",
+    "pay": "Paguaj",
+    "searchInvoices": "Kërko fatura",
+    "amountDue": "Shuma e detyruar",
+    "dueDate": "Data e skadimit",
+    "reference": "Referenca",
+    "savedMethods": "Metodat e ruajtura të pagesës",
+    "addCard": "Shto kartë",
+    "addACard": "Shto një kartë",
+    "default": "Parazgjedhur",
+    "makeDefault": "Bëje parazgjedhje",
+    "saveCard": "Ruaj kartën",
+    "noMethods": "Ende nuk ka metoda pagese të ruajtura. Kartat e ruajtura gjatë pagesës ose të shtuara këtu mund të përdoren për shërbime të përsëritura.",
+    "yourDetails": "Të dhënat tuaja",
+    "name": "Emri",
+    "paySubtitle": "Paguani detyrimin online me kartë, PayPal ose transfertë bankare.",
+    "paymentOptions": "Opsionet e pagesës",
+    "onlinePayment": "Pagesa online",
+    "payLatest": "Paguaj faturën e fundit",
+    "paySelected": "Paguaj një faturë të zgjedhur",
+    "payCustom": "Paguaj një shumë të lirë",
+    "payEverything": "Paguaj gjithçka"
+  },
+  "services": {
+    "price": "Çmimi",
+    "nextCharge": "Tarifimi i radhës",
+    "pause": "Pauzo",
+    "service": "Shërbimi",
+    "qty": "Sasia",
+    "recurring": "Shërbime të përsëritura",
+    "empty": "Ende nuk ka shërbime. Sapo agjencia të krijojë një porosi për ju, do të shfaqet këtu."
+  },
+  "checkout": {
+    "totalToPay": "Totali për pagesë",
+    "payingNow": "Duke paguar tani",
+    "nothingLeft": "Nuk ka mbetur asgjë për të paguar",
+    "backToBilling": "Kthehu te faturimi",
+    "chooseMethod": "Zgjidhni mënyrën e pagesës",
+    "paypalNote": "Do të ridrejtoheni te PayPal për të aprovuar pagesën dhe më pas do të ktheheni këtu.",
+    "continuePaypal": "Vazhdo te PayPal",
+    "accountHolder": "Mbajtësi i llogarisë",
+    "referenceNote": "Referenca — ju lutemi përfshijeni",
+    "scanQr": "Skanoni me aplikacionin tuaj bankar",
+    "transferNote": "Fatura mbetet e hapur derisa të pranojmë transfertën ose derisa dëshmia juaj e pagesës të pranohet.",
+    "proofReceived": "Dëshmia u pranua — do ta konfirmojmë pagesën së shpejti.",
+    "uploadProof": "Ngarko dëshminë e pagesës",
+    "bankSlip": "Fletëpagesa (PDF, JPG ose PNG, maks. 10 MB)",
+    "noteOptional": "Shënim (opsional)"
+  },
+  "invoice": {
+    "download": "Shkarko faturën",
+    "details": "Detajet e faturës",
+    "date": "Data e faturës",
+    "order": "Porosia",
+    "terms": "Kushtet",
+    "type": "Lloji",
+    "description": "Përshkrimi",
+    "unitPrice": "Çmimi për njësi",
+    "discountPercent": "Zbritje %",
+    "vatPercent": "TVSH %",
+    "netAmount": "Shuma neto",
+    "discount": "Zbritja",
+    "vat": "TVSH",
+    "paid": "Paguar",
+    "proofUnderReview": "Një dëshmi transferte është duke u shqyrtuar. Mund të paguani ende online nëse transferta nuk kaloi.",
+    "loadFailed": "Kjo faturë nuk mund të ngarkohej."
   }
 }

@@ -44,7 +44,12 @@
     "amount": "Betrag",
     "language": "Sprache",
     "confirm": "Bestätigen",
-    "continue": "Weiter"
+    "continue": "Weiter",
+    "reset": "Zurücksetzen",
+    "view": "Ansehen",
+    "filter": "Filter",
+    "submit": "Absenden",
+    "total": "Gesamt"
   },
   "dashboard": {
     "welcomeBack": "Willkommen zurück",
@@ -146,5 +151,126 @@
   "errors": {
     "notAuthorized": "Sie sind nicht berechtigt!",
     "backHome": "Zurück zur Startseite"
+  },
+  "account": {
+    "personalDetails": "Persönliche Daten",
+    "emailNote": "Verwenden Sie eine dauerhafte Adresse, unter der Sie E-Mails empfangen können.",
+    "changePhoto": "Foto ändern",
+    "photoHint": "JPG, GIF oder PNG. Maximal 800 KB.",
+    "sendRequest": "Anfrage senden",
+    "editRequestPending": "Änderungsanfrage offen",
+    "changePassword": "Passwort ändern",
+    "yourEmail": "Ihre E-Mail-Adresse",
+    "emailPlaceholder": "email@beispiel.at",
+    "phone": "Telefonnummer",
+    "address": "Adresse",
+    "city": "Ort",
+    "postalCode": "PLZ",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordsMustMatch": "Die Passwörter müssen übereinstimmen.",
+    "confirmRequired": "Bitte bestätigen Sie Ihr Passwort."
+  },
+  "preferences": {
+    "emailTitle": "E-Mail-Benachrichtigungen",
+    "emailSubtitle": "Erhalten Sie E-Mails darüber, was passiert, während Sie nicht da sind. Sie können das jederzeit abschalten.",
+    "pushTitle": "Push-Benachrichtigungen",
+    "pushSubtitle": "Erhalten Sie Hinweise in Ihrer Benachrichtigungsleiste, auch wenn die App geschlossen ist.",
+    "items": {
+      "newsUpdates": {
+        "name": "Neuigkeiten",
+        "subtitle": "Neues zu unseren Leistungen."
+      },
+      "tips": {
+        "name": "Tipps und Anleitungen",
+        "subtitle": "Tipps, wie Sie mehr aus QuantumLogic herausholen."
+      },
+      "tickets": {
+        "name": "Meine Tickets",
+        "subtitle": "Updates zu Ihren Tickets."
+      },
+      "invoices": {
+        "name": "Rechnungen",
+        "subtitle": "Benachrichtigung bei neuen Rechnungen."
+      },
+      "reminders": {
+        "name": "Erinnerungen",
+        "subtitle": "Zahlungs- und Termin­erinnerungen."
+      },
+      "comments": {
+        "name": "Kommentare",
+        "subtitle": "Antworten und Kommentare zu Ihren Tickets."
+      }
+    }
+  },
+  "billing": {
+    "lastInvoice": "Letzte Rechnung",
+    "nextDueDate": "Nächste Fälligkeit",
+    "payOnline": "Online bezahlen",
+    "pay": "Bezahlen",
+    "searchInvoices": "Rechnungen suchen",
+    "amountDue": "Offener Betrag",
+    "dueDate": "Fällig am",
+    "reference": "Verwendungszweck",
+    "savedMethods": "Gespeicherte Zahlungsmittel",
+    "addCard": "Karte hinzufügen",
+    "addACard": "Karte hinzufügen",
+    "default": "Standard",
+    "makeDefault": "Als Standard festlegen",
+    "saveCard": "Karte speichern",
+    "noMethods": "Noch keine gespeicherten Zahlungsmittel. Karten, die beim Bezahlen oder hier gespeichert werden, lassen sich für wiederkehrende Leistungen verwenden.",
+    "yourDetails": "Ihre Daten",
+    "name": "Name",
+    "paySubtitle": "Begleichen Sie Ihren offenen Betrag online per Karte, PayPal oder Überweisung.",
+    "paymentOptions": "Zahlungsoptionen",
+    "onlinePayment": "Online-Zahlung",
+    "payLatest": "Letzte Rechnung bezahlen",
+    "paySelected": "Ausgewählte Rechnung bezahlen",
+    "payCustom": "Freien Betrag bezahlen",
+    "payEverything": "Alles bezahlen"
+  },
+  "services": {
+    "price": "Preis",
+    "nextCharge": "Nächste Abbuchung",
+    "pause": "Pausieren",
+    "service": "Leistung",
+    "qty": "Menge",
+    "recurring": "Wiederkehrende Leistungen",
+    "empty": "Noch keine Leistungen. Sobald wir einen Auftrag für Sie anlegen, erscheint er hier."
+  },
+  "checkout": {
+    "totalToPay": "Gesamtbetrag",
+    "payingNow": "Jetzt bezahlt",
+    "nothingLeft": "Nichts mehr offen",
+    "backToBilling": "Zurück zur Abrechnung",
+    "chooseMethod": "Zahlungsart wählen",
+    "paypalNote": "Sie werden zu PayPal weitergeleitet, um die Zahlung zu bestätigen, und danach hierher zurückgebracht.",
+    "continuePaypal": "Weiter zu PayPal",
+    "accountHolder": "Kontoinhaber",
+    "referenceNote": "Verwendungszweck — bitte unbedingt angeben",
+    "scanQr": "Mit Ihrer Banking-App scannen",
+    "transferNote": "Die Rechnung bleibt offen, bis die Überweisung bei uns eingeht oder Ihr Zahlungsnachweis bestätigt wurde.",
+    "proofReceived": "Nachweis erhalten — wir bestätigen die Zahlung in Kürze.",
+    "uploadProof": "Zahlungsnachweis hochladen",
+    "bankSlip": "Beleg (PDF, JPG oder PNG, max. 10 MB)",
+    "noteOptional": "Anmerkung (optional)"
+  },
+  "invoice": {
+    "download": "Rechnung herunterladen",
+    "details": "Rechnungsdetails",
+    "date": "Rechnungsdatum",
+    "order": "Auftrag",
+    "terms": "Zahlungsbedingungen",
+    "type": "Art",
+    "description": "Bezeichnung",
+    "unitPrice": "Einzelpreis",
+    "discountPercent": "Rabatt %",
+    "vatPercent": "USt %",
+    "netAmount": "Nettobetrag",
+    "discount": "Rabatt",
+    "vat": "USt",
+    "paid": "Bezahlt",
+    "proofUnderReview": "Ein Überweisungsnachweis wird gerade geprüft. Sie können weiterhin online bezahlen, falls die Überweisung nicht durchgegangen ist.",
+    "loadFailed": "Diese Rechnung konnte nicht geladen werden."
   }
 }

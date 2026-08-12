@@ -84,7 +84,7 @@ onMounted(() => {
               <VIcon icon="tabler-file-invoice" />
             </VAvatar>
             <div>
-              <div class="text-body-2">Last invoice</div>
+              <div class="text-body-2">{{ $t('billing.lastInvoice') }}</div>
               <h6 class="text-h6">{{ formatMoney(summary?.last_invoice_total) }}</h6>
             </div>
           </div>
@@ -94,7 +94,7 @@ onMounted(() => {
               <VIcon icon="tabler-calendar-due" />
             </VAvatar>
             <div>
-              <div class="text-body-2">Next due date</div>
+              <div class="text-body-2">{{ $t('billing.nextDueDate') }}</div>
               <h6 class="text-h6">{{ formatDate(summary?.next_due_at) }}</h6>
             </div>
           </div>
@@ -104,7 +104,7 @@ onMounted(() => {
               <VIcon icon="tabler-wallet" />
             </VAvatar>
             <div>
-              <div class="text-body-2">Outstanding balance</div>
+              <div class="text-body-2">{{ $t('dashboard.outstanding') }}</div>
               <h6 class="text-h6">{{ formatMoney(summary?.outstanding_balance) }}</h6>
             </div>
           </div>
@@ -116,7 +116,7 @@ onMounted(() => {
           :disabled="!summary?.open_invoices"
           :to="{ name: 'client-billing-pay' }"
         >
-          Pay online
+          {{ $t('billing.payOnline') }}
         </VBtn>
       </VCardText>
     </VCard>
@@ -129,14 +129,14 @@ onMounted(() => {
           :items="statusOptions"
           density="compact"
           style="max-inline-size: 12rem;"
-          label="Filter"
+          :label="$t('common.filter')"
         />
         <VSpacer />
         <VTextField
           v-model="search"
           density="compact"
           prepend-inner-icon="tabler-search"
-          placeholder="Search invoices"
+          :placeholder="$t('billing.searchInvoices')"
           style="max-inline-size: 16rem;"
         />
       </VCardText>
@@ -189,7 +189,7 @@ onMounted(() => {
             class="me-2"
             :to="{ name: 'client-billing-invoices-id', params: { id: item.id } }"
           >
-            View
+            {{ $t('common.view') }}
           </VBtn>
           <VBtn
             v-if="item.amount_due > 0 && ['sent', 'awaiting_confirmation', 'unpaid'].includes(item.status)"
@@ -197,7 +197,7 @@ onMounted(() => {
             color="primary"
             :to="{ name: 'client-billing-checkout-id', params: { id: item.id } }"
           >
-            Pay
+            {{ $t('billing.pay') }}
           </VBtn>
         </template>
       </VDataTableServer>

@@ -14,41 +14,41 @@ import * as feather from 'feather-icons';
 const notificationsEmail = ref([
   {
     logo: 'arrow-right',
-    name: 'News and Updates',
-    subtitle: 'News about products and services.',
+    name: 'preferences.items.newsUpdates.name',
+    subtitle: 'preferences.items.newsUpdates.subtitle',
     type: 'email',
     field_name: 'email_news_and_updates',
     connected: false,
   },
   {
     logo: 'asana',
-    name: 'Tips and tutorials',
-    subtitle: 'Tips on getting more out of QuantumLogic.',
+    name: 'preferences.items.tips.name',
+    subtitle: 'preferences.items.tips.subtitle',
     type: 'email',
     field_name: 'email_tips_and_tutorials',
     connected: false,
   },
   {
     logo: 'asana',
-    name: 'Tiketat e mia',
-    subtitle: 'Njoftimet rreth tiketave',
+    name: 'preferences.items.tickets.name',
+    subtitle: 'preferences.items.tickets.subtitle',
     type: 'email',
     field_name: 'email_my_tickets',
     connected: false,
   },
   {
     logo: 'asana',
-    name: 'Faturat',
+    name: 'preferences.items.invoices.name',
     color: 'yellow',
-    subtitle: 'Merr njoftimet per faturat e gjeneruara',
+    subtitle: 'preferences.items.invoices.subtitle',
     type: 'email',
     field_name: 'email_invoices',
     connected: false,
   },
   {
     logo: 'asana',
-    name: 'Përkujtimet/Reminders',
-    subtitle: 'Aktivizo reminders',
+    name: 'preferences.items.reminders.name',
+    subtitle: 'preferences.items.reminders.subtitle',
     type: 'email',
     field_name: 'email_reminders',
     connected: false,
@@ -56,8 +56,8 @@ const notificationsEmail = ref([
 
   {
     logo: 'asana',
-    name: 'Tiketat e mia',
-    subtitle: 'Njoftohu rreth tiketave tuaja',
+    name: 'preferences.items.tickets.name',
+    subtitle: 'preferences.items.tickets.subtitle',
     type: 'push',
     field_name: 'push_my_tickets',
     connected: false,
@@ -65,24 +65,24 @@ const notificationsEmail = ref([
 
   {
     logo: 'asana',
-    name: 'Komentet',
-    subtitle: 'Njoftohu rreth komenteve',
+    name: 'preferences.items.comments.name',
+    subtitle: 'preferences.items.comments.subtitle',
     type: 'push',
     field_name: 'push_my_comments',
     connected: false,
   },
   {
     logo: 'asana',
-    name: 'Perkujtimet/Reminders',
-    subtitle: 'Njoftohu rreth reminders te paracaktuara.',
+    name: 'preferences.items.reminders.name',
+    subtitle: 'preferences.items.reminders.subtitle',
     type: 'push',
     field_name: 'push_reminders',
     connected: false,
   },
   {
     logo: 'asana',
-    name: 'Faturat',
-    subtitle: 'Merr njoftimet per faturat e gjeneruara',
+    name: 'preferences.items.invoices.name',
+    subtitle: 'preferences.items.invoices.subtitle',
     type: 'push',
     field_name: 'push_invoices',
     connected: false,
@@ -170,10 +170,10 @@ onMounted( async() => {
       <VCard>
         <VCardText>
           <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Njoftimet permes emailit
+            {{ $t('preferences.emailTitle') }}
           </h5>
           <p class="text-normal">
-            Merr emaile për të zbuluar se çfarë po ndodh kur nuk je online. Ju mund t'i fikni këto.
+            {{ $t('preferences.emailSubtitle') }}
           </p>
         </VCardText>
       </VCard>
@@ -194,11 +194,11 @@ onMounted( async() => {
                 </template>
                 <VListItemTitle>
                   <h6 class="text-h6">
-                    {{ item.name }}
+                    {{ $t(item.name) }}
                   </h6>
                 </VListItemTitle>
                 <VListItemSubtitle class="text-xs">
-                  {{ item.subtitle }}
+                  {{ $t(item.subtitle) }}
                 </VListItemSubtitle>
                 <template #append>
                   <VListItemAction>
@@ -222,10 +222,10 @@ onMounted( async() => {
       <VCard>
         <VCardText>
           <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Push Notifications
+            {{ $t('preferences.pushTitle') }}
           </h5>
           <p class="text-normal">
-            Merr njoftimet direkt ne notification-bar edhe kur nuk je brenda aplikacionit.
+            {{ $t('preferences.pushSubtitle') }}
           </p>
         </VCardText>
       </VCard>
@@ -247,11 +247,11 @@ onMounted( async() => {
                 </template>
                 <VListItemTitle>
                   <h6 class="text-h6">
-                    {{ item.name }}
+                    {{ $t(item.name) }}
                   </h6>
                 </VListItemTitle>
                 <VListItemSubtitle class="text-xs">
-                  {{ item.subtitle }}
+                  {{ $t(item.subtitle) }}
                 </VListItemSubtitle>
                 <template #append>
                   <VListItemAction>

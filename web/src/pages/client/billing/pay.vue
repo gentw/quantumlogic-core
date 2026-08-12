@@ -65,35 +65,35 @@ onMounted(load)
 </script>
 
 <template>
-  <VCard title="Online payment">
+  <VCard :title="$t('billing.onlinePayment')">
     <VCardText>
       <VRow>
         <!-- Client details -->
         <VCol cols="12" md="5">
-          <h6 class="text-h6 mb-4">Your details</h6>
+          <h6 class="text-h6 mb-4">{{ $t('billing.yourDetails') }}</h6>
           <VTable density="comfortable" class="border rounded">
             <tbody>
               <tr>
-                <td class="text-body-2">Name</td>
+                <td class="text-body-2">{{ $t('billing.name') }}</td>
                 <td class="font-weight-medium">{{ userData?.name }} {{ userData?.surname }}</td>
               </tr>
               <tr>
-                <td class="text-body-2">Last invoice</td>
+                <td class="text-body-2">{{ $t('billing.lastInvoice') }}</td>
                 <td class="font-weight-medium">{{ formatMoney(summary?.last_invoice_total) }}</td>
               </tr>
               <tr>
-                <td class="text-body-2">Outstanding balance</td>
+                <td class="text-body-2">{{ $t('dashboard.outstanding') }}</td>
                 <td class="font-weight-medium">{{ formatMoney(summary?.outstanding_balance) }}</td>
               </tr>
               <tr>
-                <td class="text-body-2">Open invoices</td>
+                <td class="text-body-2">{{ $t('dashboard.openInvoices') }}</td>
                 <td class="font-weight-medium">{{ summary?.open_invoices ?? 0 }}</td>
               </tr>
             </tbody>
           </VTable>
 
           <p class="text-body-2 mt-4 mb-0">
-            Pay your balance online by card, PayPal or bank transfer.
+            {{ $t('billing.paySubtitle') }}
           </p>
         </VCol>
 
@@ -101,12 +101,12 @@ onMounted(load)
 
         <!-- Payment options -->
         <VCol cols="12" md="6">
-          <h6 class="text-h6 mb-4">Payment options</h6>
+          <h6 class="text-h6 mb-4">{{ $t('billing.paymentOptions') }}</h6>
 
           <VRadioGroup v-model="mode">
-            <VRadio value="latest" label="Pay the latest invoice" class="mb-1" />
+            <VRadio value="latest" :label="$t('billing.payLatest')" class="mb-1" />
 
-            <VRadio value="selected" label="Pay a selected invoice" class="mb-1" />
+            <VRadio value="selected" :label="$t('billing.paySelected')" class="mb-1" />
             <VSelect
               v-if="mode === 'selected'"
               v-model="selectedInvoiceId"
@@ -118,7 +118,7 @@ onMounted(load)
               label="NR"
             />
 
-            <VRadio value="custom" label="Pay a custom amount" class="mb-1" />
+            <VRadio value="custom" :label="$t('billing.payCustom')" class="mb-1" />
             <VTextField
               v-if="mode === 'custom'"
               v-model="customAmount"
@@ -126,11 +126,11 @@ onMounted(load)
               min="1"
               density="compact"
               class="mb-3 ms-8"
-              label="Amount"
+              :label="$t('common.amount')"
               suffix="EUR"
             />
 
-            <VRadio value="all" label="Pay everything" />
+            <VRadio value="all" :label="$t('billing.payEverything')" />
           </VRadioGroup>
 
           <VAlert
@@ -149,7 +149,7 @@ onMounted(load)
             :disabled="!openInvoices.length"
             @click="proceed"
           >
-            Pay now
+            {{ $t('dashboard.payNow') }}
           </VBtn>
         </VCol>
       </VRow>

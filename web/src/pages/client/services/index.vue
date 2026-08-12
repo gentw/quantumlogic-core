@@ -63,7 +63,7 @@ const planAction = async (plan, action) => {
 
     <template v-else>
       <!-- Recurring services -->
-      <VCard v-if="plans.length" class="mb-6" title="Recurring services">
+      <VCard v-if="plans.length" class="mb-6" :title="$t('services.recurring')">
         <VCardText>
           <VRow>
             <VCol
@@ -82,13 +82,13 @@ const planAction = async (plan, action) => {
                     </VChip>
                   </div>
                   <div class="d-flex justify-space-between mb-2">
-                    <span class="text-body-2">Price</span>
+                    <span class="text-body-2">{{ $t('services.price') }}</span>
                     <span class="font-weight-medium">
                       {{ formatMoney(plan.amount_net) }} / {{ plan.interval === 'yearly' ? 'year' : 'month' }} net
                     </span>
                   </div>
                   <div class="d-flex justify-space-between mb-2">
-                    <span class="text-body-2">Next charge</span>
+                    <span class="text-body-2">{{ $t('services.nextCharge') }}</span>
                     <span class="font-weight-medium">{{ formatDate(plan.next_charge_at) }}</span>
                   </div>
                   <VAlert
@@ -112,7 +112,7 @@ const planAction = async (plan, action) => {
                       :loading="planWorking === plan.id"
                       @click="planAction(plan, 'pause')"
                     >
-                      Pause
+                      {{ $t('services.pause') }}
                     </VBtn>
                     <VBtn
                       size="small"
@@ -121,7 +121,7 @@ const planAction = async (plan, action) => {
                       :loading="planWorking === plan.id"
                       @click="planAction(plan, 'cancel')"
                     >
-                      Cancel
+                      {{ $t('common.cancel') }}
                     </VBtn>
                   </div>
                 </VCardText>
@@ -132,11 +132,10 @@ const planAction = async (plan, action) => {
       </VCard>
 
       <!-- Orders -->
-      <VCard title="My services">
+      <VCard :title="$t('dashboard.myServices')">
         <VCardText v-if="!orders.length">
           <VAlert type="info" variant="tonal">
-            No services yet. Once the agency sets up an order for you, it
-            shows up here.
+            {{ $t('services.empty') }}
           </VAlert>
         </VCardText>
 
@@ -157,9 +156,9 @@ const planAction = async (plan, action) => {
                 <VTable density="comfortable">
                   <thead>
                     <tr>
-                      <th>Service</th>
-                      <th class="text-end">Qty</th>
-                      <th class="text-end">Total</th>
+                      <th>{{ $t('services.service') }}</th>
+                      <th class="text-end">{{ $t('services.qty') }}</th>
+                      <th class="text-end">{{ $t('common.total') }}</th>
                     </tr>
                   </thead>
                   <tbody>

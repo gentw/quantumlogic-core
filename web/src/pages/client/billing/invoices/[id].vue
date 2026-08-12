@@ -54,7 +54,7 @@ onMounted(load)
       </div>
       <VSpacer />
       <VBtn variant="text" append-icon="tabler-download" @click="downloadPdf">
-        Download invoice
+        {{ $t('invoice.download') }}
       </VBtn>
     </div>
 
@@ -64,7 +64,7 @@ onMounted(load)
         <VCard class="invoice-detail-card">
           <VCardText>
             <div class="d-flex justify-space-between align-start flex-wrap gap-4 mb-6">
-              <h6 class="text-h6">Invoice details</h6>
+              <h6 class="text-h6">{{ $t('invoice.details') }}</h6>
               <img
                 v-if="bankDetails?.epc_qr_png"
                 :src="bankDetails.epc_qr_png"
@@ -77,29 +77,29 @@ onMounted(load)
             <VRow>
               <VCol cols="12" sm="6">
                 <div class="mb-4">
-                  <div class="text-body-2">Invoice date</div>
+                  <div class="text-body-2">{{ $t('invoice.date') }}</div>
                   <div class="font-weight-medium">{{ formatDate(invoice.issued_at) }}</div>
                 </div>
                 <div class="mb-4">
-                  <div class="text-body-2">Due date</div>
+                  <div class="text-body-2">{{ $t('billing.dueDate') }}</div>
                   <div class="font-weight-medium">{{ formatDate(invoice.due_at) }}</div>
                 </div>
                 <div v-if="invoice.order_number" class="mb-4">
-                  <div class="text-body-2">Order</div>
+                  <div class="text-body-2">{{ $t('invoice.order') }}</div>
                   <div class="font-weight-medium">{{ invoice.order_number }}</div>
                 </div>
               </VCol>
               <VCol cols="12" sm="6">
                 <div v-if="invoice.reference" class="mb-4">
-                  <div class="text-body-2">Reference</div>
+                  <div class="text-body-2">{{ $t('billing.reference') }}</div>
                   <div class="font-weight-medium">{{ invoice.reference }}</div>
                 </div>
                 <div v-if="invoice.terms" class="mb-4">
-                  <div class="text-body-2">Terms</div>
+                  <div class="text-body-2">{{ $t('invoice.terms') }}</div>
                   <div class="font-weight-medium">{{ invoice.terms }}</div>
                 </div>
                 <div class="mb-4">
-                  <div class="text-body-2">Type</div>
+                  <div class="text-body-2">{{ $t('invoice.type') }}</div>
                   <div class="font-weight-medium">{{ invoiceTypeLabel(invoice.type) }}</div>
                 </div>
               </VCol>
@@ -119,12 +119,12 @@ onMounted(load)
             <VTable class="border rounded overflow-hidden">
               <thead>
                 <tr>
-                  <th>Description</th>
-                  <th class="text-end">Qty</th>
-                  <th class="text-end">Unit price</th>
-                  <th class="text-end">Discount %</th>
-                  <th class="text-end">VAT %</th>
-                  <th class="text-end">Total</th>
+                  <th>{{ $t('invoice.description') }}</th>
+                  <th class="text-end">{{ $t('services.qty') }}</th>
+                  <th class="text-end">{{ $t('invoice.unitPrice') }}</th>
+                  <th class="text-end">{{ $t('invoice.discountPercent') }}</th>
+                  <th class="text-end">{{ $t('invoice.vatPercent') }}</th>
+                  <th class="text-end">{{ $t('common.total') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,7 +148,7 @@ onMounted(load)
           <VCardText>
             <div class="d-flex justify-space-between align-center mb-4">
               <div>
-                <div class="text-body-2">Amount due</div>
+                <div class="text-body-2">{{ $t('billing.amountDue') }}</div>
                 <h4 class="text-h4">{{ formatMoney(invoice.amount_due) }}</h4>
               </div>
               <VChip v-bind="invoiceStatusChip(invoice)" size="small" label>
@@ -159,23 +159,23 @@ onMounted(load)
             <VDivider class="mb-4" />
 
             <div class="d-flex justify-space-between mb-2">
-              <span>Net amount</span>
+              <span>{{ $t('invoice.netAmount') }}</span>
               <span>{{ formatMoney(invoice.subtotal_net) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
-              <span>Discount</span>
+              <span>{{ $t('invoice.discount') }}</span>
               <span>{{ formatMoney(invoice.discount_total) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
-              <span>VAT</span>
+              <span>{{ $t('invoice.vat') }}</span>
               <span>{{ formatMoney(invoice.vat_total) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2 font-weight-medium">
-              <span>Total</span>
+              <span>{{ $t('common.total') }}</span>
               <span>{{ formatMoney(invoice.total_gross) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-4">
-              <span>Paid</span>
+              <span>{{ $t('invoice.paid') }}</span>
               <span>{{ formatMoney(invoice.amount_paid) }}</span>
             </div>
 
@@ -186,12 +186,11 @@ onMounted(load)
               append-icon="tabler-chevron-right"
               :to="{ name: 'client-billing-checkout-id', params: { id: invoice.id } }"
             >
-              Pay now
+              {{ $t('dashboard.payNow') }}
             </VBtn>
 
             <p v-if="invoice.status === 'awaiting_confirmation'" class="text-body-2 mt-4 mb-0">
-              A bank transfer proof is being reviewed. You can still pay online
-              if the transfer did not go through.
+              {{ $t('invoice.proofUnderReview') }}
             </p>
           </VCardText>
         </VCard>
@@ -201,7 +200,7 @@ onMounted(load)
 
   <section v-else-if="loadError">
     <VAlert type="error" variant="tonal">
-      This invoice could not be loaded.
+      {{ $t('invoice.loadFailed') }}
     </VAlert>
   </section>
 </template>

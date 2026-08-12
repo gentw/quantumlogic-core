@@ -28,6 +28,7 @@ const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const $toast = useToast();
+const { t } = useI18n();
 
 const resetForm = () => {
   accountDataLocal.value = structuredClone(accountData)
@@ -40,8 +41,8 @@ const errors = ref({
 })
 
 const confirmPasswordRules = [
-v => v === newPassword.value || 'Fjalëkalimet duhen te jene te njejta!', // Check if the passwords match
-  v => !!v || 'Konfirmimi i passwordit eshte obligativ.',
+v => v === newPassword.value || t('account.passwordsMustMatch'), // Check if the passwords match
+  v => !!v || t('account.confirmRequired'),
 ];
 
 const changeAvatar = file => {
@@ -210,10 +211,10 @@ onMounted( async() => {
       <VCard>
         <VCardText>
           <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Detajet Personale
+            {{ $t('account.personalDetails') }}
           </h5>
           <p class="text-normal">
-            Përdorni një adresë të përhershme ku mund të pranoni email.
+            {{ $t('account.emailNote') }}
           </p>
         </VCardText>
       </VCard>
@@ -242,7 +243,7 @@ onMounted( async() => {
                   icon="tabler-cloud-upload"
                   class="d-sm-none"
                 />
-                <span class="d-none d-sm-block">Ndrysho foton</span>
+                <span class="d-none d-sm-block">{{ $t('account.changePhoto') }}</span>
               </VBtn>
 
               <input
@@ -261,7 +262,7 @@ onMounted( async() => {
                 variant="tonal"
                 @click="resetAvatar"
               >
-                <span class="d-none d-sm-block">Reseto</span>
+                <span class="d-none d-sm-block">{{ $t('common.reset') }}</span>
                 <VIcon
                   icon="tabler-refresh"
                   class="d-sm-none"
@@ -270,7 +271,7 @@ onMounted( async() => {
             </div>
 
             <p class="text-body-1 mb-0">
-              Allowed JPG, GIF or PNG. Max size of 800K
+              {{ $t('account.photoHint') }}
             </p>
           </form>
         </VCardText>
@@ -288,7 +289,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.name"
-                  label="Emri"
+                  :label="$t('auth.name')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -300,7 +301,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.surname"
-                  label="Mbiemri"
+                  :label="$t('auth.surname')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -312,8 +313,8 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.email"
-                  label="Email adresa juaj"
-                  placeholder="email@mail.com"
+                  :label="$t('account.yourEmail')"
+                  :placeholder="$t('account.emailPlaceholder')"
                   type="email"
                   :disabled="updateRequest"
                 />
@@ -327,7 +328,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.phone"
-                  label="Numri telefonit"
+                  :label="$t('account.phone')"
                   placeholder="044123456"
                   :disabled="updateRequest"
                 />
@@ -340,7 +341,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.address"
-                  label="Adresa"
+                  :label="$t('account.address')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -352,7 +353,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.city"
-                  label="Qyteti"
+                  :label="$t('account.city')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -364,7 +365,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.postal_code"
-                  label="Kodi Postal"
+                  :label="$t('account.postalCode')"
                   placeholder="10000"
                   :disabled="updateRequest"
                 />
@@ -375,9 +376,9 @@ onMounted( async() => {
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn v-if="updateRequest == 0" type="submit">Dergo Kërkesen</VBtn>
+                <VBtn v-if="updateRequest == 0" type="submit">{{ $t('account.sendRequest') }}</VBtn>
                 <VBtn v-else color="dark-btn">
-                  Kerkese per editim
+                  {{ $t('account.editRequestPending') }}
                 </VBtn>
 
              
@@ -400,10 +401,10 @@ onMounted( async() => {
       <VCard>
         <VCardText>
           <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Ndrysho fjalëkalimin
+            {{ $t('account.changePassword') }}
           </h5>
           <p class="text-normal">
-            Përdorni një adresë të përhershme ku mund të pranoni email.
+            {{ $t('account.emailNote') }}
           </p>
         </VCardText>
       </VCard>
@@ -426,7 +427,7 @@ onMounted( async() => {
                   v-model="currentPassword"
                   :type="isCurrentPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isCurrentPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Fjalëkalimi aktual"
+                  :label="$t('twoFactor.currentPassword')"
                   autocomplete="on"
                   placeholder="············"
                   @click:append-inner="isCurrentPasswordVisible = !isCurrentPasswordVisible"
@@ -445,7 +446,7 @@ onMounted( async() => {
                   v-model="newPassword"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Fjalëkalimi i ri"
+                  :label="$t('account.newPassword')"
                   autocomplete="on"
                   placeholder="············"
                   @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
@@ -461,7 +462,7 @@ onMounted( async() => {
                   v-model="confirmPassword"
                   :type="isConfirmPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Konfirmo fjalëkalimin"
+                  :label="$t('account.confirmPassword')"
                   autocomplete="on"
                   placeholder="············"
                   @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
@@ -473,7 +474,7 @@ onMounted( async() => {
 
          
           <VCardText class="d-flex flex-wrap gap-4">
-            <VBtn type="submit">Ruaj</VBtn>
+            <VBtn type="submit">{{ $t('common.save') }}</VBtn>
           </VCardText>
         </VForm>
       </VCard>

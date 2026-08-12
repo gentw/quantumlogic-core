@@ -44,7 +44,12 @@
     "amount": "Amount",
     "language": "Language",
     "confirm": "Confirm",
-    "continue": "Continue"
+    "continue": "Continue",
+    "reset": "Reset",
+    "view": "View",
+    "filter": "Filter",
+    "submit": "Submit",
+    "total": "Total"
   },
   "dashboard": {
     "welcomeBack": "Welcome back",
@@ -146,5 +151,126 @@
   "errors": {
     "notAuthorized": "You are not authorized!",
     "backHome": "Back to home"
+  },
+  "account": {
+    "personalDetails": "Personal details",
+    "emailNote": "Use a permanent address where you can receive email.",
+    "changePhoto": "Change photo",
+    "photoHint": "JPG, GIF or PNG. Maximum size 800 KB.",
+    "sendRequest": "Send request",
+    "editRequestPending": "Change request pending",
+    "changePassword": "Change password",
+    "yourEmail": "Your email address",
+    "emailPlaceholder": "email@example.at",
+    "phone": "Phone number",
+    "address": "Address",
+    "city": "City",
+    "postalCode": "Postcode",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "passwordsMustMatch": "The passwords must match.",
+    "confirmRequired": "Please confirm your password."
+  },
+  "preferences": {
+    "emailTitle": "Email notifications",
+    "emailSubtitle": "Get emails about what happens while you are away. You can turn these off.",
+    "pushTitle": "Push notifications",
+    "pushSubtitle": "Get notifications in your notification bar even when the app is closed.",
+    "items": {
+      "newsUpdates": {
+        "name": "News and updates",
+        "subtitle": "News about our services."
+      },
+      "tips": {
+        "name": "Tips and tutorials",
+        "subtitle": "Tips on getting more out of QuantumLogic."
+      },
+      "tickets": {
+        "name": "My tickets",
+        "subtitle": "Updates on tickets you have raised."
+      },
+      "invoices": {
+        "name": "Invoices",
+        "subtitle": "Tell me when a new invoice is issued."
+      },
+      "reminders": {
+        "name": "Reminders",
+        "subtitle": "Payment and appointment reminders."
+      },
+      "comments": {
+        "name": "Comments",
+        "subtitle": "Replies and comments on your tickets."
+      }
+    }
+  },
+  "billing": {
+    "lastInvoice": "Last invoice",
+    "nextDueDate": "Next due date",
+    "payOnline": "Pay online",
+    "pay": "Pay",
+    "searchInvoices": "Search invoices",
+    "amountDue": "Amount due",
+    "dueDate": "Due date",
+    "reference": "Reference",
+    "savedMethods": "Saved payment methods",
+    "addCard": "Add card",
+    "addACard": "Add a card",
+    "default": "Default",
+    "makeDefault": "Make default",
+    "saveCard": "Save card",
+    "noMethods": "No saved payment methods yet. Cards saved during checkout, or added here, can be used for recurring services.",
+    "yourDetails": "Your details",
+    "name": "Name",
+    "paySubtitle": "Pay your balance online by card, PayPal or bank transfer.",
+    "paymentOptions": "Payment options",
+    "onlinePayment": "Online payment",
+    "payLatest": "Pay the latest invoice",
+    "paySelected": "Pay a selected invoice",
+    "payCustom": "Pay a custom amount",
+    "payEverything": "Pay everything"
+  },
+  "services": {
+    "price": "Price",
+    "nextCharge": "Next charge",
+    "pause": "Pause",
+    "service": "Service",
+    "qty": "Qty",
+    "recurring": "Recurring services",
+    "empty": "No services yet. Once the agency sets up an order for you, it shows up here."
+  },
+  "checkout": {
+    "totalToPay": "Total to pay",
+    "payingNow": "Paying now",
+    "nothingLeft": "Nothing left to pay",
+    "backToBilling": "Back to billing",
+    "chooseMethod": "Choose how to pay",
+    "paypalNote": "You will be redirected to PayPal to approve the payment, then brought back here.",
+    "continuePaypal": "Continue to PayPal",
+    "accountHolder": "Account holder",
+    "referenceNote": "Reference — please include it",
+    "scanQr": "Scan with your banking app",
+    "transferNote": "The invoice stays open until we receive the transfer, or until your proof of payment is accepted.",
+    "proofReceived": "Proof received — we will confirm the payment shortly.",
+    "uploadProof": "Upload payment proof",
+    "bankSlip": "Bank slip (PDF, JPG or PNG, max 10 MB)",
+    "noteOptional": "Note (optional)"
+  },
+  "invoice": {
+    "download": "Download invoice",
+    "details": "Invoice details",
+    "date": "Invoice date",
+    "order": "Order",
+    "terms": "Terms",
+    "type": "Type",
+    "description": "Description",
+    "unitPrice": "Unit price",
+    "discountPercent": "Discount %",
+    "vatPercent": "VAT %",
+    "netAmount": "Net amount",
+    "discount": "Discount",
+    "vat": "VAT",
+    "paid": "Paid",
+    "proofUnderReview": "A bank transfer proof is being reviewed. You can still pay online if the transfer did not go through.",
+    "loadFailed": "This invoice could not be loaded."
   }
 }
