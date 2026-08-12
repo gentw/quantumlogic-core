@@ -15,13 +15,26 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
     contentWidth: ContentWidth.Boxed,
     contentLayoutNav: AppContentLayoutNav.Vertical,
     overlayNavFromBreakpoint: breakpointsVuetify.md + 16, // 16 for scrollbar. Docs: https://next.vuetifyjs.com/en/features/display-and-platform/
+    // Keep in step with config/locale.php on the API side and with
+    // src/plugins/i18n/locales/ — a language listed here without messages
+    // renders raw keys.
     i18n: {
-      enable: false,
+      enable: true,
       defaultLocale: 'en',
       langConfig: [
         {
           label: 'English',
           i18nLang: 'en',
+          isRTL: false,
+        },
+        {
+          label: 'Deutsch',
+          i18nLang: 'de',
+          isRTL: false,
+        },
+        {
+          label: 'Shqip',
+          i18nLang: 'sq',
           isRTL: false,
         },
       ],

@@ -61,7 +61,7 @@ onMounted(load)
     <VCol cols="12" md="5">
       <VCard class="h-100">
         <VCardItem>
-          <VCardTitle>Next invoice due</VCardTitle>
+          <VCardTitle>{{ $t('dashboard.nextInvoiceDue') }}</VCardTitle>
         </VCardItem>
 
         <VCardText v-if="loading">
@@ -83,19 +83,19 @@ onMounted(load)
           </div>
 
           <div class="text-body-2 text-medium-emphasis mb-1">
-            Invoice {{ nextDue.invoice_number }}
+            {{ $t('dashboard.invoiceNumber', { number: nextDue.invoice_number }) }}
           </div>
           <div class="text-body-2 text-medium-emphasis mb-4">
-            Due {{ formatDate(nextDue.due_at) }} · {{ formatMoney(nextDue.total_gross) }} total
+            {{ $t('dashboard.dueTotal', { date: formatDate(nextDue.due_at), total: formatMoney(nextDue.total_gross) }) }}
           </div>
 
           <div class="d-flex flex-wrap gap-3">
             <VBtn @click="payNextDue">
-              Pay now
+              {{ $t('dashboard.payNow') }}
               <VIcon icon="tabler-arrow-right" end class="flip-in-rtl" />
             </VBtn>
             <VBtn variant="tonal" color="secondary" @click="openInvoice(nextDue.id)">
-              View invoice
+              {{ $t('dashboard.viewInvoice') }}
             </VBtn>
           </div>
         </VCardText>
@@ -105,10 +105,10 @@ onMounted(load)
             <VIcon icon="tabler-check" size="28" />
           </VAvatar>
           <h6 class="text-h6 mb-1">
-            You're all caught up
+            {{ $t('dashboard.allCaughtUp') }}
           </h6>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Nothing is waiting to be paid.
+            {{ $t('dashboard.nothingToPay') }}
           </p>
         </VCardText>
       </VCard>
@@ -126,7 +126,7 @@ onMounted(load)
                 </VAvatar>
                 <div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Outstanding
+                    {{ $t('dashboard.outstanding') }}
                   </div>
                   <h5 class="text-h5">
                     <VSkeletonLoader v-if="loading" type="text" width="90" />
@@ -145,7 +145,7 @@ onMounted(load)
                 </VAvatar>
                 <div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Open invoices
+                    {{ $t('dashboard.openInvoices') }}
                   </div>
                   <h5 class="text-h5">
                     <VSkeletonLoader v-if="loading" type="text" width="40" />
@@ -164,7 +164,7 @@ onMounted(load)
                 </VAvatar>
                 <div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Active services
+                    {{ $t('dashboard.activeServices') }}
                   </div>
                   <h5 class="text-h5">
                     <VSkeletonLoader v-if="loading" type="text" width="40" />
@@ -184,10 +184,10 @@ onMounted(load)
     <VCol cols="12" md="7">
       <VCard>
         <VCardItem>
-          <VCardTitle>Recent invoices</VCardTitle>
+          <VCardTitle>{{ $t('dashboard.recentInvoices') }}</VCardTitle>
           <template #append>
             <VBtn variant="text" size="small" :to="{ name: 'client-billing' }">
-              View all
+              {{ $t('common.viewAll') }}
             </VBtn>
           </template>
         </VCardItem>
@@ -226,7 +226,7 @@ onMounted(load)
         </VList>
 
         <VCardText v-else class="text-medium-emphasis">
-          No invoices yet.
+          {{ $t('dashboard.noInvoices') }}
         </VCardText>
       </VCard>
     </VCol>
@@ -235,10 +235,10 @@ onMounted(load)
     <VCol cols="12" md="5">
       <VCard>
         <VCardItem>
-          <VCardTitle>My services</VCardTitle>
+          <VCardTitle>{{ $t('dashboard.myServices') }}</VCardTitle>
           <template #append>
             <VBtn variant="text" size="small" :to="{ name: 'client-services' }">
-              View all
+              {{ $t('common.viewAll') }}
             </VBtn>
           </template>
         </VCardItem>
@@ -256,7 +256,7 @@ onMounted(load)
               {{ plan.service_name ?? 'Recurring service' }}
             </VListItemTitle>
             <VListItemSubtitle>
-              Renews {{ formatDate(plan.next_charge_at) }} · {{ plan.interval === 'yearly' ? 'Yearly' : 'Monthly' }}
+              {{ $t('dashboard.renews') }} {{ formatDate(plan.next_charge_at) }} · {{ plan.interval === 'yearly' ? $t('dashboard.yearly') : $t('dashboard.monthly') }}
             </VListItemSubtitle>
 
             <template #append>
@@ -278,7 +278,7 @@ onMounted(load)
               {{ order.order_number }}
             </VListItemTitle>
             <VListItemSubtitle>
-              {{ formatMoney(order.total_gross) }} · ordered {{ formatDate(order.created_at) }}
+              {{ formatMoney(order.total_gross) }} · {{ $t('dashboard.ordered') }} {{ formatDate(order.created_at) }}
             </VListItemSubtitle>
 
             <template #append>
@@ -290,7 +290,7 @@ onMounted(load)
         </VList>
 
         <VCardText v-else class="text-medium-emphasis">
-          No active services.
+          {{ $t('dashboard.noServices') }}
         </VCardText>
       </VCard>
     </VCol>

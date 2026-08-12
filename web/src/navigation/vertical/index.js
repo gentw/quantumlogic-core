@@ -2,7 +2,7 @@ import { appFeatures } from '@/utils/features'
 
 export default [
   {
-    title: 'Dashboard',
+    title: 'nav.dashboard',
     to: { name: 'client' },
     icon: 'zap',
     role: 'client',
@@ -15,7 +15,7 @@ export default [
   ...(appFeatures.tickets
     ? [
       {
-        title: 'My Tickets',
+        title: 'nav.myTickets',
         to: { name: 'second-page' },
         icon: 'check-square',
         role: 'client',
@@ -25,14 +25,14 @@ export default [
     : []),
 
   {
-    title: 'My Services',
+    title: 'nav.myServices',
     to: { name: 'client-services' },
     icon: 'briefcase',
     role: 'client',
     class: '',
   },
   {
-    title: 'Billing',
+    title: 'nav.billing',
     to: { name: 'client-billing' },
     icon: 'credit-card',
     role: 'client',
@@ -44,14 +44,14 @@ export default [
   ...(appFeatures.security
     ? [
       {
-        title: 'My Websites',
+        title: 'nav.myWebsites',
         to: { name: 'client-domains' },
         icon: 'credit-card',
         role: 'client',
         class: '',
       },
       {
-        title: 'Threat Activity',
+        title: 'nav.threatActivity',
         to: { name: 'client-alarm-alerts' },
         icon: 'alert-octagon',
         role: 'client',
@@ -61,7 +61,7 @@ export default [
     : []),
 
   {
-    title: 'Account',
+    title: 'nav.account',
     to: { name: 'client-account' },
     icon: 'user',
     role: 'client',
@@ -69,7 +69,7 @@ export default [
   },
 
   {
-    title: 'Preferences',
+    title: 'nav.preferences',
     to: { name: 'client-preferences' },
     icon: 'settings',
     role: 'client',
@@ -80,7 +80,7 @@ export default [
   // Agent
 
   {
-    title: 'Dashboard',
+    title: 'nav.dashboard',
     to: { name: 'agent' },
     icon: 'zap',
     role: 'agent',
@@ -91,7 +91,7 @@ export default [
   ...(appFeatures.security
     ? [
       {
-        title: 'Alarm Alerts',
+        title: 'nav.threatActivity',
         to: { name: 'agent-alarm-alerts' },
         icon: 'alert-octagon',
         role: 'agent',
@@ -104,7 +104,7 @@ export default [
   ...(appFeatures.tickets
     ? [
       {
-        title: 'My Tickets',
+        title: 'nav.myTickets',
         to: { name: 'agent-tickets' },
         icon: 'check-square',
         role: 'agent',
@@ -114,7 +114,7 @@ export default [
     : []),
 
   {
-    title: 'Notifications',
+    title: 'nav.notifications',
     // to: { name: 'agent-notifications' },
     icon: 'bell',
     role: 'agent',
@@ -122,14 +122,14 @@ export default [
   },
 
   {
-    title: 'Account',
+    title: 'nav.account',
     to: { name: 'agent-account' },
     icon: 'user',
     role: 'agent',
     class: '',
   },
   {
-    title: 'Settings',
+    title: 'nav.settings',
     to: { name: 'agent-preferences' },
     icon: 'settings',
     role: 'agent',
@@ -142,21 +142,21 @@ export default [
 
 
   {
-    title: 'Dashboard',
+    title: 'nav.dashboard',
     to: { name: 'admin' },
     icon: 'zap',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Clients',
+    title: 'nav.clients',
     to: { name: 'admin-clients' },
     icon: 'users',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Agents',
+    title: 'nav.agents',
     to: { name: 'admin-agents' },
     icon: 'clipboard',
     role: 'admin',
@@ -164,7 +164,7 @@ export default [
   },
 
   {
-    title: 'Admins',
+    title: 'nav.admins',
     to: { name: 'admin-admins' },
     icon: 'hard-drive',
     role: 'admin',
@@ -175,7 +175,7 @@ export default [
   ...(appFeatures.tickets
     ? [
       {
-        title: 'Tickets',
+        title: 'nav.tickets',
         to: { name: 'admin-tickets' },
         icon: 'check-square',
         role: 'admin',
@@ -184,63 +184,63 @@ export default [
     ]
     : []),
   {
-    title: 'Invoices',
+    title: 'nav.invoices',
     to: { name: 'admin-invoices' },
     icon: 'file',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Payments',
+    title: 'nav.payments',
     to: { name: 'admin-payments' },
     icon: 'credit-card',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Reconciliation',
+    title: 'nav.reconciliation',
     to: { name: 'admin-payments-reconciliation' },
     icon: 'building-bank',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Services',
+    title: 'nav.services',
     to: { name: 'admin-services' },
     icon: 'briefcase',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Orders',
+    title: 'nav.orders',
     to: { name: 'admin-orders' },
     icon: 'shopping-cart',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Notifications & Reminders',
+    title: 'nav.notificationsReminders',
     to: { name: 'admin-notifications-reminders' },
     icon: 'bell',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Reports',
+    title: 'nav.reports',
     to: { name: 'admin-reports-tab', params: { tab: 'users' } },
     icon: 'pie-chart',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Content',
+    title: 'nav.content',
     // to: { name: 'admin-content' },
     icon: 'edit',
     role: 'admin',
     class: '',
   },
   {
-    title: 'Settings',
+    title: 'nav.settings',
     to: { name: 'admin-preferences' },
     icon: 'settings',
     role: 'admin',

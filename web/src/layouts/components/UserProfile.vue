@@ -82,7 +82,7 @@ const logoutUser = async () => {
             <template #prepend>
               <VIcon class="me-2" icon="tabler-user" size="22" />
             </template>
-            <VListItemTitle>Profile</VListItemTitle>
+            <VListItemTitle>{{ $t('userMenu.profile') }}</VListItemTitle>
           </VListItem>
 
           <!-- Plans & Billing — retired subscription-plans module. The route guard
@@ -96,7 +96,7 @@ const logoutUser = async () => {
             <template #prepend>
               <VIcon class="me-2" icon="tabler-file-invoice" size="22" />
             </template>
-            <VListItemTitle>Plans & Billing</VListItemTitle>
+            <VListItemTitle>{{ $t('userMenu.plansBilling') }}</VListItemTitle>
           </VListItem>
 
           <!-- Logout -->
@@ -104,7 +104,7 @@ const logoutUser = async () => {
             <template #prepend>
               <VIcon class="me-2" icon="tabler-logout" size="22" />
             </template>
-            <VListItemTitle>Logout</VListItemTitle>
+            <VListItemTitle>{{ $t('userMenu.logout') }}</VListItemTitle>
           </VListItem>
         </VList>
       </VMenu>

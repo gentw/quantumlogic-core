@@ -4,6 +4,8 @@
  * are in the unplugin-auto-import dirs list).
  */
 
+import { i18n } from '@/plugins/0.i18n'
+
 /** @param {number|string|null|undefined} value @returns {string} e.g. "1.234,56 €" */
 export const formatMoney = value => {
   const number = Number(value ?? 0)
@@ -127,17 +129,21 @@ export const daysUntil = value => {
  * Due-date wording for the next invoice: "Due in 5 days", "Due today",
  * "12 days overdue".
  *
+ * Translates through the global i18n instance rather than `useI18n`, because
+ * this is a plain helper and may be called outside a component's setup.
+ *
  * @param {string|null|undefined} dueAt ISO date
  * @returns {string}
  */
 export const dueLabel = dueAt => {
+  const { t } = i18n.global
   const days = daysUntil(dueAt)
 
-  if (days === null) return 'No due date'
-  if (days === 0) return 'Due today'
-  if (days === 1) return 'Due tomorrow'
-  if (days > 1) return `Due in ${days} days`
-  if (days === -1) return '1 day overdue'
+  if (days === null) return t('dashboard.noDueDate')
+  if (days === 0) return t('dashboard.dueToday')
+  if (days === 1) return t('dashboard.dueTomorrow')
+  if (days > 1) return t('dashboard.dueInDays', { days })
+  if (days === -1) return t('dashboard.overdueOneDay')
 
-  return `${Math.abs(days)} days overdue`
+  return t('dashboard.overdueDays', { days: Math.abs(days) })
 }

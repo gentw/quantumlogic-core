@@ -425,8 +425,8 @@ const participants = ref([]);
     <div class="header">
       <VCard class="mb-6">
         <VCardItem>
-          <VCardTitle>Welcome back{{ clientName ? `, ${clientName}` : '' }}</VCardTitle>
-          <VCardSubtitle>Here's where your billing and services stand.</VCardSubtitle>
+          <VCardTitle>{{ $t('dashboard.welcomeBack') }}{{ clientName ? `, ${clientName}` : '' }}</VCardTitle>
+          <VCardSubtitle>{{ $t('dashboard.welcomeSubtitle') }}</VCardSubtitle>
         </VCardItem>
       </VCard>
     </div>
@@ -441,9 +441,9 @@ const participants = ref([]);
       location="top"
       :timeout="6000"
     >
-      Payment received — thank you. Your invoice has been updated.
+      {{ $t('dashboard.paymentReceived') }}
       <template #actions>
-        <VBtn variant="text" @click="showPaymentSnackbar = false">Close</VBtn>
+        <VBtn variant="text" @click="showPaymentSnackbar = false">{{ $t('common.close') }}</VBtn>
       </template>
     </VSnackbar>
     

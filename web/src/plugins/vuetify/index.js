@@ -1,9 +1,12 @@
 import { deepMerge } from '@antfu/utils'
+import { useI18n } from 'vue-i18n'
 import { createVuetify } from 'vuetify'
 import { VBtn } from 'vuetify/components/VBtn'
+import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
 import defaults from './defaults'
 import { icons } from './icons'
 import { staticPrimaryColor, staticPrimaryDarkenColor, themes } from './theme'
+import { i18n } from '@/plugins/0.i18n'
 import { themeConfig } from '@themeConfig'
 
 // Styles
@@ -39,6 +42,12 @@ export default function (app) {
     defaults,
     icons,
     theme: optionTheme,
+
+    // Vuetify keeps its own message catalogue for the strings it renders itself
+    // (data-table footers, pagination, pickers). Routing it through the same
+    // vue-i18n instance means switching language in the navbar moves both, and
+    // there is no second locale to keep in step by hand.
+    locale: createVueI18nAdapter({ i18n, useI18n }),
   })
 
   app.use(vuetify)
