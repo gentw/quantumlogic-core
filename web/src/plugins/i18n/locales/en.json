@@ -72,5 +72,22 @@
     "paymentReceived": "Payment received — thank you. Your invoice has been updated.",
     "invoiceNumber": "Invoice {number}",
     "dueTotal": "Due {date} · {total} total"
+  },
+  "twoFactor": {
+    "title": "Two-factor authentication",
+    "subtitle": "An extra code by email when you sign in.",
+    "on": "On",
+    "off": "Off",
+    "explainer": "When this is on, signing in also asks for a six-digit code sent to your email address.",
+    "codesGoTo": "Codes are sent to {email}.",
+    "confirmOnTitle": "Turn on two-factor",
+    "confirmOffTitle": "Turn off two-factor",
+    "confirmOnBody": "From your next sign-in you will be asked for a code sent to your email. Confirm with your current password.",
+    "confirmOffBody": "Your account will be protected by your password alone. Confirm with your current password.",
+    "currentPassword": "Current password",
+    "turnedOn": "Two-factor authentication is on.",
+    "turnedOff": "Two-factor authentication is off.",
+    "loadFailed": "Could not load your two-factor setting.",
+    "saveFailed": "Could not save your two-factor setting."
   }
 }

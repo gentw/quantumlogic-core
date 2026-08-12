@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OtpMail;
 use App\Mail\RegisterWelcomeMail;
 use App\Mail\UserJoinWaitListWeb;
-use App\Models\Otp;
 use App\Models\User;
+use App\Services\TwoFactorService;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -16,9 +15,29 @@ use Laravel\Passport\RefreshToken;
 
 class AuthenticationController extends Controller
 {
+    public function __construct(private readonly TwoFactorService $twoFactor) {}
+
     public function test()
     {
         return response()->json('TEST');
+    }
+
+    /**
+     * The signed-in response.
+     *
+     * Both the two-factor path and the straight-to-token path answer in this
+     * shape, which is the one the SPA has always handled: pages/login.vue
+     * already branches on the absence of `redirect` and stores the token.
+     */
+    private function tokenResponse(User $user): \Illuminate\Http\JsonResponse
+    {
+        $token['token'] = $user->createToken('appToken')->accessToken;
+
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'user' => $user,
+        ], 200);
     }
 
     //
@@ -104,13 +123,16 @@ class AuthenticationController extends Controller
                                 'first_time' => 0,
                             ]);
                         }
-                        $user_token['token'] = $user->createToken('appToken')->accessToken;
 
-                        return response()->json([
-                            'success' => true,
-                            'token' => $user_token,
-                            'user' => $user,
-                        ], 200);
+                        // Staff reached this point with a token and no code at
+                        // all before two-factor became a setting.
+                        if ($this->twoFactor->isRequiredFor($user)) {
+                            $this->twoFactor->issueFor($user, request('phone'));
+
+                            return response()->json(['redirect' => 'checkpoint']);
+                        }
+
+                        return $this->tokenResponse($user);
                     }
                 } else {
                     return response()->json([
@@ -121,7 +143,10 @@ class AuthenticationController extends Controller
             } else { // for client
 
                 $user = User::where('email', request('phone'))->where('role', 'client')->first();
-                if ($user->blocked || $user->deactivated) {
+
+                // No such account: 401, not a 500 from dereferencing null — and
+                // not a signal to the caller that the address exists.
+                if (! $user || $user->blocked || $user->deactivated) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Failed to authenticate.',
@@ -136,22 +161,13 @@ class AuthenticationController extends Controller
                         ]);
                     }
 
-                    $otp = rand(100000, 999999);
-                    $expiresAt = now()->addMinutes(10);
+                    if ($this->twoFactor->isRequiredFor($user)) {
+                        $this->twoFactor->issueFor($user, request('phone'));
 
-                    Otp::updateOrCreate(
-                        [
-                            'phone' => request('phone'),  // Use 'phone' to find the record
-                        ],
-                        [
-                            'otp' => $otp,
-                            'expires_at' => $expiresAt,
-                        ]
-                    );
-                    // Send OTP via email
-                    Mail::to(request('phone'))->send(new OtpMail($otp, $expiresAt));
+                        return response()->json(['redirect' => 'checkpoint']);
+                    }
 
-                    return response()->json(['redirect' => 'checkpoint']);
+                    return $this->tokenResponse($user);
                 } else {
                     return response()->json([
                         'success' => false,
@@ -163,7 +179,8 @@ class AuthenticationController extends Controller
         } else {
             $user = User::where('phone', request('phone'))->first();
 
-            if ($user->blocked || $user->deactivated) {
+            // Same as the email branch: an unknown number is a 401, not a 500.
+            if (! $user || $user->blocked || $user->deactivated) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to authenticate.',
@@ -188,27 +205,20 @@ class AuthenticationController extends Controller
                     ]);
                 }
 
-                if ($existsEmail == 'checkpoint') {
-                    $otp = rand(100000, 999999);
-                    $expiresAt = now()->addMinutes(10);
-
-                    Otp::updateOrCreate(
-                        [
-                            'phone' => request('phone'),  // Use 'phone' to find the record
-                        ],
-                        [
-                            'otp' => $otp,
-                            'expires_at' => $expiresAt,
-                        ]
-                    );
-                    // Send OTP via email
-                    Mail::to($user->email)->send(new OtpMail($otp, $expiresAt));
+                // No email on file: collect one first. That branch is about the
+                // missing address, not about two-factor — a user with nowhere to
+                // receive a code cannot be sent one either way.
+                if ($existsEmail === 'add-user-email') {
+                    return response()->json(['redirect' => $existsEmail]);
                 }
 
-                // Send OTP via email
-                // Mail::to($request->email)->send(new OtpMail($otp));
-                // return response()->json(['message' => 'OTP sent to your email.']);
-                return response()->json(['redirect' => $existsEmail]);
+                if ($this->twoFactor->isRequiredFor($user)) {
+                    $this->twoFactor->issueFor($user, request('phone'));
+
+                    return response()->json(['redirect' => 'checkpoint']);
+                }
+
+                return $this->tokenResponse($user);
 
             } else {
                 // failure to authenticate
@@ -331,30 +341,25 @@ class AuthenticationController extends Controller
             'otp' => 'required|digits:6',
         ]);
 
-        $otp = Otp::where('phone', $request->phone)
-            ->where('otp', $request->otp)
-            ->where('expires_at', '>', now())
-            ->first();
-
-        if ($otp) {
-            if (filter_var($request->phone, FILTER_VALIDATE_EMAIL)) {
-                $user = User::where('email', $request->phone)->first();
-            } else {
-                $user = User::where('phone', $request->phone)->first();
-            }
-
-            $user_token['token'] = $user->createToken('appToken')->accessToken;
-
-            $otp->delete();
-
-            return response()->json([
-                'success' => true,
-                'token' => $user_token,
-                'user' => $user,
-            ], 200);
+        if (! $this->twoFactor->consume($request->phone, $request->otp)) {
+            return response()->json(['message' => 'Invalid or expired OTP.'], 401);
         }
 
-        return response()->json(['message' => 'Invalid or expired OTP.'], 401);
+        if (filter_var($request->phone, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $request->phone)->first();
+        } else {
+            $user = User::where('phone', $request->phone)->first();
+        }
+
+        // Staff keep their address in the phone column, so an email that matches
+        // no client row can still be a valid staff login.
+        $user ??= User::where('phone', $request->phone)->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'Invalid or expired OTP.'], 401);
+        }
+
+        return $this->tokenResponse($user);
     }
 
     public function registerClientEmail(Request $request)
@@ -372,20 +377,9 @@ class AuthenticationController extends Controller
         if ($changeEmail) {
             $user = User::where('phone', $request->phone)->where('role', 'client')->first();
 
-            $otp = rand(100000, 999999);
-            $expiresAt = now()->addMinutes(10);
-
-            Otp::updateOrCreate(
-                [
-                    'phone' => request('phone'),  // Use 'phone' to find the record
-                ],
-                [
-                    'otp' => $otp,
-                    'expires_at' => $expiresAt,
-                ]
-            );
-            // Send OTP via email
-            Mail::to($user->email)->send(new OtpMail($otp, $expiresAt));
+            // This flow exists to confirm the address the client just supplied,
+            // so it issues a code regardless of their two-factor setting.
+            $this->twoFactor->issueFor($user, $request->phone);
 
             return response()->json([
                 'success' => true,

@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\StripeWebhookController;
 // use \App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\TokenController;
+use App\Http\Controllers\Api\TwoFactorController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DomainController;
@@ -50,8 +51,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
-    Route::post('login', [AuthenticationController::class, 'store']);
-    Route::post('verify-otp', [AuthenticationController::class, 'verifyOtp']);
+    Route::post('login', [AuthenticationController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('verify-otp', [AuthenticationController::class, 'verifyOtp'])->middleware('throttle:6,1');
     Route::post('logout', [AuthenticationController::class, 'destroy'])->middleware('auth:api');
     Route::post('token/refresh', [TokenController::class, 'refresh']);
     Route::post('register-client-email', [AuthenticationController::class, 'registerClientEmail']);
@@ -102,6 +103,8 @@ Route::group([
     Route::post('/user/preferences/store', [UserController::class, 'storeUserPreferences']);
     Route::get('/user/preferences/fetch', [UserController::class, 'fetchUserPreferences']);
     Route::post('/user/locale', [LocaleController::class, 'update']);
+    Route::get('/user/two-factor', [TwoFactorController::class, 'show']);
+    Route::post('/user/two-factor', [TwoFactorController::class, 'update']);
 
     Route::post('/user/profile/updateUserRequest', [UserController::class, 'updateUserRequest']);
 

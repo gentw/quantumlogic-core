@@ -25,6 +25,23 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->locale;
     }
 
+    protected static function booted(): void
+    {
+        // Staff accounts start with the login code required; clients start
+        // without it. Set here rather than at each creation site so it holds for
+        // the four signup endpoints, admin-created accounts and guest checkout
+        // alike. An explicit value in the create() call still wins.
+        static::creating(function (self $user) {
+            if ($user->two_factor_enabled === null) {
+                $user->two_factor_enabled = in_array(
+                    $user->role,
+                    config('two_factor.default_on_roles', []),
+                    true,
+                );
+            }
+        });
+    }
+
     protected $primaryKey = 'id';
 
     // protected $connection = 'sqlsrv';
@@ -50,6 +67,7 @@ class User extends Authenticatable implements HasLocalePreference
         'postal_code',
         'country_code',
         'locale',
+        'two_factor_enabled',
         'company_name',
         'vat_id',
         'img',
@@ -77,6 +95,7 @@ class User extends Authenticatable implements HasLocalePreference
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'two_factor_enabled' => 'boolean',
     ];
 
     public function getCreatedAtAttribute($value)

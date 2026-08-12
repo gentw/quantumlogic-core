@@ -72,5 +72,22 @@
     "paymentReceived": "Pagesa u pranua — faleminderit. Fatura juaj u përditësua.",
     "invoiceNumber": "Fatura {number}",
     "dueTotal": "Skadon më {date} · {total} gjithsej"
+  },
+  "twoFactor": {
+    "title": "Vërtetimi me dy faktorë",
+    "subtitle": "Një kod shtesë me email kur hyni.",
+    "on": "Aktiv",
+    "off": "Joaktiv",
+    "explainer": "Kur kjo është aktive, gjatë hyrjes kërkohet edhe një kod me gjashtë shifra që dërgohet në emailin tuaj.",
+    "codesGoTo": "Kodet dërgohen te {email}.",
+    "confirmOnTitle": "Aktivizo dy faktorët",
+    "confirmOffTitle": "Çaktivizo dy faktorët",
+    "confirmOnBody": "Nga hyrja e ardhshme do t'ju kërkohet një kod i dërguar në email. Konfirmoni me fjalëkalimin tuaj aktual.",
+    "confirmOffBody": "Llogaria juaj do të mbrohet vetëm nga fjalëkalimi. Konfirmoni me fjalëkalimin tuaj aktual.",
+    "currentPassword": "Fjalëkalimi aktual",
+    "turnedOn": "Vërtetimi me dy faktorë është aktiv.",
+    "turnedOff": "Vërtetimi me dy faktorë është joaktiv.",
+    "loadFailed": "Cilësimi i dy faktorëve nuk u ngarkua.",
+    "saveFailed": "Cilësimi i dy faktorëve nuk u ruajt."
   }
 }

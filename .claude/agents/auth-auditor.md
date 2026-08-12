@@ -44,13 +44,33 @@ This repo has four public signup endpoints in `api/routes/api.php`: `register-cl
 - Email enumeration: does any return different responses for "email already taken" vs "validation error"?
 - Does any allow setting an elevated role (`admin`, `agent`) from request input?
 
-### 3. OTP Flow (`OTP` model + `verify-otp` route)
-- Token generation uses `random_int()`, `Str::random()`, or `bin2hex(random_bytes(...))` — NOT `mt_rand` / `rand`
-- Token entropy: ≥6 digits for SMS-style OTP, ≥32 chars for URL tokens
-- Expiration enforced server-side (5–15 min typical)
-- Single-use enforcement — OTP row deleted or marked used after success
-- Rate limiting on issuance (anti-spam) and verification (anti-brute-force)
-- Race conditions — two concurrent verifications of the same OTP
+### 3. OTP / two-factor (`Otp` model, `TwoFactorService`, `verify-otp` and `user/two-factor` routes)
+
+**Two-factor is a per-user setting, not a fixed step in the login flow.** `users.two_factor_enabled`
+decides it; `config/two_factor.php` `default_on_roles` (currently `['admin', 'agent']`) only sets
+what a new account starts with, applied by the `creating` hook on `User`. Clients start off.
+Anyone can change their own setting. So `login` has **two** success shapes:
+
+| `two_factor_enabled` | Response |
+|---|---|
+| false | `{ success, token: { token }, user }` — signed in immediately |
+| true  | `{ redirect: 'checkpoint' }` — code issued, token only from `verify-otp` |
+
+Audit both paths. Things worth checking:
+- Code generation goes through `TwoFactorService::generateCode()` and uses `random_int()` — never
+  `rand()` / `mt_rand()`, which are predictable from a few observed outputs
+- Expiration enforced server-side (`config/two_factor.code_ttl_minutes`, default 10)
+- Single-use — `TwoFactorService::consume()` deletes the row before returning true
+- Rate limiting on issuance (anti-spam) and verification (anti-brute-force). `login` is
+  `throttle:10,1` and `verify-otp` is `throttle:6,1`; a six-digit code without a limiter is
+  brute-forceable in minutes
+- Race conditions — two concurrent verifications of the same code
+- **Toggling requires the current password** (`UpdateTwoFactorRequest`), in both directions.
+  Turning the second factor off from a stolen session is the attack that matters
+- Turning it on for an account with no email address would lock the owner out — `TwoFactorController`
+  refuses that; check any new path that writes the column directly
+- No recovery path exists yet for a user who enables it and then loses email access. Flag it if
+  you see an admin-facing reset being added without an audit trail
 
 ### 4. Password Reset Flow (`ResetCodePassword` model + `password/email`, `password/token/check`, `password/reset` routes)
 - Reset token cryptographically secure (same checks as OTP)
@@ -105,9 +125,12 @@ This repo has four public signup endpoints in `api/routes/api.php`: `register-cl
    Glob: api/app/Http/Controllers/**/Auth*.php
    Glob: api/app/Http/Controllers/**/*Auth*Controller.php
    Glob: api/app/Http/Middleware/**/*.php
-   Glob: api/app/Models/{User,OTP,ResetCodePassword,RegisteredClients}.php
+   Glob: api/app/Models/{User,Otp,ResetCodePassword,RegisteredClients}.php
+   Read: api/app/Services/TwoFactorService.php
+   Read: api/app/Http/Requests/UpdateTwoFactorRequest.php
    Read: api/routes/api.php
    Read: api/config/auth.php
+   Read: api/config/two_factor.php
    Read: api/config/hashing.php
    Grep: "Hash::|bcrypt\\(|password" in api/app/
    Grep: "DB::raw|whereRaw|selectRaw|orderByRaw" in api/app/

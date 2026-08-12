@@ -72,5 +72,22 @@
     "paymentReceived": "Zahlung erhalten — vielen Dank. Ihre Rechnung wurde aktualisiert.",
     "invoiceNumber": "Rechnung {number}",
     "dueTotal": "Fällig am {date} · {total} gesamt"
+  },
+  "twoFactor": {
+    "title": "Zwei-Faktor-Authentifizierung",
+    "subtitle": "Ein zusätzlicher Code per E-Mail bei der Anmeldung.",
+    "on": "Ein",
+    "off": "Aus",
+    "explainer": "Ist dies aktiv, wird bei der Anmeldung zusätzlich ein sechsstelliger Code abgefragt, den wir Ihnen per E-Mail schicken.",
+    "codesGoTo": "Codes werden an {email} gesendet.",
+    "confirmOnTitle": "Zwei-Faktor aktivieren",
+    "confirmOffTitle": "Zwei-Faktor deaktivieren",
+    "confirmOnBody": "Ab der nächsten Anmeldung fragen wir zusätzlich einen Code ab, den Sie per E-Mail erhalten. Bitte bestätigen Sie mit Ihrem aktuellen Passwort.",
+    "confirmOffBody": "Ihr Konto ist dann nur noch durch Ihr Passwort geschützt. Bitte bestätigen Sie mit Ihrem aktuellen Passwort.",
+    "currentPassword": "Aktuelles Passwort",
+    "turnedOn": "Zwei-Faktor-Authentifizierung ist aktiv.",
+    "turnedOff": "Zwei-Faktor-Authentifizierung ist deaktiviert.",
+    "loadFailed": "Ihre Zwei-Faktor-Einstellung konnte nicht geladen werden.",
+    "saveFailed": "Ihre Zwei-Faktor-Einstellung konnte nicht gespeichert werden."
   }
 }

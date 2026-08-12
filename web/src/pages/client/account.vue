@@ -389,6 +389,12 @@ onMounted( async() => {
     </VCol>
   </VRow>
 
+  <VRow>
+    <VCol cols="12" md="6">
+      <TwoFactorCard />
+    </VCol>
+  </VRow>
+
   <VRow class="passwordChange">
     <VCol cols="12" md="4">
       <VCard>
