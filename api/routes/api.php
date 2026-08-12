@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\FirebaseController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\InvoicePrintController;
+use App\Http\Controllers\Api\LocaleController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentReconciliationController;
 use App\Http\Controllers\Api\PayPalController;
@@ -29,9 +30,9 @@ use App\Http\Controllers\Api\PublicCheckoutController;
 use App\Http\Controllers\Api\PublicInvoiceController;
 use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\StripeWebhookController;
-use App\Http\Controllers\Api\SubscriptionController;
 // use \App\Http\Controllers\Api\CodeCheckController;
 // use \App\Http\Controllers\Api\ResetPasswordController;
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\TokenController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\ChatController;
@@ -63,6 +64,10 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
     Route::post('password/email', [ForgotPasswordController::class, 'forgotPassword'])->name('password.reset');
     Route::post('password/token/check', [ForgotPasswordController::class, 'checkToken']);
     Route::post('password/reset', [ForgotPasswordController::class, 'resetPassword']);
+
+    // Public: the login and guest-checkout screens need a language before
+    // anyone is signed in.
+    Route::get('locale', [LocaleController::class, 'show']);
 });
 
 Route::group([
@@ -96,6 +101,7 @@ Route::group([
     // #User
     Route::post('/user/preferences/store', [UserController::class, 'storeUserPreferences']);
     Route::get('/user/preferences/fetch', [UserController::class, 'fetchUserPreferences']);
+    Route::post('/user/locale', [LocaleController::class, 'update']);
 
     Route::post('/user/profile/updateUserRequest', [UserController::class, 'updateUserRequest']);
 

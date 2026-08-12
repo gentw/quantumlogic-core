@@ -11,7 +11,7 @@ You are a code quality scanner for a Laravel 10 backend + Vue 3 (Vuetify 3 / Vue
 
 ## Repo layout
 
-- Backend: `api/` — Laravel 10, PHP 8.1+, Eloquent, Passport auth on the `api` guard (Sanctum/JWT installed but unused), Pusher, Stripe, PayPal, FCM. Business logic belongs in `app/Services/` — the Billing & Payments set is the pattern: `ServiceCatalogueService`, `ServiceOrderService`, `InvoiceNumberService`, `BillingInvoiceService`, `TaxService`, `PaymentService`, `StripeGateway`, `PayPalGateway`, `BankTransferService`, `RecurringBillingService`, `ClientAccountService`, `BillingNotifier` (plus the retired module's `SubscriptionService`, `TrialService`, `InvoiceService`).
+- Backend: `api/` — Laravel 10, PHP 8.1+, Eloquent, Passport auth on the `api` guard (Sanctum/JWT installed but unused), Pusher, Stripe, PayPal, FCM. Business logic belongs in `app/Services/` — the Billing & Payments set is the pattern: `ServiceCatalogueService`, `ServiceOrderService`, `InvoiceNumberService`, `BillingInvoiceService`, `TaxService`, `PaymentService`, `StripeGateway`, `PayPalGateway`, `BankTransferService`, `RecurringBillingService`, `ClientAccountService`, `BillingNotifier`, plus `LocaleService` for language resolution (plus the retired module's `SubscriptionService`, `TrialService`, `InvoiceService`).
 - The plan-tier subscription module is **retired** behind `FEATURE_SUBSCRIPTION_PLANS` (same pattern as security): skip anything only reachable when that flag is on, including `SubscriptionController`, the `client/sub/*` routes and `CheckSubscriptionPayments`.
 - Frontend: `web/` — Vue 3 Composition API, Vuetify 3, Pinia, file-based routing via `unplugin-vue-router`. JavaScript (jsconfig, no TS)
 
@@ -53,7 +53,7 @@ Scan the codebase and report any issues you find. If no folder is specified, sca
 
 ### Patterns
 
-- Business logic in controllers that should live in `app/Services/` (note: that directory is currently empty — flag candidates for extraction)
+- Business logic in controllers that should live in `app/Services/` (that directory is well populated now — match the existing services rather than treating extraction as greenfield)
 - Vue views fetching data inline that should live in a Pinia store or composable
 - Inconsistent file structure: new feature controllers placed at `Controllers/` root vs `Controllers/Api/`
 - Missing accessibility attributes: Vuetify `v-btn` icon-only without `aria-label`, `<img>` without `alt`

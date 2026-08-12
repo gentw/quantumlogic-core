@@ -53,6 +53,10 @@ class ClientAccountService
                 'company_name' => $company,
                 'vat_id' => $vatId,
                 'country_code' => $countryCode,
+                // Prefer the billing country they just typed over the request
+                // IP behind it — a stated address beats a guessed one. Falls
+                // back to whatever SetLocale resolved for this request.
+                'locale' => app(LocaleService::class)->fromCountry($countryCode) ?? app()->getLocale(),
             ]);
 
             if ($password === null) {

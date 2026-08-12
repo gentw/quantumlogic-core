@@ -37,6 +37,7 @@ class User extends Authenticatable
         'city',
         'postal_code',
         'country_code',
+        'locale',
         'company_name',
         'vat_id',
         'img',

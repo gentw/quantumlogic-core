@@ -19,7 +19,7 @@ You are an expert code refactoring analyst specializing in identifying duplicate
 
 ## Where Extracted Helpers Should Live
 
-- Backend (`api/app/`): extracted business logic lands in `app/Services/<Name>Service.php` — the Billing & Payments services (`BillingInvoiceService`, `PaymentService`, `TaxService`, ...) are the reference pattern, and money math belongs in `app/Support/Money` (integer cents). Extracted validation belongs in `app/Http/Requests/<Name>Request.php`. Extracted authorization belongs in policies or middleware. Skip the retired subscription module (`FEATURE_SUBSCRIPTION_PLANS`) like the dormant security module.
+- Backend (`api/app/`): extracted business logic lands in `app/Services/<Name>Service.php` — the Billing & Payments services (`BillingInvoiceService`, `PaymentService`, `TaxService`, ...) are the reference pattern, money math belongs in `app/Support/Money` (integer cents), and language resolution belongs in `LocaleService` rather than being re-derived from headers at call sites. Extracted validation belongs in `app/Http/Requests/<Name>Request.php`. Extracted authorization belongs in policies or middleware. Skip the retired subscription module (`FEATURE_SUBSCRIPTION_PLANS`) like the dormant security module.
 - Frontend (`web/src/`): extracted UI logic → `composables/useX.js`; pure helpers → `utils/x.js`; shared state → a Pinia store under `stores/` (or `@core/stores/` if it's template-level).
 
 ## What To Scan For

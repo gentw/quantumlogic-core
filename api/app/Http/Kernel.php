@@ -42,6 +42,10 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // Whole group, not per route: guest checkout and public pay links have
+            // no account to read a preference from, which is where the
+            // geolocation guess matters most.
+            \App\Http\Middleware\SetLocale::class,
         ],
     ];
 

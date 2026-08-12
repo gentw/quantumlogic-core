@@ -462,6 +462,9 @@ class AuthenticationController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
+            // Whatever SetLocale worked out for this request. Persisted because
+            // scheduler-dispatched mail has no request to re-derive it from.
+            'locale' => app()->getLocale(),
         ]);
 
         return response()->json([
@@ -487,6 +490,7 @@ class AuthenticationController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
+            'locale' => app()->getLocale(),
             'blocked' => 1,
             'deactivated' => 1,
         ]);
@@ -515,6 +519,7 @@ class AuthenticationController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
+            'locale' => app()->getLocale(),
         ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
