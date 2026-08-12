@@ -116,10 +116,10 @@ const verifyOtp = async () => {
       <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-4">
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Verify your identity
+            {{ $t('auth.verifyIdentity') }}
           </h4>
           <p class="mb-0">
-            Check your email for one-time confirmation code.
+            {{ $t('auth.verifySubtitle') }}
           </p>
         </VCardText>
 
@@ -129,7 +129,7 @@ const verifyOtp = async () => {
               <!-- one-time code input -->
               <VCol cols="12">
                 <h6 class="text-body-1">
-                  Enter the one-time code:
+                  {{ $t('auth.enterCode') }}
                 </h6>
                 <VOtpInput
                   v-model="otp"
@@ -152,16 +152,16 @@ const verifyOtp = async () => {
                   :disabled="isOtpInserted"
                   type="submit"
                 >
-                  Verify
+                  {{ $t('auth.verifyButton') }}
                 </VBtn>
               </VCol>
 
               <!-- resend code section -->
               <VCol cols="12" class="text-center">
                 <div class="d-flex flex-column">
-                  <span>Didn't receive the code?</span> 
+                  <span>{{ $t('auth.noCode') }}</span> 
                 
-                <a href="#">Try again</a>
+                <a href="#">{{ $t('auth.tryAgain') }}</a>
               </div>
               </VCol>
             </VRow>
@@ -176,11 +176,11 @@ const verifyOtp = async () => {
           <VCard flat :max-width="600" class="mt-12 mt-sm-0 pa-4 text-over-bg position-relative">
             <VCardText>
               <h3 class="text-h3 mb-4 text-white">
-                QuantumLogic - Web, software & cloud solutions
-              </h3>
-              <h5 class="mb-0 text-white text-h5">
-                Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
-              </h5>
+              {{ $t('auth.heroTitle') }}
+            </h3>
+            <h5 class="mb-0 text-white text-h5">
+              {{ $t('auth.heroSubtitle') }}
+            </h5>
               <!-- Add app store image icons -->
               <div class="d-flex mt-6">
                 <a href="#" target="_blank" rel="noopener noreferrer" class="me-4">
@@ -195,15 +195,15 @@ const verifyOtp = async () => {
         </div>
         <img class="auth-footer-mask z-index-100" :src="authThemeImg" alt="auth-footer-mask" width="100">
         <div class="support-text">
-          <span style="font-size: 16px;">Qendra e thirrjeve:</span>
+          <span style="font-size: 16px;">{{ $t('auth.callCentre') }}</span>
           <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text align-end gap-x-3">
-    <span class="font-weight-bold">©2026 QuantumLogic.</span>
-    <span>All rights reserved</span>
+    <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>
+    <span>{{ $t('auth.rightsReserved') }}</span>
   </div>>
 </template>
 

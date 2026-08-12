@@ -51,7 +51,7 @@ const token = ref('');
 const user = ref(''); 
 const checkTokenValidity = async () => {
   try {
-    const response = await $api(`https://api.quantumlogic.at/api/v1/password/token/check`, {
+    const response = await $api(`/v1/password/token/check`, {
       method: 'POST',
       body: {
         token: route.params.token, // Send the token in the request body
@@ -77,7 +77,7 @@ onMounted(() => {
 
 const resetPassword = async () => {
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/password/reset', {
+    const res = await $api('/v1/password/reset', {
       method: 'POST',
       body: {
         token: route.params.token,
@@ -131,10 +131,10 @@ const onSubmit = () => {
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Create new Password
+            {{ $t('auth.newPasswordTitle') }}
           </h4>
           <p class="mb-0">
-            Please enter your new password
+            {{ $t('auth.newPasswordSubtitle') }}
           </p>
         </VCardText>
         
@@ -146,7 +146,7 @@ const onSubmit = () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="form.password"
-                  label="Password"
+                  :label="$t('auth.password')"
                   placeholder="············"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -158,7 +158,7 @@ const onSubmit = () => {
               <VCol cols="12">
                   <AppTextField
                     v-model="form.confirmPassword"
-                    label="Confirm Password"
+                    :label="$t('auth.confirmPassword')"
                     placeholder="············"
                     :type="isConfirmPasswordVisible ? 'text' : 'password'"
                     :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -180,7 +180,7 @@ const onSubmit = () => {
                   block
                   type="submit"
                 >
-                Vendos
+                {{ $t('common.save') }}
                 </VBtn>
               </VCol>
 
@@ -209,10 +209,10 @@ const onSubmit = () => {
       >
           <VCardText>
             <h3 class="text-h3 mb-4 text-white">
-              QuantumLogic - Web, software & cloud solutions
+              {{ $t('auth.heroTitle') }}
             </h3>
             <h5 class="mb-0 text-white text-h5">
-              Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
+              {{ $t('auth.heroSubtitle') }}
             </h5>
 
             <!-- Add app store image icons -->
@@ -252,15 +252,15 @@ const onSubmit = () => {
           width="100"
         >
         <div class="support-text">
-            <span style="font-size: 16px;">Contact:</span>    
+            <span style="font-size: 16px;">{{ $t('auth.contact') }}</span>    
             <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text align-end gap-x-3">
-      <span class="font-weight-bold">©2026 QuantumLogic.</span>    
-      <span>All rights reserved</span>
+      <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>    
+      <span>{{ $t('auth.rightsReserved') }}</span>
   </div>
 </template>
 

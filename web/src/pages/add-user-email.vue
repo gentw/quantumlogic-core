@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
 
 const registerClientEmail = async () => {
   try {
-    const res = await $api('https://api.quantumlogic.at/api/v1/register-client-email', {
+    const res = await $api('/v1/register-client-email', {
       method: 'POST',
       body: {
         email: form.value.email,
@@ -114,10 +114,10 @@ const onSubmit = () => {
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Register your email
+            {{ $t('auth.registerEmailTitle') }}
           </h4>
           <p class="mb-0">
-            To keep your account secure you must register your email on this account.
+            {{ $t('auth.registerEmailSubtitle') }}
           </p>
         </VCardText>
         
@@ -130,7 +130,7 @@ const onSubmit = () => {
                 <AppTextField
                   v-model="form.email"
                   autofocus
-                  label="Your email"
+                  :label="$t('auth.yourEmail')"
                   type="text"
                 />
               </VCol>
@@ -151,7 +151,7 @@ const onSubmit = () => {
                   block
                   type="submit"
                 >
-                  Confirm
+                  {{ $t('common.confirm') }}
                 </VBtn>
               </VCol>
 
@@ -160,13 +160,13 @@ const onSubmit = () => {
                 cols="12"
                 class="text-center"
               >
-                <span>Don't remember the email?</span>
+                <span>{{ $t('auth.noEmailRecall') }}</span>
 
                 <a
                   class="text-primary ms-2"
                   href="/login"
                 >
-                Try next time
+                {{ $t('auth.tryNextTime') }}
                 </a>
               </VCol>
               
@@ -193,10 +193,10 @@ const onSubmit = () => {
       >
           <VCardText>
             <h3 class="text-h3 mb-4 text-white">
-              QuantumLogic - Web, software & cloud solutions
+              {{ $t('auth.heroTitle') }}
             </h3>
             <h5 class="mb-0 text-white text-h5">
-              Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
+              {{ $t('auth.heroSubtitle') }}
             </h5>
 
             <!-- Add app store image icons -->
@@ -236,15 +236,15 @@ const onSubmit = () => {
           width="100"
         >
         <div class="support-text">
-            <span style="font-size: 16px;">Contact:</span>    
+            <span style="font-size: 16px;">{{ $t('auth.contact') }}</span>    
             <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text align-end gap-x-3">
-      <span class="font-weight-bold">©2026 QuantumLogic.</span>    
-      <span>All rights reserved</span>
+      <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>    
+      <span>{{ $t('auth.rightsReserved') }}</span>
   </div>
 </template>
 

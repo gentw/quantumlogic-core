@@ -15,7 +15,7 @@ definePage({
   <div class="misc-wrapper">
     <ErrorHeader
       status-code="401"
-      title="You are not authorized! 🔐"
+      title="{{ $t('errors.notAuthorized') }} 🔐"
       description="You don’t have permission to access this page. Go Home!."
     />
 
@@ -23,7 +23,7 @@ definePage({
       class="mb-11"
       to="/"
     >
-      Back To Home
+      {{ $t('errors.backHome') }}
     </VBtn>
 
     <!-- 👉 Image -->

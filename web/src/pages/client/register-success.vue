@@ -91,10 +91,10 @@ const onSubmit = () => {
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Registration Successful
+            {{ $t('auth.registerSuccess') }}
           </h4>
           <p class="mb-0">
-            Please continue by selecting the best package to secure your websites.
+            {{ $t('auth.registerSuccessSubtitle') }}
           </p>
         </VCardText>
         
@@ -112,7 +112,7 @@ const onSubmit = () => {
                   block
                   type="submit"
                 >
-                  Continue
+                  {{ $t('common.continue') }}
                 </VBtn>
               </VCol>
               
@@ -141,10 +141,10 @@ const onSubmit = () => {
       >
           <VCardText>
             <h3 class="text-h3 mb-4 text-white">
-              QuantumLogic - Web, software & cloud solutions
+              {{ $t('auth.heroTitle') }}
             </h3>
             <h5 class="mb-0 text-white text-h5">
-              Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
+              {{ $t('auth.heroSubtitle') }}
             </h5>
 
             <!-- Add app store image icons -->
@@ -184,15 +184,15 @@ const onSubmit = () => {
           width="100"
         >
         <div class="support-text">
-            <span style="font-size: 16px;">Contact:</span>    
+            <span style="font-size: 16px;">{{ $t('auth.contact') }}</span>    
             <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text align-end gap-x-3">
-      <span class="font-weight-bold">©2026 QuantumLogic.</span>    
-      <span>All rights reserved</span>
+      <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>    
+      <span>{{ $t('auth.rightsReserved') }}</span>
   </div>
 </template>
 

@@ -174,10 +174,10 @@ const onSubmit = () => {
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Sign In
+            {{ $t('auth.signIn') }}
           </h4>
           <p class="mb-0">
-            Log in using your account
+            {{ $t('auth.signInSubtitle') }}
           </p>
         </VCardText>
         
@@ -190,9 +190,9 @@ const onSubmit = () => {
                 <AppTextField
                   v-model="form.phone_number"
                   autofocus
-                  label="Enter your email"
+                  :label="$t('auth.emailLabel')"
                   type="text"
-                  placeholder="example@quantumlogic.at"
+                  :placeholder="$t('auth.emailPlaceholder')"
                 />
               </VCol>
 
@@ -200,7 +200,7 @@ const onSubmit = () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="form.password"
-                  label="Password"
+                  :label="$t('auth.password')"
                   placeholder="············"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -210,10 +210,10 @@ const onSubmit = () => {
                 <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
                   <VCheckbox
                     v-model="form.remember"
-                    label="Remember Me"
+                    :label="$t('auth.rememberMe')"
                   />
                  
-                      <router-link class="text-primary ms-2 mb-1" :to="{ name: 'reset-forgot-password'}">Forgot Password</router-link>
+                      <router-link class="text-primary ms-2 mb-1" :to="{ name: 'reset-forgot-password'}">{{ $t('auth.forgotPassword') }}</router-link>
                 </div>
                 <VCol cols="12">
                 <VAlert
@@ -229,7 +229,7 @@ const onSubmit = () => {
                   block
                   type="submit"
                 >
-                  Login
+                  {{ $t('auth.loginButton') }}
                 </VBtn>
               </VCol>
 
@@ -238,11 +238,11 @@ const onSubmit = () => {
                 cols="12"
                 class="text-center"
               >
-                <span>Don't have an account?</span>
+                <span>{{ $t('auth.noAccount') }}</span>
 
               
                 <RouterLink class="text-primary ms-2" to="/register">
-                  Register
+                  {{ $t('auth.register') }}
                 </RouterLink>
               
               </VCol>
@@ -270,10 +270,10 @@ const onSubmit = () => {
       >
           <VCardText>
             <h3 class="text-h3 mb-4 text-white">
-              QuantumLogic - Web, software & cloud solutions
+              {{ $t('auth.heroTitle') }}
             </h3>
             <h5 class="mb-0 text-white text-h5">
-              Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
+              {{ $t('auth.heroSubtitle') }}
             </h5>
 
             <!-- Add app store image icons -->
@@ -313,15 +313,15 @@ const onSubmit = () => {
           width="100"
         >
         <div class="support-text">
-            <span style="font-size: 16px;">Contact:</span>    
+            <span style="font-size: 16px;">{{ $t('auth.contact') }}</span>    
             <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text  text-center gap-x-2">
-      <span class="font-weight-bold">©2026 QuantumLogic.</span>    
-      <span>All rights reserved</span>
+      <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>    
+      <span>{{ $t('auth.rightsReserved') }}</span>
   </div>
 </template>
 

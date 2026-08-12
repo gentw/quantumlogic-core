@@ -59,7 +59,7 @@ const login = async () => {
        return;
      }
 
-     const res = await $api('https://api.quantumlogic.at/api/v1/register_client2', {
+     const res = await $api('/v1/register_client2', {
        method: 'POST',
        body: {
          name: form.value.name,
@@ -179,7 +179,7 @@ const onSubmit = () => {
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Register
+            {{ $t('auth.register') }}
           </h4>
          <!-- <p class="mb-0">
             Request Access with your personal details
@@ -192,7 +192,7 @@ const onSubmit = () => {
             <VRow>
               <VCol cols="6">
                 <label for="name">
-                  Name <span class="text-danger">*</span>
+                  {{ $t('auth.name') }} <span class="text-danger">*</span>
                 </label>
                 <AppTextField
                   id="name"
@@ -205,7 +205,7 @@ const onSubmit = () => {
 
               <VCol cols="6">
                 <label for="surname">
-                  Surname <span class="text-danger">*</span>
+                  {{ $t('auth.surname') }} <span class="text-danger">*</span>
                 </label>
                 <AppTextField
                   v-model="form.surname"
@@ -216,7 +216,7 @@ const onSubmit = () => {
 
               <VCol cols="12">
                 <label for="email">
-                  Your email address <span class="text-danger">*</span>
+                  {{ $t('auth.yourEmailAddress') }} <span class="text-danger">*</span>
                 </label>
                 <AppTextField
                   v-model="form.email"                 
@@ -229,7 +229,7 @@ const onSubmit = () => {
               <!-- email -->
               <VCol cols="12">
                 <label for="phone">
-                  Your phone number <span class="text-danger">*</span>
+                  {{ $t('auth.yourPhone') }} <span class="text-danger">*</span>
                 </label>
                 <AppTextField
                   v-model="form.phone_number"                  
@@ -241,7 +241,7 @@ const onSubmit = () => {
 
               <VCol cols="12">
                 <label for="password">
-                  Your password <span class="text-danger">*</span>
+                  {{ $t('auth.yourPassword') }} <span class="text-danger">*</span>
                 </label>
                 <AppTextField
                   v-model="form.password"
@@ -256,7 +256,7 @@ const onSubmit = () => {
               <!-- password -->
               <VCol cols="12">
                 <label for="password">
-                  Confirm Password <span class="text-danger">*</span>
+                  {{ $t('auth.confirmPassword') }} <span class="text-danger">*</span>
                 </label>
                 <AppTextField
                     v-model="form.confirmPassword"
@@ -270,10 +270,10 @@ const onSubmit = () => {
                 <div class="d-flex align-center flex-wrap mt-2 mb-4">
                   <VCheckbox
                     v-model="form.privacy_policy"
-                    label="I agree "
+                    :label="$t('auth.iAgree')"
                   />
                  
-                      <router-link class="text-primary ml-1 text-black" :to="{ name: ''}">Privacy Policy</router-link>
+                      <router-link class="text-primary ml-1 text-black" :to="{ name: ''}">{{ $t('auth.privacyPolicy') }}</router-link>
                 </div>
 
                 <VBtn
@@ -292,11 +292,11 @@ const onSubmit = () => {
                 class="text-center"
               >
 
-                <span>Do you have an open account?</span>
+                <span>{{ $t('auth.haveAccount') }}</span>
 
                 
                 <RouterLink class="text-primary ms-2" to="/">
-                  Log in here
+                  {{ $t('auth.loginHere') }}
                 </RouterLink>
               </VCol>
               
@@ -323,10 +323,10 @@ const onSubmit = () => {
       >
           <VCardText>
             <h3 class="text-h3 mb-4 text-white">
-              QuantumLogic - Web, software & cloud solutions
+              {{ $t('auth.heroTitle') }}
             </h3>
             <h5 class="mb-0 text-white text-h5">
-              Safeguard your websites against cyber threats, malicious traffic, and attacks with real-time, intelligent threat detection and automated protection - all from a single, powerful platform.
+              {{ $t('auth.heroSubtitle') }}
             </h5>
 
             <!-- Add app store image icons -->
@@ -366,15 +366,15 @@ const onSubmit = () => {
           width="100"
         >
         <div class="support-text">
-            <span style="font-size: 16px;">Contact:</span>    
+            <span style="font-size: 16px;">{{ $t('auth.contact') }}</span>    
             <a href="mailto:support@quantumlogic.at" style="font-size: 17px; text-decoration: underline;" class="font-weight-bold ml-1">support@quantumlogic.at</a>
         </div>
       </div>
     </VCol>
   </VRow>
   <div class="d-flex copyright-text align-end gap-x-3">
-      <span class="font-weight-bold">©2026 QuantumLogic.</span>    
-      <span>All rights reserved</span>
+      <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>    
+      <span>{{ $t('auth.rightsReserved') }}</span>
   </div>
 </template>
 
