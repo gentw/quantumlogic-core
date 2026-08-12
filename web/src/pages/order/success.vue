@@ -14,16 +14,14 @@ const orderNumber = computed(() => route.query.order ?? '')
     </div>
 
     <VIcon icon="tabler-circle-check" size="64" color="success" class="mb-4" />
-    <h4 class="text-h4 mb-2">Thank you!</h4>
+    <h4 class="text-h4 mb-2">{{ $t('order.thankYou') }}</h4>
     <p class="text-body-1 mb-6">
       <template v-if="orderNumber">Order {{ orderNumber }} is confirmed.</template>
-      Your deposit is being processed — you'll receive a receipt and a link to
-      set your account password by email. Work starts as soon as the payment
-      settles.
+      {{ $t('order.successBody') }}
     </p>
 
     <VBtn color="primary" :to="{ name: 'login' }">
-      Go to login
+      {{ $t('order.goToLogin') }}
     </VBtn>
   </VContainer>
 </template>

@@ -272,5 +272,37 @@
     "paid": "Paguar",
     "proofUnderReview": "Një dëshmi transferte është duke u shqyrtuar. Mund të paguani ende online nëse transferta nuk kaloi.",
     "loadFailed": "Kjo faturë nuk mund të ngarkohej."
+  },
+  "order": {
+    "thankYou": "Faleminderit!",
+    "successBody": "Depozita juaj po përpunohet — do të merrni një konfirmim dhe një lidhje për të vendosur fjalëkalimin me email. Puna fillon sapo pagesa të kalojë.",
+    "goToLogin": "Shko te hyrja",
+    "personalisedOffer": "Kjo është një ofertë e personalizuar për ju.",
+    "offerExpired": "Kjo lidhje oferte nuk është më e disponueshme — më poshtë gjeni katalogun e plotë.",
+    "transferDeposit": "Transferoni depozitën",
+    "alreadyTransferred": "E keni transferuar tashmë?",
+    "uploadHint": "Ngarkoni faturën ose konfirmimin bankar dhe ne do ta përputhim me porosinë tuaj. PDF, JPG ose PNG, deri 10 MB.",
+    "receiptReceived": "Fatura u pranua. Do ta konfirmojmë dhe do të fillojmë — mund ta mbyllni këtë faqe. Një kopje e faturës gjendet në emailin tuaj.",
+    "sendReceipt": "Dërgo faturën",
+    "payDeposit": "Paguaj depozitën",
+    "summary": "Përmbledhje",
+    "net": "Neto",
+    "fullName": "Emri i plotë",
+    "email": "Emaili",
+    "choosePassword": "Zgjidhni një fjalëkalim",
+    "passwordHint": "Të paktën 8 karaktere — me këtë do të hyni në portalin e klientit.",
+    "company": "Kompania (opsionale)",
+    "country": "Shteti",
+    "startTyping": "Filloni të shkruani…",
+    "uid": "Numri i TVSH-së (opsional)",
+    "receipt": "Fatura"
+  },
+  "payLink": {
+    "invalid": "Kjo lidhje pagese është e pavlefshme ose ka skaduar. Ju lutemi kërkoni një të re.",
+    "settled": "E paguar",
+    "nothingLeft": "Kjo faturë është e paguar — nuk ka mbetur asgjë.",
+    "card": "Kartë",
+    "bankTransfer": "Transfertë bankare",
+    "cardUnavailable": "Pagesa me kartë nuk është e disponueshme për momentin."
   }
 }

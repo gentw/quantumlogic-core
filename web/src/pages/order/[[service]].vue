@@ -249,7 +249,7 @@ const pay = async () => {
   <VContainer class="py-10" style="max-inline-size: 64rem;">
     <div class="d-flex align-center justify-space-between mb-8">
       <AppLogo />
-      <VBtn variant="text" :to="{ name: 'login' }">Log in</VBtn>
+      <VBtn variant="text" :to="{ name: 'login' }">{{ $t('auth.logIn') }}</VBtn>
     </div>
 
     <VRow>
@@ -259,7 +259,7 @@ const pay = async () => {
           <h4 class="text-h4 mb-2">{{ linkedService ? linkedService.name : 'Order services' }}</h4>
           <p class="text-body-1 mb-6">
             <template v-if="linkedService">
-              This is a personalised offer prepared for you.
+              {{ $t('order.personalisedOffer') }}
             </template>
             <template v-else>
               Pick what you need,
@@ -270,7 +270,7 @@ const pay = async () => {
           </p>
 
           <VAlert v-if="linkBroken" type="warning" variant="tonal" class="mb-6">
-            That offer link is no longer available, so here is the full catalogue instead.
+            {{ $t('order.offerExpired') }}
           </VAlert>
 
           <VAlert v-if="couponRejected" type="warning" variant="tonal" class="mb-6">
@@ -305,26 +305,26 @@ const pay = async () => {
 
           <VExpandTransition>
             <div v-if="selectedLines.length" class="mt-6">
-              <h6 class="text-h6 mb-4">Your details</h6>
+              <h6 class="text-h6 mb-4">{{ $t('billing.yourDetails') }}</h6>
               <VRow dense>
                 <VCol cols="12" sm="6">
-                  <VTextField v-model="buyer.name" label="Full name" class="mb-3" />
-                  <VTextField v-model="buyer.email" label="Email" type="email" class="mb-3" />
+                  <VTextField v-model="buyer.name" :label="$t('order.fullName')" class="mb-3" />
+                  <VTextField v-model="buyer.email" :label="$t('order.email')" type="email" class="mb-3" />
                   <VTextField
                     v-model="buyer.password"
-                    label="Choose a password"
+                    :label="$t('order.choosePassword')"
                     :type="showPassword ? 'text' : 'password'"
                     :append-inner-icon="showPassword ? 'tabler-eye-off' : 'tabler-eye'"
                     autocomplete="new-password"
                     :error-messages="passwordError ? [passwordError] : []"
-                    hint="At least 8 characters — this is how you'll sign in to the client portal."
+                    :hint="$t('order.passwordHint')"
                     persistent-hint
                     class="mb-3"
                     @click:append-inner="showPassword = !showPassword"
                   />
                   <VTextField
                     v-model="buyer.password_confirmation"
-                    label="Confirm password"
+                    :label="$t('auth.confirmPassword')"
                     :type="showPassword ? 'text' : 'password'"
                     autocomplete="new-password"
                     :error-messages="confirmError ? [confirmError] : []"
@@ -332,20 +332,20 @@ const pay = async () => {
                   />
                 </VCol>
                 <VCol cols="12" sm="6">
-                  <VTextField v-model="buyer.company" label="Company (optional)" class="mb-3" />
+                  <VTextField v-model="buyer.company" :label="$t('order.company')" class="mb-3" />
                   <!-- Country decides VAT treatment, so it is a fixed list: a typo
                        here would silently change the tax on the invoice. -->
                   <VAutocomplete
                     v-model="buyer.country_code"
                     :items="countryItems"
-                    label="Country"
-                    placeholder="Start typing…"
+                    :label="$t('order.country')"
+                    :placeholder="$t('order.startTyping')"
                     auto-select-first
                     class="mb-3"
                   />
                   <VTextField
                     v-model="buyer.vat_id"
-                    label="UID (optional)"
+                    :label="$t('order.uid')"
                     :placeholder="vatIdPlaceholder"
                     :hint="showsVatIdHint ? 'With a valid EU VAT ID this sale is reverse-charged at 0% VAT.' : undefined"
                     persistent-hint
@@ -358,7 +358,7 @@ const pay = async () => {
 
         <!-- SEPA transfer: the invoice is issued, nothing is charged here -->
         <template v-else-if="step === 'transfer'">
-          <h4 class="text-h4 mb-2">Transfer the deposit</h4>
+          <h4 class="text-h4 mb-2">{{ $t('order.transferDeposit') }}</h4>
           <p class="text-body-1 mb-6">
             Order {{ orderNumber }} is placed and invoice {{ invoiceNumber }} is on its
             way to you by email. Transfer the deposit using the details below — quote the
@@ -370,7 +370,7 @@ const pay = async () => {
               <div class="d-flex flex-wrap gap-6">
                 <div class="flex-grow-1">
                   <div class="mb-3">
-                    <div class="text-body-2">Account holder</div>
+                    <div class="text-body-2">{{ $t('checkout.accountHolder') }}</div>
                     <div class="font-weight-medium">{{ bankDetails.account_holder }}</div>
                   </div>
                   <div class="mb-3">
@@ -382,11 +382,11 @@ const pay = async () => {
                     <div class="font-weight-medium">{{ bankDetails.bic }}</div>
                   </div>
                   <div class="mb-3">
-                    <div class="text-body-2">Reference — please include it</div>
+                    <div class="text-body-2">{{ $t('checkout.referenceNote') }}</div>
                     <div class="font-weight-medium">{{ bankDetails.reference }}</div>
                   </div>
                   <div>
-                    <div class="text-body-2">Amount</div>
+                    <div class="text-body-2">{{ $t('common.amount') }}</div>
                     <div class="font-weight-medium">{{ formatMoney(bankDetails.amount) }}</div>
                   </div>
                 </div>
@@ -397,7 +397,7 @@ const pay = async () => {
                     width="160"
                     height="160"
                   >
-                  <div class="text-body-2 mt-1">Scan with your banking app</div>
+                  <div class="text-body-2 mt-1">{{ $t('checkout.scanQr') }}</div>
                 </div>
               </div>
             </VCardText>
@@ -407,22 +407,20 @@ const pay = async () => {
                issued above is the credential. Nothing here settles the invoice. -->
           <VCard v-if="payToken" variant="outlined">
             <VCardItem>
-              <VCardTitle class="text-h6">Already transferred?</VCardTitle>
+              <VCardTitle class="text-h6">{{ $t('order.alreadyTransferred') }}</VCardTitle>
               <VCardSubtitle class="text-wrap">
-                Upload the receipt or bank confirmation and we will match it against
-                your order. PDF, JPG or PNG, up to 10 MB.
+                {{ $t('order.uploadHint') }}
               </VCardSubtitle>
             </VCardItem>
             <VCardText>
               <VAlert v-if="proofUploaded" type="success" variant="tonal" class="mb-0">
-                Receipt received. We will confirm it and get started — you can close
-                this page. A copy of the invoice is in your email.
+                {{ $t('order.receiptReceived') }}
               </VAlert>
 
               <template v-else>
                 <VFileInput
                   v-model="proofFile"
-                  label="Receipt"
+                  :label="$t('order.receipt')"
                   accept="application/pdf,image/jpeg,image/png"
                   prepend-icon=""
                   prepend-inner-icon="tabler-paperclip"
@@ -431,7 +429,7 @@ const pay = async () => {
                 />
                 <VTextarea
                   v-model="proofNote"
-                  label="Note (optional)"
+                  :label="$t('checkout.noteOptional')"
                   rows="2"
                   class="mb-3"
                 />
@@ -442,7 +440,7 @@ const pay = async () => {
                   :disabled="!proofFile.length"
                   @click="uploadProof"
                 >
-                  Send the receipt
+                  {{ $t('order.sendReceipt') }}
                 </VBtn>
               </template>
             </VCardText>
@@ -450,7 +448,7 @@ const pay = async () => {
         </template>
 
         <template v-else>
-          <h4 class="text-h4 mb-2">Pay the deposit</h4>
+          <h4 class="text-h4 mb-2">{{ $t('order.payDeposit') }}</h4>
           <p class="text-body-1 mb-6">Order {{ orderNumber }} — the balance is due on delivery.</p>
           <VCard variant="outlined" class="mb-4">
             <VCardText>
@@ -480,29 +478,29 @@ const pay = async () => {
       <VCol cols="12" md="5">
         <VCard v-if="quote">
           <VCardText>
-            <h6 class="text-h6 mb-4">Summary</h6>
+            <h6 class="text-h6 mb-4">{{ $t('order.summary') }}</h6>
             <div v-for="line in quote.lines" :key="line.name" class="d-flex justify-space-between mb-2">
               <span>{{ line.name }} × {{ line.quantity }}</span>
               <span>{{ formatMoney(line.gross) }}</span>
             </div>
             <VDivider class="my-3" />
             <div class="d-flex justify-space-between mb-1">
-              <span>Net</span><span>{{ formatMoney(quote.subtotal_net) }}</span>
+              <span>{{ $t('order.net') }}</span><span>{{ formatMoney(quote.subtotal_net) }}</span>
             </div>
             <!-- Shown against the list price, so the buyer sees what came off
                  rather than just a smaller number. -->
             <div v-if="quote.coupon" class="d-flex justify-space-between mb-1 text-success">
               <span>
-                Discount
+                {{ $t('invoice.discount') }}
                 <VChip size="x-small" label class="ms-1">{{ quote.coupon.code }}</VChip>
               </span>
               <span>−{{ formatMoney(quote.discount_total) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-1">
-              <span>VAT</span><span>{{ formatMoney(quote.vat_total) }}</span>
+              <span>{{ $t('invoice.vat') }}</span><span>{{ formatMoney(quote.vat_total) }}</span>
             </div>
             <div class="d-flex justify-space-between font-weight-medium mb-3">
-              <span>Total</span><span>{{ formatMoney(quote.total_gross) }}</span>
+              <span>{{ $t('common.total') }}</span><span>{{ formatMoney(quote.total_gross) }}</span>
             </div>
             <VAlert type="info" variant="tonal" density="compact">
               {{ quote.deposit_percent }}% deposit

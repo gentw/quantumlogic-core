@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 import { loadStripe } from '@/utils/stripe'
 
 definePage({
@@ -35,7 +36,7 @@ const mountCard = async () => {
     ])
 
     if (!stripeInstance) {
-      errorMessage.value = 'Card payments are not available right now.'
+      errorMessage.value = t('payLink.cardUnavailable')
 
       return
     }
@@ -85,7 +86,7 @@ onMounted(async () => {
     </div>
 
     <VAlert v-if="notFound" type="error" variant="tonal">
-      This payment link is invalid or has expired. Please ask for a new one.
+      {{ $t('payLink.invalid') }}
     </VAlert>
 
     <VRow v-else-if="invoice">
@@ -95,7 +96,7 @@ onMounted(async () => {
           <VCardText>
             <div class="d-flex justify-space-between align-center mb-4">
               <h6 class="text-h6">{{ invoice.invoice_number }}</h6>
-              <VChip v-if="!invoice.payable" size="small" color="success" label>Settled</VChip>
+              <VChip v-if="!invoice.payable" size="small" color="success" label>{{ $t('payLink.settled') }}</VChip>
             </div>
 
             <div v-for="line in invoice.lines" :key="line.description" class="d-flex justify-space-between mb-2">
@@ -104,11 +105,11 @@ onMounted(async () => {
             </div>
             <VDivider class="my-3" />
             <div class="d-flex justify-space-between font-weight-medium mb-1">
-              <span>Amount due</span>
+              <span>{{ $t('billing.amountDue') }}</span>
               <span>{{ formatMoney(invoice.amount_due) }}</span>
             </div>
             <div v-if="invoice.due_at" class="d-flex justify-space-between text-body-2">
-              <span>Due date</span>
+              <span>{{ $t('billing.dueDate') }}</span>
               <span>{{ formatDate(invoice.due_at) }}</span>
             </div>
 
@@ -127,8 +128,8 @@ onMounted(async () => {
       <VCol cols="12" md="6">
         <template v-if="invoice.payable">
           <VRadioGroup v-model="rail" inline class="mb-4">
-            <VRadio value="card" label="Card" />
-            <VRadio value="transfer" label="Bank transfer" />
+            <VRadio value="card" :label="$t('payLink.card')" />
+            <VRadio value="transfer" :label="$t('payLink.bankTransfer')" />
           </VRadioGroup>
 
           <VAlert v-if="errorMessage" type="error" variant="tonal" density="compact" class="mb-4">
@@ -151,17 +152,17 @@ onMounted(async () => {
             <VCardText>
               <div class="mb-2"><span class="text-body-2">IBAN</span><div class="font-weight-medium">{{ invoice.bank.iban }}</div></div>
               <div class="mb-2"><span class="text-body-2">BIC</span><div class="font-weight-medium">{{ invoice.bank.bic }}</div></div>
-              <div class="mb-3"><span class="text-body-2">Reference</span><div class="font-weight-medium">{{ invoice.bank.reference }}</div></div>
+              <div class="mb-3"><span class="text-body-2">{{ $t('billing.reference') }}</span><div class="font-weight-medium">{{ invoice.bank.reference }}</div></div>
               <div v-if="invoice.bank.epc_qr_png" class="text-center">
                 <img :src="invoice.bank.epc_qr_png" alt="EPC QR — scan with your banking app" width="160" height="160">
-                <div class="text-body-2 mt-1">Scan with your banking app</div>
+                <div class="text-body-2 mt-1">{{ $t('checkout.scanQr') }}</div>
               </div>
             </VCardText>
           </VCard>
         </template>
 
         <VAlert v-else type="success" variant="tonal">
-          This invoice is settled — nothing left to pay.
+          {{ $t('payLink.nothingLeft') }}
         </VAlert>
       </VCol>
     </VRow>

@@ -272,5 +272,37 @@
     "paid": "Bezahlt",
     "proofUnderReview": "Ein Überweisungsnachweis wird gerade geprüft. Sie können weiterhin online bezahlen, falls die Überweisung nicht durchgegangen ist.",
     "loadFailed": "Diese Rechnung konnte nicht geladen werden."
+  },
+  "order": {
+    "thankYou": "Vielen Dank!",
+    "successBody": "Ihre Anzahlung wird verarbeitet — Sie erhalten per E-Mail eine Bestätigung und einen Link, um Ihr Passwort zu setzen. Wir beginnen, sobald die Zahlung eingegangen ist.",
+    "goToLogin": "Zur Anmeldung",
+    "personalisedOffer": "Dies ist ein persönlich für Sie erstelltes Angebot.",
+    "offerExpired": "Dieser Angebotslink ist nicht mehr verfügbar — hier ist stattdessen das gesamte Leistungsangebot.",
+    "transferDeposit": "Anzahlung überweisen",
+    "alreadyTransferred": "Bereits überwiesen?",
+    "uploadHint": "Laden Sie den Beleg oder die Bankbestätigung hoch, wir ordnen sie Ihrem Auftrag zu. PDF, JPG oder PNG, bis 10 MB.",
+    "receiptReceived": "Beleg erhalten. Wir bestätigen ihn und legen los — Sie können diese Seite schließen. Eine Kopie der Rechnung liegt in Ihrem Postfach.",
+    "sendReceipt": "Beleg senden",
+    "payDeposit": "Anzahlung bezahlen",
+    "summary": "Zusammenfassung",
+    "net": "Netto",
+    "fullName": "Vollständiger Name",
+    "email": "E-Mail",
+    "choosePassword": "Passwort wählen",
+    "passwordHint": "Mindestens 8 Zeichen — damit melden Sie sich künftig im Kundenportal an.",
+    "company": "Firma (optional)",
+    "country": "Land",
+    "startTyping": "Tippen Sie los…",
+    "uid": "UID-Nummer (optional)",
+    "receipt": "Beleg"
+  },
+  "payLink": {
+    "invalid": "Dieser Zahlungslink ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an.",
+    "settled": "Bezahlt",
+    "nothingLeft": "Diese Rechnung ist beglichen — es ist nichts mehr offen.",
+    "card": "Karte",
+    "bankTransfer": "Überweisung",
+    "cardUnavailable": "Kartenzahlung ist derzeit nicht verfügbar."
   }
 }

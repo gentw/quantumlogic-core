@@ -272,5 +272,37 @@
     "paid": "Paid",
     "proofUnderReview": "A bank transfer proof is being reviewed. You can still pay online if the transfer did not go through.",
     "loadFailed": "This invoice could not be loaded."
+  },
+  "order": {
+    "thankYou": "Thank you!",
+    "successBody": "Your deposit is being processed — you will receive a receipt and a link to set your account password by email. Work starts as soon as the payment settles.",
+    "goToLogin": "Go to login",
+    "personalisedOffer": "This is a personalised offer prepared for you.",
+    "offerExpired": "That offer link is no longer available, so here is the full catalogue instead.",
+    "transferDeposit": "Transfer the deposit",
+    "alreadyTransferred": "Already transferred?",
+    "uploadHint": "Upload the receipt or bank confirmation and we will match it against your order. PDF, JPG or PNG, up to 10 MB.",
+    "receiptReceived": "Receipt received. We will confirm it and get started — you can close this page. A copy of the invoice is in your email.",
+    "sendReceipt": "Send the receipt",
+    "payDeposit": "Pay the deposit",
+    "summary": "Summary",
+    "net": "Net",
+    "fullName": "Full name",
+    "email": "Email",
+    "choosePassword": "Choose a password",
+    "passwordHint": "At least 8 characters — this is how you will sign in to the client portal.",
+    "company": "Company (optional)",
+    "country": "Country",
+    "startTyping": "Start typing…",
+    "uid": "VAT ID (optional)",
+    "receipt": "Receipt"
+  },
+  "payLink": {
+    "invalid": "This payment link is invalid or has expired. Please ask for a new one.",
+    "settled": "Settled",
+    "nothingLeft": "This invoice is settled — nothing left to pay.",
+    "card": "Card",
+    "bankTransfer": "Bank transfer",
+    "cardUnavailable": "Card payments are not available right now."
   }
 }
