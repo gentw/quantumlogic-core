@@ -47,7 +47,17 @@ export default function (app) {
     // (data-table footers, pagination, pickers). Routing it through the same
     // vue-i18n instance means switching language in the navbar moves both, and
     // there is no second locale to keep in step by hand.
-    locale: createVueI18nAdapter({ i18n, useI18n }),
+    //
+    // The adapter must sit under `adapter`. Passed as the whole `locale` object
+    // it is silently ignored — createLocale() only honours it when
+    // `options.adapter` is set, and otherwise builds Vuetify's own adapter with
+    // `ref({ en, ...options.messages })`. Spreading our messages ComputedRef
+    // there copies its `__v_isRef: true` onto a plain object, so ref() hands the
+    // object straight back instead of wrapping it, `.value` is undefined, and
+    // every $vuetify lookup dies on `messages.value[locale]`.
+    locale: {
+      adapter: createVueI18nAdapter({ i18n, useI18n }),
+    },
   })
 
   app.use(vuetify)
