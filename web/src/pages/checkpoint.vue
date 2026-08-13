@@ -18,6 +18,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const loginError = ref(''); 
 // const ability = useAbility()
 
@@ -25,13 +26,32 @@ const errors = ref({
   otp: undefined, // Add a field for one-time code errors
 });
 
+/** Digits in a login code, as issued by TwoFactorService::generateCode(). */
+const OTP_LENGTH = 6
+
 const otp = ref('')
 const isOtpInserted = ref(false)
 
-watch(otp, (newValue) => {
-  if (newValue.length === 5 && errors.value.otp != undefined) {
-    errors.value.otp = undefined;
+/**
+ * Keep the field to digits, and clear a previous failure as soon as the code is
+ * edited — the old rule only cleared at exactly five characters, so the alert
+ * stayed on screen while a corrected code was being typed.
+ */
+watch(otp, value => {
+  const digits = String(value ?? '').replace(/\D/g, '').slice(0, OTP_LENGTH)
+
+  if (digits !== value) {
+    otp.value = digits
+
+    return
   }
+
+  if (errors.value.otp)
+    errors.value.otp = undefined
+
+  // Submit on the last digit, the way the boxed input used to.
+  if (digits.length === OTP_LENGTH)
+    verifyOtp()
 });
 
 onMounted(() => {
@@ -46,18 +66,21 @@ const removeCookie = () => {
   useCookie('isOtp').value = null;
 }
 
-const onFinish = () => {
-  isOtpInserted.value = true
-  setTimeout(() => {
-    isOtpInserted.value = false
-    verifyOtp()
-  }, 2000)
-}
-
-
 const refVForm = ref()
 
 const verifyOtp = async () => {
+  // The watcher fires on the sixth digit and the button can be pressed on top
+  // of it, so both entry points share one in-flight guard.
+  if (isOtpInserted.value) return
+
+  if (otp.value.length !== OTP_LENGTH) {
+    errors.value.otp = t('auth.codeIncomplete')
+
+    return
+  }
+
+  isOtpInserted.value = true
+
   try {
     const res = await $api('/v1/verify-otp', {
       method: 'POST',
@@ -95,13 +118,13 @@ const verifyOtp = async () => {
       router.replace(route.query.to ? String(route.query.to) : '/');
     });
   } catch (err) {
-    if (err.response && err.response.status === 401) {
-      // alert("error");
-      errors.value.otp = 'Incorrect Code. Try again!'; // Set specific error for unauthorized access
-      return; // Exit the function if unauthorized
-    }
-    // console.error(err);
-    // loginError.value = 'An error occurred while processing your request.'; // Set a generic error message
+    errors.value.otp = err.response?.status === 401
+      ? t('auth.incorrectCode')
+      : t('auth.verifyFailed');
+  } finally {
+    // Re-enable the form on every outcome. The old code left it disabled
+    // whenever the request failed with anything other than a 401.
+    isOtpInserted.value = false
   }
 };
 
@@ -137,21 +160,25 @@ const verifyOtp = async () => {
             <VRow>
               <!-- one-time code input -->
               <VCol cols="12">
-                <h6 class="text-body-1">
-                  {{ $t('auth.enterCode') }}
-                </h6>
-                <VOtpInput
+                <AppTextField
                   v-model="otp"
+                  autofocus
                   :disabled="isOtpInserted"
-                  type="number"
-                  class="pa-0"
-                  @finish="onFinish"
+                  :label="$t('auth.enterCode')"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  :maxlength="OTP_LENGTH"
+                  placeholder="––––––"
                 />
                 <VAlert
-                 v-if="errors.otp && otp.length > 5"
-                variant="tonal"
-                color="error"
-              >{{ errors.otp }}</VAlert>
+                  v-if="errors.otp"
+                  variant="tonal"
+                  color="error"
+                  class="mt-3"
+                >
+                  {{ errors.otp }}
+                </VAlert>
               </VCol>
 
               <VCol cols="12">
