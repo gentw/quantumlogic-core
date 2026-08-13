@@ -177,7 +177,7 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
   block-size: 100%;
   border-inline-end: 1px solid #eee;
   box-shadow: none !important;
-  inline-size: 400px;
+  inline-size: variables.$layout-vertical-nav-width;
   inset-block-start: 0;
   inset-inline-start: 0;
   transition: inline-size 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
@@ -234,7 +234,7 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
 @media (max-width: 1279px) {
   .layout-vertical-nav {
     &:not(.visible) {
-      transform: translateX(-400px);
+      transform: translateX(-#{variables.$layout-vertical-nav-width});
 
       @include mixins.rtl {
         transform: translateX(variables.$layout-vertical-nav-width);

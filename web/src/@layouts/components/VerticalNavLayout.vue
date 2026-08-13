@@ -142,7 +142,7 @@ export default defineComponent({
     will-change: padding-inline-start;
 
     @media screen and (min-width: 1280px) {
-      padding-inline-start: 400px;
+      padding-inline-start: variables.$layout-vertical-nav-width;
     }
   }
 
@@ -220,7 +220,7 @@ export default defineComponent({
   // Adjust right column pl when vertical nav is collapsed
   &.layout-vertical-nav-collapsed .layout-content-wrapper {
     @media screen and (min-width: 1280px) {
-      padding-inline-start: 400px;
+      padding-inline-start: variables.$layout-vertical-nav-collapsed-width;
     }
   }
 
