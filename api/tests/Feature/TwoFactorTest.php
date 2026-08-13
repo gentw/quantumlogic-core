@@ -210,4 +210,79 @@ class TwoFactorTest extends TestCase
         $this->getJson('/api/v1/user/two-factor')->assertStatus(401);
         $this->postJson('/api/v1/user/two-factor', ['enabled' => true, 'current_password' => 'x'])->assertStatus(401);
     }
+
+    /**
+     * Staff sign in through a different branch of store(): the lookup matches
+     * the submitted email against the `phone` column, which is where admin and
+     * agent addresses are kept. Four of the six real staff accounts use this
+     * path, and it is the branch that previously minted a token with no code at
+     * all, so both outcomes need covering.
+     */
+    public function test_staff_with_two_factor_on_are_sent_to_the_checkpoint(): void
+    {
+        $admin = $this->makeUser('admin', [
+            'phone' => 'staff-'.uniqid().'@example.test',
+            'email' => 'staff-inbox-'.uniqid().'@example.test',
+        ]);
+
+        $this->postJson('/api/v1/login', ['phone' => $admin->phone, 'password' => 'secret-password'])
+            ->assertOk()
+            ->assertJson(['redirect' => 'checkpoint']);
+
+        $this->assertDatabaseHas('otps', ['phone' => $admin->phone]);
+        Mail::assertSent(\App\Mail\OtpMail::class);
+    }
+
+    /**
+     * The code is keyed on what was typed at login, but the account is found by
+     * the `email` column first — which for staff holds a different address than
+     * the one they signed in with. Without the phone-column fallback this
+     * returns 401 after a valid code.
+     */
+    public function test_staff_can_complete_the_checkpoint_and_get_a_token(): void
+    {
+        $admin = $this->makeUser('admin', [
+            'phone' => 'staff-'.uniqid().'@example.test',
+            'email' => 'staff-inbox-'.uniqid().'@example.test',
+        ]);
+
+        $code = app(TwoFactorService::class)->issueFor($admin, $admin->phone);
+
+        $response = $this->postJson('/api/v1/verify-otp', ['phone' => $admin->phone, 'otp' => $code])
+            ->assertOk();
+
+        $this->assertNotEmpty($response->json('token.token'));
+        $this->assertSame($admin->id, $response->json('user.id'));
+    }
+
+    public function test_staff_with_two_factor_off_sign_in_directly(): void
+    {
+        $agent = $this->makeUser('agent', [
+            'phone' => 'staff-'.uniqid().'@example.test',
+            'two_factor_enabled' => false,
+        ]);
+
+        $response = $this->postJson('/api/v1/login', ['phone' => $agent->phone, 'password' => 'secret-password'])
+            ->assertOk();
+
+        $this->assertNotEmpty($response->json('token.token'));
+        Mail::assertNothingSent();
+    }
+
+    /** The other branch: staff whose phone column holds an actual number. */
+    public function test_staff_logging_in_by_phone_number_also_get_a_code(): void
+    {
+        $agent = $this->makeUser('agent', ['phone' => (string) random_int(100000000, 999999999)]);
+
+        // first_time is not fillable and defaults to 1; clear it so this test
+        // exercises the two-factor branch rather than the first-login password
+        // rewrite documented in FirstLoginPasswordResetTest.
+        $agent->forceFill(['first_time' => 0])->saveQuietly();
+
+        $this->postJson('/api/v1/login', ['phone' => $agent->phone, 'password' => 'secret-password'])
+            ->assertOk()
+            ->assertJson(['redirect' => 'checkpoint']);
+
+        $this->assertDatabaseHas('otps', ['phone' => $agent->phone]);
+    }
 }
