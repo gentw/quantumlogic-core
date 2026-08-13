@@ -74,10 +74,16 @@ const verifyOtp = async () => {
     // Set the message to the API message or an empty string if undefined
     
 
-    // Set the isOtp cookie based on the presence of the message
-    useCookie('isOtp').value = false;
+    // Null, not false: useCookie only emits a deletion header for null or
+    // undefined, so `false` leaves the cookie sitting there.
+    useCookie('isOtp').value = null;
 
     useCookie('phoneNo').value = null;
+
+    // Login writes this so it can bounce a half-finished sign-in back here.
+    // Left behind, it sends every later visit to /login straight to this page
+    // — with phoneNo already cleared, which no code can then satisfy.
+    useCookie('redirect_uri').value = null;
 
     // Store the access token for future API requests
     useCookie('accessToken').value = token.token;
@@ -124,7 +130,10 @@ const verifyOtp = async () => {
         </VCardText>
 
         <VCardText>
-          <VForm ref="refVForm">
+          <VForm
+            ref="refVForm"
+            @submit.prevent="verifyOtp"
+          >
             <VRow>
               <!-- one-time code input -->
               <VCol cols="12">
@@ -204,7 +213,7 @@ const verifyOtp = async () => {
   <div class="d-flex copyright-text align-end gap-x-3">
     <span class="font-weight-bold">{{ $t('auth.copyright', { year: new Date().getFullYear() }) }}</span>
     <span>{{ $t('auth.rightsReserved') }}</span>
-  </div>>
+  </div>
 </template>
 
 
