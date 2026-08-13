@@ -4,7 +4,7 @@
       class="mb-6"
       title="QuantumLogic"
     >
-      <VCardText>QuantumLogic 2</VCardText>
+      <VCardText>{{ $t('common.loading') }}</VCardText>
       
       </VCard>
   </div>

@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 import * as feather from 'feather-icons';
 import ReportStatisticsWidgets from './includes/ReportStatisticsWidgets.vue';
 const dateRange = ref(null);
@@ -21,17 +22,17 @@ const renderFeatherIcon = (iconName, size) => {
   <!-- <section v-if="clients"> -->
     <section>
     <VCard id="clients-list"
-      title="Raportet"
+      :title="$t('nav.reports')"
 
     >
      
       <VCardText class="pb-0">
         <div class="d-flex flex-row justify-space-between">
-          <div>Menaxhimi i raporteve</div>
+          <div>{{ $t('reports.manage') }}</div>
           <div class="d-flex">
             <AppDateTimePicker
               v-model="dateRange"
-              placeholder="Sipas dates"
+              :placeholder="$t('users.byDate')"
               :config="{ mode: 'range' }"
             >
             <template v-slot:prepend>

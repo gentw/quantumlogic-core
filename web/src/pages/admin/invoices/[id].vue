@@ -133,10 +133,10 @@ onMounted(async () => {
       </div>
       <VSpacer />
       <VBtn v-if="isDraft" color="primary" :loading="working" @click="action('issue')">
-        Issue
+        {{ $t('adminInvoices.issue') }}
       </VBtn>
       <VBtn v-if="isDraft" variant="tonal" color="secondary" :loading="working" @click="action('cancel')">
-        Cancel draft
+        {{ $t('adminInvoices.cancelDraft') }}
       </VBtn>
       <VBtn
         v-if="['sent', 'awaiting_confirmation', 'paid'].includes(invoice.status)"
@@ -145,7 +145,7 @@ onMounted(async () => {
         :loading="working"
         @click="action('credit-note')"
       >
-        Issue credit note
+        {{ $t('adminInvoices.creditNote') }}
       </VBtn>
     </div>
 
@@ -160,23 +160,23 @@ onMounted(async () => {
           density="compact"
           class="mb-4"
         >
-          Issued invoices are immutable — corrections go through a credit note.
+          {{ $t('adminInvoices.immutableNote') }}
         </VAlert>
 
         <!-- Editable header fields (drafts only) -->
-        <VCard class="mb-6" title="Details">
+        <VCard class="mb-6" :title="$t('adminInvoices.details')">
           <VCardText>
             <VRow>
               <VCol cols="12" sm="6">
                 <VTextField
                   v-model="draftForm.reference"
-                  label="Reference"
+                  :label="$t('billing.reference')"
                   :readonly="!isDraft"
                   class="mb-4"
                 />
                 <VTextField
                   v-model="draftForm.due_at"
-                  label="Due date"
+                  :label="$t('billing.dueDate')"
                   type="date"
                   :readonly="!isDraft"
                 />
@@ -184,35 +184,35 @@ onMounted(async () => {
               <VCol cols="12" sm="6">
                 <VTextarea
                   v-model="draftForm.terms"
-                  label="Terms"
+                  :label="$t('invoice.terms')"
                   rows="2"
                   :readonly="!isDraft"
                   class="mb-4"
                 />
                 <VTextarea
                   v-model="draftForm.notes"
-                  label="Notes"
+                  :label="$t('adminInvoices.notes')"
                   rows="2"
                   :readonly="!isDraft"
                 />
               </VCol>
             </VRow>
             <VBtn v-if="isDraft" color="primary" variant="tonal" :loading="working" @click="saveDraft">
-              Save draft
+              {{ $t('adminInvoices.saveDraft') }}
             </VBtn>
           </VCardText>
         </VCard>
 
         <!-- Lines -->
-        <VCard class="mb-6" title="Lines">
+        <VCard class="mb-6" :title="$t('orders.lines')">
           <VTable class="text-no-wrap">
             <thead>
               <tr>
-                <th>Description</th>
-                <th class="text-end">Qty</th>
-                <th class="text-end">Unit price</th>
-                <th class="text-end">VAT %</th>
-                <th class="text-end">Total</th>
+                <th>{{ $t('invoice.description') }}</th>
+                <th class="text-end">{{ $t('services.qty') }}</th>
+                <th class="text-end">{{ $t('invoice.unitPrice') }}</th>
+                <th class="text-end">{{ $t('invoice.vatPercent') }}</th>
+                <th class="text-end">{{ $t('common.total') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -232,18 +232,18 @@ onMounted(async () => {
         </VCard>
 
         <!-- Payment history -->
-        <VCard class="mb-6" title="Payments">
+        <VCard class="mb-6" :title="$t('nav.payments')">
           <VCardText v-if="!payments.length" class="text-body-2">
-            No payments yet.
+            {{ $t('adminInvoices.noPayments') }}
           </VCardText>
           <VTable v-else class="text-no-wrap">
             <thead>
               <tr>
-                <th>Provider</th>
-                <th>Status</th>
-                <th>Method</th>
-                <th>Date</th>
-                <th class="text-end">Amount</th>
+                <th>{{ $t('payments.provider') }}</th>
+                <th>{{ $t('common.status') }}</th>
+                <th>{{ $t('payments.method') }}</th>
+                <th>{{ $t('common.date') }}</th>
+                <th class="text-end">{{ $t('common.amount') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -259,7 +259,7 @@ onMounted(async () => {
         </VCard>
 
         <!-- Audit trail -->
-        <VCard title="Activity">
+        <VCard :title="$t('adminInvoices.activity')">
           <VCardText>
             <VTimeline density="compact" align="start" truncate-line="both">
               <VTimelineItem
@@ -283,13 +283,13 @@ onMounted(async () => {
       <VCol cols="12" md="4">
         <VCard class="mb-6">
           <VCardText>
-            <div class="text-body-2">Outstanding</div>
+            <div class="text-body-2">{{ $t('dashboard.outstanding') }}</div>
             <h4 class="text-h4 mb-4">{{ formatMoney(invoice.amount_due) }}</h4>
             <div class="d-flex justify-space-between mb-2">
-              <span>Total</span><span>{{ formatMoney(invoice.total_gross) }}</span>
+              <span>{{ $t('common.total') }}</span><span>{{ formatMoney(invoice.total_gross) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-4">
-              <span>Paid</span><span>{{ formatMoney(invoice.amount_paid) }}</span>
+              <span>{{ $t('invoice.paid') }}</span><span>{{ formatMoney(invoice.amount_paid) }}</span>
             </div>
             <VBtn
               block
@@ -299,7 +299,7 @@ onMounted(async () => {
               :disabled="invoice.amount_due <= 0"
               @click="paymentDialog = true"
             >
-              Record manual payment
+              {{ $t('adminInvoices.manualPayment') }}
             </VBtn>
             <VBtn
               block
@@ -308,13 +308,13 @@ onMounted(async () => {
               :disabled="!invoice.due_at"
               @click="reminderDialog = true"
             >
-              Add reminder
+              {{ $t('adminInvoices.addReminder') }}
             </VBtn>
           </VCardText>
         </VCard>
 
         <!-- Client rail -->
-        <VCard class="mb-6" title="Client">
+        <VCard class="mb-6" :title="$t('common.client')">
           <VCardText v-if="client">
             <div class="font-weight-medium">{{ client.name }} {{ client.surname }}</div>
             <div class="text-body-2">{{ client.company_name }}</div>
@@ -326,9 +326,9 @@ onMounted(async () => {
         </VCard>
 
         <!-- Reminder rail -->
-        <VCard title="Reminders">
+        <VCard :title="$t('adminInvoices.reminders')">
           <VCardText v-if="!reminders.length" class="text-body-2">
-            None scheduled. Dunning defaults are 3 / 7 / 14 days after due.
+            {{ $t('adminInvoices.noReminders') }}
           </VCardText>
           <VList v-else density="compact">
             <VListItem v-for="reminder in reminders" :key="reminder.id">
@@ -357,12 +357,12 @@ onMounted(async () => {
             suffix="EUR"
             class="mb-4"
           />
-          <VTextarea v-model="paymentForm.note" label="Note (optional)" rows="2" />
+          <VTextarea v-model="paymentForm.note" :label="$t('checkout.noteOptional')" rows="2" />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn variant="text" color="secondary" @click="paymentDialog = false">Cancel</VBtn>
-          <VBtn color="primary" :loading="working" @click="recordPayment">Record</VBtn>
+          <VBtn variant="text" color="secondary" @click="paymentDialog = false">{{ $t('common.cancel') }}</VBtn>
+          <VBtn color="primary" :loading="working" @click="recordPayment">{{ $t('adminInvoices.record') }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -379,7 +379,7 @@ onMounted(async () => {
               { title: '14 days after due', value: 14 },
               { title: 'Final notice (21 days)', value: 21 },
             ]"
-            label="When"
+            :label="$t('adminInvoices.when')"
             class="mb-4"
           />
           <VSelect
@@ -389,13 +389,13 @@ onMounted(async () => {
               { title: 'Push', value: 'push' },
               { title: 'Email + push', value: 'both' },
             ]"
-            label="Channel"
+            :label="$t('adminInvoices.channel')"
           />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn variant="text" color="secondary" @click="reminderDialog = false">Cancel</VBtn>
-          <VBtn color="primary" :loading="working" @click="addReminder">Schedule</VBtn>
+          <VBtn variant="text" color="secondary" @click="reminderDialog = false">{{ $t('common.cancel') }}</VBtn>
+          <VBtn color="primary" :loading="working" @click="addReminder">{{ $t('adminInvoices.schedule') }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

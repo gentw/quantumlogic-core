@@ -241,7 +241,7 @@ const LazyAppBarSearch = defineAsyncComponent(() => import('@core/components/App
     <!-- no data suggestion -->
     <template #noDataSuggestion>
       <div class="mt-9">
-        <span class="d-flex justify-center text-disabled mb-2">Try searching for</span>
+        <span class="d-flex justify-center text-disabled mb-2">{{ $t('common.trySearchingFor') }}</span>
         <h6
           v-for="suggestion in noDataSuggestions"
           :key="suggestion.title"

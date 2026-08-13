@@ -47,16 +47,21 @@ export const SECURITY_ROUTE_PREFIXES = [
 
 /**
  * Route-name prefixes owned by the retired subscription-plans module. Same
- * mechanism as the security prefixes above. Deliberately excludes
- * `client-invoice` itself — invoices are a live Billing & Payments concept;
- * only the plan-change flow under it belongs to the retired module.
+ * mechanism as the security prefixes above.
+ *
+ * The whole `client-invoice-*` tree belongs to the retired module — CLAUDE.md
+ * lists "legacy client/invoice/{id}" among the routes that only apply while
+ * FEATURE_SUBSCRIPTION_PLANS is on. Live invoices are `client-billing-invoices-*`,
+ * which is a different tree and stays reachable. An earlier version of this list
+ * conflated the two and left the legacy pages open; `client-invoice-pay-now-id`
+ * in particular still displays pre-pivot bank details.
  *
  * @type {string[]}
  */
 export const SUBSCRIPTION_ROUTE_PREFIXES = [
   'client-pricing',
   'client-plans-billing',
-  'client-invoice-change-plan',
+  'client-invoice',
 ]
 
 /**

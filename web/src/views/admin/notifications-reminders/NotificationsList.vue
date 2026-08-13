@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 
 
 import * as feather from 'feather-icons';
@@ -97,14 +98,14 @@ console.log("from gent", users);
     <AddNewNotification v-model:showAlert="isDialogVisible"/>
     <section>
     <VCard id="clients-list"
-      title="Menagjimi i njoftimeve"
+      :title="$t('notifications.manage')"
 
     >
      
-      <VBtn type="button" class="add-user-btn" @click="isDialogVisible = true">Njoftim i ri</VBtn>
+      <VBtn type="button" class="add-user-btn" @click="isDialogVisible = true">{{ $t('notifications.new') }}</VBtn>
      
       <VCardText class="pb-0">
-        <div>Lista e të gjitha njoftimeve të krijuara</div>
+        <div>{{ $t('notifications.subtitle') }}</div>
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
             <!-- <span>Show</span>
@@ -143,7 +144,7 @@ console.log("from gent", users);
                       <div class="position-relative filterSection">
                         <AppTextField
                           v-model="searchQuery"
-                          placeholder="Kerko ..."
+                          :placeholder="$t('common.search')"
                           append-inner-icon="tabler-search"
                           single-line
                           hide-details

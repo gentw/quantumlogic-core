@@ -176,17 +176,17 @@ console.log("from gent", clients);
   <!-- <section v-if="clients"> -->
     <section>
     <VCard id="clients-list"
-      title="Klientët (500)"
+      :title="$t('users.clientsTitle', { count: totalClients })"
 
     >
       <RouterLink :to="{ name: 'admin-clients-add-client'}">
-        <VBtn type="button" class="add-user-btn">Shto Klientë</VBtn>
+        <VBtn type="button" class="add-user-btn">{{ $t('users.addClient') }}</VBtn>
       </RouterLink>
       <VCardText class="pb-0">
-        <div>Lista e të gjithë klientëve të regjistruar në një vend</div>
+        <div>{{ $t('users.clientsSubtitle') }}</div>
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <!-- <span>Show</span>
+            <!-- <span>{{ $t('common.show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -222,7 +222,7 @@ console.log("from gent", clients);
                       <div class="position-relative filterSection">
                         <AppTextField
                           v-model="searchQuery"
-                          placeholder="Kerko ..."
+                          :placeholder="$t('common.search')"
                           append-inner-icon="tabler-search"
                           single-line
                           hide-details
@@ -232,7 +232,7 @@ console.log("from gent", clients);
                         />
                         <!-- <AppSelect
                           :items="filterOptions"
-                          placeholder="Filter"
+                          :placeholder="$t('common.filter')"
                           v-model="selectedFilter"
                           clearable
                           clear-icon="tabler-x"
@@ -249,14 +249,14 @@ console.log("from gent", clients);
                       @click="(filterUsers) ? filterUsers = 0 : filterUsers = 1"
                     >
                     <i class="mr-2" v-html="renderFeatherIcon('sliders', 20)" />
-                      Filtro
+                      {{ $t('common.filter') }}
 
                       
                     </VBtn>
                     <!-- <div v-if="selectedFilter == 'status'">
                       <AppSelect
                         :items="_statusOptions"
-                        placeholder="Sipas Statusit"
+                        :placeholder="$t('users.byStatus')"
                         v-model="selectedStatus"
                         clearable
                         clear-icon="tabler-x"
@@ -265,7 +265,7 @@ console.log("from gent", clients);
                     <!-- <div v-if="selectedFilter == 'date'">
                       <AppDateTimePicker
                         v-model="dateRange"
-                        placeholder="Sipas dates"
+                        :placeholder="$t('users.byDate')"
                         :config="{ mode: 'range' }"
                       />
                     </div> -->
@@ -277,7 +277,7 @@ console.log("from gent", clients);
                     >
                       <!-- <AppTextField
                         v-model="searchQuery"
-                        placeholder="Search ..."
+                        :placeholder="$t('common.search')"
                         append-inner-icon="tabler-search"
                         single-line
                         hide-details
@@ -299,7 +299,7 @@ console.log("from gent", clients);
             />
             <!-- <AppSelect
               v-model="selectedStatus"
-              placeholder="Invoice Status"
+              :placeholder="$t('users.invoiceStatus')"
               clearable
               clear-icon="tabler-x"
               single-line
@@ -395,7 +395,7 @@ console.log("from gent", clients);
             <div class="d-flex flex-wrap justify-center justify-sm-space-between gap-y-2 mt-2">
               <!-- <VTextField
                 v-model="options.itemsPerPage"
-                label="Rows per page:"
+                :label="$t('common.rowsPerPage')"
                 type="number"
                 min="-1"
                 max="15"
@@ -424,7 +424,7 @@ console.log("from gent", clients);
   </section>
   <!-- <section v-else>
     <VCard>
-      <VCardTitle>Nuk u gjet asnje klient!</VCardTitle>
+      <VCardTitle>{{ $t('users.noneFound') }}</VCardTitle>
     </VCard>
   </section> -->
 </template>

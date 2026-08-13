@@ -77,7 +77,7 @@ const renderFeatherIcon = (iconName) => {
           <VCardText class="see-all">
             <div class="d-flex justify-space-between see-all--content">
               <div class="text-body-1 font-weight-bold text-default">
-                Shiko të gjitha
+                {{ $t('common.viewAll') }}
                </div>
               <div>
                 <RouterLink to="#" class="text-default">

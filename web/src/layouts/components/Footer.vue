@@ -10,9 +10,9 @@
     <!-- 👉 Footer: right content -->
     <span class="d-md-flex gap-x-4 text-primary d-none">
       <a
-        href="https://bitemybytes.com"
+        href="https://quantumlogic.at"
         target="noopener noreferrer"
-      >BiteMyBytes Product</a>
+      >quantumlogic.at</a>
      
     </span>
   </div>

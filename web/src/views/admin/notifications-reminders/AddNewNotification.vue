@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 import avatar1 from '@images/avatars/avatar-1.png';
 import * as feather from 'feather-icons';
 import { useToast } from 'vue-toast-notification';
@@ -172,7 +173,7 @@ const storeNotificationReminder = async () => {
     <DialogCloseBtn @click="isDialogVisible = !isDialogVisible" />
 
     <!-- Dialog Content -->
-    <VCard title="Krijo njoftim të ri">
+    <VCard :title="$t('notifications.newTitle')">
       <VCardText>
        
           <VForm class="mt-3"
@@ -184,7 +185,7 @@ const storeNotificationReminder = async () => {
                 >
                 <VSwitch
                   v-model="data.system"
-                  :label="'Njoftim gjeneral'"
+                  :label="t('notifications.general')"
                 />
               </VCol>
                 
@@ -201,8 +202,8 @@ const storeNotificationReminder = async () => {
                     :items="clients"
                     item-title="name"
                     item-value="id"
-                    placeholder="Vendosni marrësin e njoftimit"
-                    label="Marrësi"
+                    :placeholder="$t('notifications.recipientPlaceholder')"
+                    :label="$t('notifications.recipient')"
                     @keyup="fetchUsers"
                   >
                     <template #prepend-inner>
@@ -234,8 +235,8 @@ const storeNotificationReminder = async () => {
                   <AppTextField
                   
                     v-model="data.subject"
-                    label="Subjekti"
-                    placeholder="Vendosni subjektin e njoftimit"
+                    :label="$t('notifications.subject')"
+                    :placeholder="$t('notifications.subjectPlaceholder')"
                   />
                 </VCol>
 
@@ -245,8 +246,8 @@ const storeNotificationReminder = async () => {
                   <AppSelect
                     :items="notificationTypes"
                     v-model="data.type"
-                    label="Tipi i njoftimit"
-                    placeholder="Zgjedh tipin"
+                    :label="$t('notifications.type')"
+                    :placeholder="$t('notifications.typePlaceholder')"
                   />
                 </VCol>
 
@@ -256,8 +257,8 @@ const storeNotificationReminder = async () => {
                   <AppSelect
                     :items="priorities"
                     v-model="data.priority"
-                    label="Prioriteti"
-                    placeholder="Cakto prioritetin"
+                    :label="$t('notifications.priority')"
+                    :placeholder="$t('notifications.priorityPlaceholder')"
                   />
                 </VCol>
 
@@ -267,8 +268,8 @@ const storeNotificationReminder = async () => {
                   <AppSelect
                     :items="deliverySchedules"
                     v-model="data.deliverySchedule"
-                    label="Dërgimi"
-                    placeholder="Koha e dërgimit"
+                    :label="$t('notifications.delivery')"
+                    :placeholder="$t('notifications.sendTime')"
                   />
                 </VCol>
 
@@ -277,9 +278,9 @@ const storeNotificationReminder = async () => {
                   v-if="data.deliverySchedule == 'me_vone'"
                 >
                   <AppDateTimePicker
-                    label="Koha"
+                    :label="$t('notifications.time')"
                     v-model="data.execute_time"
-                    placeholder="Përcakto kohën e dërgimit"
+                    :placeholder="$t('notifications.timePlaceholder')"
                     :config="{ enableTime: true, dateFormat: 'Y-m-d H:i' }"
                     @click="handleDateClick"
                   />
@@ -348,10 +349,10 @@ const storeNotificationReminder = async () => {
                 color="secondary"
                 @click="isDialogVisible = false"
               >
-                Mbylle
+                {{ $t('common.close') }}
               </VBtn>
               <VBtn type="submit">
-                Krijo
+                {{ $t('notifications.create') }}
               </VBtn>
             </VCardText>
             </VForm>

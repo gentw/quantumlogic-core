@@ -1,3 +1,3 @@
 <template>
-  <h2>Tickets Lists</h2>
+  <h2>{{ $t('reports.ticketsList') }}</h2>
 </template>

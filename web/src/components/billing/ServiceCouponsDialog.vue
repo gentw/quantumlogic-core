@@ -139,8 +139,7 @@ const statusOf = coupon => {
 
       <VCardText>
         <VAlert v-if="!service.is_publicly_orderable" type="warning" variant="tonal" density="compact" class="mb-4">
-          This service is not publicly orderable, so its order links will not resolve.
-          Turn on <strong>Publicly orderable</strong> before sending a code out.
+          {{ $t('coupons.notOrderableWarn1') }} <strong>Publicly orderable</strong> {{ $t('coupons.notOrderableWarn2') }}
         </VAlert>
 
         <VAlert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">
@@ -155,16 +154,16 @@ const statusOf = coupon => {
               label="Code"
               placeholder="for-eros-sefa"
               persistent-hint
-              hint="Appears in the link; case does not matter"
+              :hint="$t('coupons.codeHint')"
             />
           </VCol>
           <VCol cols="12" sm="4">
-            <VTextField v-model="form.label" label="Label (internal)" placeholder="Eros Sefa — referral" />
+            <VTextField v-model="form.label" :label="$t('coupons.label')" placeholder="Eros Sefa — referral" />
           </VCol>
           <VCol cols="6" sm="2">
             <VTextField
               v-model.number="form.discount_percent"
-              label="Discount %"
+              :label="$t('invoice.discountPercent')"
               type="number"
               min="0.01"
               max="100"
@@ -175,12 +174,12 @@ const statusOf = coupon => {
           <VCol cols="6" sm="2">
             <VTextField
               v-model.number="form.max_uses"
-              label="Max uses"
+              :label="$t('coupons.maxUses')"
               type="number"
               min="1"
               placeholder="∞"
               persistent-hint
-              hint="Blank = unlimited"
+              :hint="$t('coupons.blankUnlimited')"
             />
           </VCol>
           <VCol cols="12" sm="4">
@@ -189,7 +188,7 @@ const statusOf = coupon => {
               label="Valid through"
               type="date"
               persistent-hint
-              hint="Blank = never expires"
+              :hint="$t('coupons.blankNeverExpires')"
             />
           </VCol>
           <VCol cols="12" sm="8" class="d-flex align-center">
@@ -200,7 +199,7 @@ const statusOf = coupon => {
               :disabled="!form.code.trim() || !form.discount_percent"
               @click="create"
             >
-              Create code
+              {{ $t('coupons.create') }}
             </VBtn>
           </VCol>
         </VRow>
@@ -212,19 +211,19 @@ const statusOf = coupon => {
         </div>
 
         <p v-else-if="!coupons.length" class="text-body-2 mb-0">
-          No discount codes yet. Create one above to get a personalised order link.
+          {{ $t('coupons.empty') }}
         </p>
 
         <VTable v-else class="text-no-wrap">
           <thead>
             <tr>
-              <th>Code</th>
-              <th class="text-end">Discount</th>
-              <th class="text-end">Price</th>
-              <th class="text-end">Uses</th>
-              <th>Valid through</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
+              <th>{{ $t('coupons.code') }}</th>
+              <th class="text-end">{{ $t('invoice.discount') }}</th>
+              <th class="text-end">{{ $t('services.price') }}</th>
+              <th class="text-end">{{ $t('coupons.uses') }}</th>
+              <th>{{ $t('coupons.validThrough') }}</th>
+              <th>{{ $t('common.status') }}</th>
+              <th class="text-end">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -264,7 +263,7 @@ const statusOf = coupon => {
                   @click="deactivate(coupon)"
                 >
                   <VIcon icon="tabler-circle-off" />
-                  <VTooltip activator="parent" location="top">Deactivate</VTooltip>
+                  <VTooltip activator="parent" location="top">{{ $t('coupons.deactivate') }}</VTooltip>
                 </VBtn>
               </td>
             </tr>
@@ -274,7 +273,7 @@ const statusOf = coupon => {
 
       <VCardActions>
         <VSpacer />
-        <VBtn variant="text" color="secondary" @click="emit('update:modelValue', false)">Close</VBtn>
+        <VBtn variant="text" color="secondary" @click="emit('update:modelValue', false)">{{ $t('common.close') }}</VBtn>
       </VCardActions>
     </VCard>
   </VDialog>

@@ -3,7 +3,7 @@
       class="mb-6
       alarm_alerts__filters">
    <VCardText class="pl-0">
-    <div>Shfaq klientat sipas:</div>
+    <div>{{ $t('users.filterBy') }}</div>
       <VRow>
         <VCol
           cols="3"
@@ -12,7 +12,7 @@
           <div>
             <AppSelect
               :items="_statusOptions"
-              placeholder="Sipas Statusit"
+              :placeholder="$t('users.byStatus')"
               v-model="selectedStatus"
               clearable
               clear-icon="tabler-x"

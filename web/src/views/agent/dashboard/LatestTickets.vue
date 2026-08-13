@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 import avatar1 from '@images/avatars/avatar-1.png';
 import avatar2 from '@images/avatars/avatar-2.png';
 import * as feather from 'feather-icons';
@@ -131,10 +132,10 @@ const renderFeatherIcon = (iconName, size) => {
         </h4>
         <div class="ml-2">
           <VChip :color="colors[data.priority]">
-            <span v-if="data.priority == 'low'">I Ultë</span>
-            <span v-if="data.priority == 'high'">I Lartë</span>
-            <span v-if="data.priority == 'medium'">Mesatar</span>
-            <span v-if="data.priority == 'no_priority'">Pa prioritet</span>
+            <span v-if="data.priority == 'low'">{{ $t('tickets.priorityLow') }}</span>
+            <span v-if="data.priority == 'high'">{{ $t('tickets.priorityHigh') }}</span>
+            <span v-if="data.priority == 'medium'">{{ $t('tickets.priorityMedium') }}</span>
+            <span v-if="data.priority == 'no_priority'">{{ $t('tickets.priorityNone') }}</span>
           </VChip>
         </div>
       </div>
@@ -166,7 +167,7 @@ const renderFeatherIcon = (iconName, size) => {
           <VChip
             variant="outlined"
           >
-            Request
+            {{ $t('tickets.request') }}
           </VChip>
         </div>
 
@@ -192,10 +193,10 @@ const renderFeatherIcon = (iconName, size) => {
         >
 
         <i :style="{ fill: `rgba(var(--v-theme-${colors[data.priority]}),1)` }" class="mt-1 mr-2" v-html="renderFeatherIcon('circle', 15)" />
-            <span v-if="data.status == 'not_started'">Nuk ka filluar</span>
-            <span v-if="data.status == 'closed'">Përfunduar</span>
-            <span v-if="data.status == 'in_review'">Në rishikim</span>
-            <span v-if="data.status == 'in_progress'">Në progres</span>
+            <span v-if="data.status == 'not_started'">{{ $t('tickets.notStarted') }}</span>
+            <span v-if="data.status == 'closed'">{{ $t('tickets.completed') }}</span>
+            <span v-if="data.status == 'in_review'">{{ $t('tickets.inReview') }}</span>
+            <span v-if="data.status == 'in_progress'">{{ $t('tickets.inProgress') }}</span>
           
         </VBtn>
       </div>

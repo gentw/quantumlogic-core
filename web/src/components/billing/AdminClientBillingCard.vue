@@ -23,23 +23,23 @@ onMounted(async () => {
 </script>
 
 <template>
-  <VCard v-if="summary" title="Billing" class="mt-6">
+  <VCard v-if="summary" :title="$t('nav.billing')" class="mt-6">
     <VCardText>
       <div class="d-flex flex-wrap gap-6 mb-4">
         <div>
-          <div class="text-body-2">Lifetime value</div>
+          <div class="text-body-2">{{ $t('adminInvoices.lifetimeValue') }}</div>
           <h6 class="text-h6">{{ formatMoney(summary.lifetime_value) }}</h6>
         </div>
         <div>
-          <div class="text-body-2">Outstanding</div>
+          <div class="text-body-2">{{ $t('dashboard.outstanding') }}</div>
           <h6 class="text-h6">{{ formatMoney(summary.outstanding) }}</h6>
         </div>
         <div>
-          <div class="text-body-2">Invoices</div>
+          <div class="text-body-2">{{ $t('nav.invoices') }}</div>
           <h6 class="text-h6">{{ summary.invoice_count }}</h6>
         </div>
         <div>
-          <div class="text-body-2">Saved methods</div>
+          <div class="text-body-2">{{ $t('billing.savedMethods') }}</div>
           <h6 class="text-h6">{{ summary.payment_method_count }}</h6>
         </div>
       </div>

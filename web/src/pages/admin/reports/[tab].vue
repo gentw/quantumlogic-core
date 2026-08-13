@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 import ReportsLists from '@/views/admin/reports/ReportsLists.vue';
 import TicketsLists from '@/views/admin/reports/tickets/List.vue';
 import UsersList from '@/views/admin/reports/users/List.vue';
@@ -69,7 +70,7 @@ const renderFeatherIcon = (iconName, size) => {
             class="download-btn"
           >
           <i class="mr-2" v-html="renderFeatherIcon('external-link', 20)" />
-            Shkarko        
+            {{ $t('reports.download') }}        
           </VBtn>
         </div> <!-- end shkarko div -->
       </VTabs>

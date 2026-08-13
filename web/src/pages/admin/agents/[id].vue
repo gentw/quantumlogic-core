@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
   
 import avatar1 from '@images/avatars/avatar-1.png';
 import { onMounted } from 'vue';
@@ -258,10 +259,10 @@ onMounted( async() => {
       <VCard>
         <VCardText>
           <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Detajet Personale
+            {{ $t('account.personalDetails') }}
           </h5>
           <p class="text-normal">
-            Përdorni një adresë të përhershme ku mund të pranoni email.
+            {{ $t('account.emailNote') }}
           </p>
         </VCardText>
       </VCard>
@@ -290,7 +291,7 @@ onMounted( async() => {
                   icon="tabler-cloud-upload"
                   class="d-sm-none"
                 />
-                <span class="d-none d-sm-block">Ndrysho foton</span>
+                <span class="d-none d-sm-block">{{ $t('account.changePhoto') }}</span>
               </VBtn>
 
               <input
@@ -309,7 +310,7 @@ onMounted( async() => {
                 variant="tonal"
                 @click="resetAvatar"
               >
-                <span class="d-none d-sm-block">Reseto</span>
+                <span class="d-none d-sm-block">{{ $t('common.reset') }}</span>
                 <VIcon
                   icon="tabler-refresh"
                   class="d-sm-none"
@@ -318,7 +319,7 @@ onMounted( async() => {
             </div>
 
             <p class="text-body-1 mb-0">
-              Allowed JPG, GIF or PNG. Max size of 800K
+              {{ $t('account.photoHint') }}
             </p>
           </form>
         </VCardText>
@@ -336,7 +337,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.name"
-                  label="Emri"
+                  :label="$t('auth.name')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -348,7 +349,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.surname"
-                  label="Mbiemri"
+                  :label="$t('auth.surname')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -360,8 +361,8 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.email"
-                  label="Email adresa juaj"
-                  placeholder="email@mail.com"
+                  :label="$t('account.yourEmail')"
+                  :placeholder="$t('account.emailPlaceholder')"
                   type="email"
                   :disabled="updateRequest"
                 />
@@ -375,7 +376,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.phone"
-                  label="Numri telefonit"
+                  :label="$t('account.phone')"
                   placeholder="044123456"
                   :disabled="updateRequest"
                 />
@@ -387,8 +388,8 @@ onMounted( async() => {
               >
                 <AppSelect
                     :items="departments"
-                    label="Departamenti"
-                    placeholder="Zgjedh departamentin"
+                    :label="$t('users.department')"
+                    :placeholder="$t('users.departmentPlaceholder')"
                     v-model="accountDataLocal.department"
                   />
               </VCol>
@@ -400,7 +401,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.address"
-                  label="Adresa"
+                  :label="$t('account.address')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -412,7 +413,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.city"
-                  label="Qyteti"
+                  :label="$t('account.city')"
                   :disabled="updateRequest"
                 />
               </VCol>
@@ -424,7 +425,7 @@ onMounted( async() => {
               >
                 <AppTextField
                   v-model="accountDataLocal.postal_code"
-                  label="Kodi Postal"
+                  :label="$t('account.postalCode')"
                   placeholder="10000"
                   :disabled="updateRequest"
                 />
@@ -436,7 +437,7 @@ onMounted( async() => {
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn class="w-100" type="submit">Ruaj</VBtn>
+                <VBtn class="w-100" type="submit">{{ $t('common.save') }}</VBtn>
               
              
               </VCol>
@@ -454,10 +455,10 @@ onMounted( async() => {
       <VCard>
         <VCardText>
           <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-            Ndrysho fjalëkalimin
+            {{ $t('account.changePassword') }}
           </h5>
           <p class="text-normal">
-            Përdorni një adresë të përhershme ku mund të pranoni email.
+            {{ $t('account.emailNote') }}
           </p>
         </VCardText>
       </VCard>
@@ -481,7 +482,7 @@ onMounted( async() => {
                   v-model="newPassword"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Fjalëkalimi i ri"
+                  :label="$t('account.newPassword')"
                   autocomplete="on"
                   placeholder="············"
                   @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
@@ -491,11 +492,11 @@ onMounted( async() => {
               <VCol
                 cols="12"
               >
-                <label class="v-label mb-1 text-body-2 text-wrap" style="line-height: 15px;" for="app-text-field-Fjalëkalimi i ri-bwt1b">Sesionet<!----></label>
+                <label class="v-label mb-1 text-body-2 text-wrap" style="line-height: 15px;" for="app-text-field-Fjalëkalimi i ri-bwt1b">{{ $t('users.sessions') }}<!----></label>
                 <!-- 👉 confirm password -->
                 <VSwitch
                   v-model="killAllSessions"
-                  :label="'Mbylli te gjitha sesionet e hapura'"
+                  :label="t('users.closeSessions')"
                 />
               </VCol>
 
@@ -508,14 +509,14 @@ onMounted( async() => {
                 <div>
                   <VCheckbox
                     v-model="blockUser"
-                    :label="'Bllokoni këtë përdorues nga sistemi'"
+                    :label="t('users.blockUser')"
                   />
                 </div>
 
                 <div class="mr-4">
                   <VCheckbox
                     v-model="deactivateUser"
-                    :label="'Çaktivizo këtë përdorues'"
+                    :label="t('users.deactivateUser')"
                   />
                 </div>
 
@@ -526,7 +527,7 @@ onMounted( async() => {
 
          
           <VCardText class="d-flex flex-wrap gap-4">
-            <VBtn class="w-100" type="submit">Ruaj</VBtn>
+            <VBtn class="w-100" type="submit">{{ $t('common.save') }}</VBtn>
           </VCardText>
         </VForm>
       </VCard>

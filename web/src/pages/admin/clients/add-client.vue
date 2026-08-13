@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 import useClientList from '@/views/admin/users/client/useClientList';
 import avatar1 from '@images/avatars/avatar-1.png';
 import * as feather from 'feather-icons';
@@ -229,10 +230,10 @@ onMounted( async() => {
         <VCard>
           <VCardText>
             <h4 class="text-h4 text-medium-emphasis mb-4 text-normal">
-              Shtoni klient të ri
+              {{ $t('users.addClientTitle') }}
             </h4>
             <p class="text-normal">
-              Krijo një përdorues krejt të ri dhe shtoje në këtë faqe.
+              {{ $t('users.addSubtitle') }}
             </p>
           </VCardText>
         </VCard>
@@ -241,10 +242,10 @@ onMounted( async() => {
         <VCard>
           <VCardText>
             <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-              Detajet Personale
+              {{ $t('account.personalDetails') }}
             </h5>
             <p class="text-normal">
-              Përdorni një adresë të përhershme ku mund të pranoni email.
+              {{ $t('account.emailNote') }}
             </p>
           </VCardText>
         </VCard>
@@ -263,10 +264,10 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.id"
-                    label="Identifikuesi klientit"
-                    placeholder="Vendosni ID e klientit"
+                    :label="$t('users.clientId')"
+                    :placeholder="$t('users.clientIdPlaceholder')"
                   />
-                  <span style="color: red;">(Client ID must match the one in the main QuantumLogic database)</span>
+                  <span style="color: red;">{{ $t('users.clientIdHint') }}</span>
                 </VCol>
                 <!-- 👉 First Name -->
                 <VCol
@@ -275,8 +276,8 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.name"
-                    label="Emri"
-                    placeholder="Vendosni emrin"
+                    :label="$t('auth.name')"
+                    :placeholder="$t('users.namePlaceholder')"
                   />
                 </VCol>
 
@@ -287,8 +288,8 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.surname"
-                    label="Mbiemri"
-                    placeholder="Vendosni mbiemrin"
+                    :label="$t('auth.surname')"
+                    :placeholder="$t('users.surnamePlaceholder')"
                   />
                 </VCol>
 
@@ -299,8 +300,8 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.email"
-                    label="Email adresa juaj"
-                    placeholder="email@mail.com"
+                    :label="$t('account.yourEmail')"
+                    :placeholder="$t('account.emailPlaceholder')"
                     type="email"
                   />
                 </VCol>
@@ -313,7 +314,7 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.phone"
-                    label="Numri telefonit"
+                    :label="$t('account.phone')"
                     placeholder="044123456"
                   />
                 </VCol>
@@ -324,8 +325,8 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.company"
-                    label="Kompania"
-                    placeholder="Emri kompanise se klientit"
+                    :label="$t('users.company')"
+                    :placeholder="$t('users.companyPlaceholder')"
                   />
                 </VCol>
 
@@ -334,9 +335,9 @@ onMounted( async() => {
                   cols="12"
                   class="d-flex flex-wrap gap-4"
                 >
-                  <VBtn v-if="updateRequest == 0" type="submit">Dergo Kërkesen</VBtn>
+                  <VBtn v-if="updateRequest == 0" type="submit">{{ $t('account.sendRequest') }}</VBtn>
                   <VBtn v-else color="dark-btn">
-                    Kerkese per editim
+                    {{ $t('account.editRequestPending') }}
                   </VBtn>
 
               
@@ -355,10 +356,10 @@ onMounted( async() => {
         <VCard>
           <VCardText>
             <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-              Adresa
+              {{ $t('account.address') }}
             </h5>
             <p class="text-normal">
-              Vendosni kordinatat e sakte te lokacionit
+              {{ $t('users.addressHint') }}
             </p>
           </VCardText>
         </VCard>
@@ -378,9 +379,9 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.address"
-                    label="Adresa"
+                    :label="$t('account.address')"
                     :disabled="updateRequest"
-                    placeholder="Vendosni adresen e klientit"
+                    :placeholder="$t('users.addressPlaceholder')"
                   />
                 </VCol>
 
@@ -391,8 +392,8 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.city"
-                    label="Qyteti"
-                    placeholder="Vendosni qytetin"
+                    :label="$t('account.city')"
+                    :placeholder="$t('users.cityPlaceholder')"
                   />
                 </VCol>
 
@@ -403,7 +404,7 @@ onMounted( async() => {
                 >
                   <AppTextField
                     v-model="accountDataLocal.postal_code"
-                    label="Kodi Postal"
+                    :label="$t('account.postalCode')"
                     placeholder="10000"
                   />
                 </VCol>
@@ -412,9 +413,9 @@ onMounted( async() => {
                   cols="12"
                   class="d-flex flex-wrap gap-4"
                 >
-                  <VBtn v-if="updateRequest == 0" type="submit">Dergo Kërkesen</VBtn>
+                  <VBtn v-if="updateRequest == 0" type="submit">{{ $t('account.sendRequest') }}</VBtn>
                   <VBtn v-else color="dark-btn">
-                    Kerkese per editim
+                    {{ $t('account.editRequestPending') }}
                   </VBtn>
 
               
@@ -434,10 +435,10 @@ onMounted( async() => {
         <VCard>
           <VCardText>
             <h5 class="text-h5 text-medium-emphasis mb-4 text-normal">
-              Cilësimet
+              {{ $t('users.settings') }}
             </h5>
             <p class="text-normal">
-              Vendosni fjalekalimin the opsionet e njoftimit
+              {{ $t('users.settingsHint') }}
             </p>
           </VCardText>
         </VCard>
@@ -465,7 +466,7 @@ onMounted( async() => {
                 >
                   <div class="custom-btn-content">
                     <span>
-                      Gjenero fjalëkalimin
+                      {{ $t('users.generatePassword') }}
                     </span>
                     <span style="
                             position: absolute;inset-inline-end: 15px;
@@ -479,7 +480,7 @@ onMounted( async() => {
                     ref="passwordInput"
                     v-model="newPassword"
                     :type="'text'"
-                    label="Fjalëkalimi i ri"
+                    :label="$t('account.newPassword')"
                     autocomplete="on"
                     placeholder="············"
                     :class="'new_password'"
@@ -487,7 +488,7 @@ onMounted( async() => {
                   >
                     <template #append-inner>
                       <span v-if="newPassword.length >= 8" class="password-strength-text">
-                        Strong
+                        {{ $t('users.strong') }}
                       </span>
                     </template>
                   </AppTextField>
@@ -496,7 +497,7 @@ onMounted( async() => {
                     <VCheckbox
                       class='mt-4'
                       v-model="sendMail"
-                      :label="'Dërgojini përdoruesit e ri një email në lidhje me llogarinë e tij'"
+                      :label="t('users.notifyNewUser')"
                     />
                   </div>
                 </VCol>
@@ -509,7 +510,7 @@ onMounted( async() => {
 
           
             <VCardText class="d-flex flex-wrap gap-4">
-              <VBtn class="w-100" type="submit">Shto klient të ri</VBtn>
+              <VBtn class="w-100" type="submit">{{ $t('users.addClient') }}</VBtn>
             </VCardText>
           </VForm>
         </VCard>

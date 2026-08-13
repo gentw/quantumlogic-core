@@ -92,7 +92,7 @@ const renderFeatherIcon = (iconName) => {
           <VCardText class="see-all">
             <div class="d-flex justify-space-between see-all--content">
               <div class="text-body-1 font-weight-bold text-default">
-                Show All
+                {{ $t('common.viewAll') }}
                </div>
               <div>
                 <i v-html="renderFeatherIcon('chevron-right')" />
